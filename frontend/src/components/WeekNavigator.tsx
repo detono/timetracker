@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { addWeeks } from "date-fns";
 import { formatDayLabel } from "../utils/dateRange";
 
@@ -9,19 +10,21 @@ interface Props {
 }
 
 export function WeekNavigator({ anchorDate, onChange, from, to }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="week-nav">
       <button className="btn btn--ghost btn--sm" onClick={() => onChange(addWeeks(anchorDate, -1))}>
-        ← Previous week
+        ← {t('weekNavigator.prevWeek')}
       </button>
       <span className="week-nav__range">
         {formatDayLabel(from)} – {formatDayLabel(to)}
       </span>
       <button className="btn btn--ghost btn--sm" onClick={() => onChange(addWeeks(anchorDate, 1))}>
-        Next week →
+        {t('weekNavigator.nextWeek')} →
       </button>
       <button className="btn btn--ghost btn--sm" onClick={() => onChange(new Date())}>
-        Today
+        {t('weekNavigator.today')}
       </button>
     </div>
   );

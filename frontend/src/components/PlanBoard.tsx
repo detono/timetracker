@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { useTranslation } from "react-i18next";
 import type { TimeEntry } from "../types";
 import { formatDayLabel, hoursToHm } from "../utils/dateRange";
 
@@ -14,10 +15,11 @@ interface Props {
  * when only the current user's entries are supplied.
  */
 export function PlanBoard({ days, entries, onEdit }: Props) {
+  const { t } = useTranslation();
   const employeeNames = Array.from(new Set(entries.map((e) => e.userFullName))).sort();
 
   if (employeeNames.length === 0) {
-    return <p className="empty-state">No hours logged for this period yet.</p>;
+    return <p className="empty-state">{t('planBoard.emptyState')}</p>;
   }
 
   return (

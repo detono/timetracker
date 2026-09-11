@@ -1,4 +1,5 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   activateHourType,
   createHourType,
@@ -12,6 +13,7 @@ import type { HourType } from "../types";
 const DEFAULT_COLOR = "#932e4a";
 
 export function HourTypesPage() {
+  const { t } = useTranslation();
   const [types, setTypes] = useState<HourType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,29 +105,29 @@ export function HourTypesPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Hour types</h1>
+          <h1>{t('hourTypes.title')}</h1>
           <p className="page__subtitle">
-            Define the categories employees can log hours under - Work, Sick Leave, PTO, ADV, or anything else.
+            {t('hourTypes.subtitle')}
           </p>
         </div>
       </div>
 
       <div className="panel">
-        <h2>Add a new type</h2>
+        <h2>{t('hourTypes.addNewType')}</h2>
         <form className="form" onSubmit={handleCreate}>
           <div className="form__row">
             <label className="form__field">
-              <span>Name</span>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. ADV" required />
+              <span>{t('hourTypes.name')}</span>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('hourTypes.namePlaceholder')} required />
             </label>
             <label className="form__field form__field--narrow">
-              <span>Color</span>
+              <span>{t('hourTypes.color')}</span>
               <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
             </label>
           </div>
           <div className="form__actions">
             <button className="btn btn--primary" type="submit" disabled={creating}>
-              {creating ? "Adding…" : "Add type"}
+              {creating ? t('hourTypes.adding') : t('hourTypes.addType')}
             </button>
           </div>
         </form>
@@ -134,15 +136,15 @@ export function HourTypesPage() {
       {error && <p className="form__error">{error}</p>}
 
       {loading ? (
-        <p className="empty-state">Loading…</p>
+        <p className="empty-state">{t('common.loading')}</p>
       ) : (
         <table className="list-view">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Color</th>
-              <th>Status</th>
-              <th aria-label="Actions" />
+              <th>{t('hourTypes.table.name')}</th>
+              <th>{t('hourTypes.table.color')}</th>
+              <th>{t('hourTypes.table.status')}</th>
+              <th aria-label={t('hourTypes.table.actions')} />
             </tr>
           </thead>
           <tbody>
@@ -153,20 +155,20 @@ export function HourTypesPage() {
                     <form className="form form--entry" onSubmit={handleSaveEdit}>
                       <div className="form__row">
                         <label className="form__field">
-                          <span>Name</span>
+                          <span>{t('hourTypes.name')}</span>
                           <input value={editName} onChange={(e) => setEditName(e.target.value)} required />
                         </label>
                         <label className="form__field form__field--narrow">
-                          <span>Color</span>
+                          <span>{t('hourTypes.color')}</span>
                           <input type="color" value={editColor} onChange={(e) => setEditColor(e.target.value)} />
                         </label>
                       </div>
                       <div className="form__actions">
                         <button className="btn btn--primary" type="submit" disabled={savingEdit}>
-                          {savingEdit ? "Saving…" : "Save"}
+                          {savingEdit ? t('hourTypes.saving') : t('common.save')}
                         </button>
                         <button type="button" className="btn btn--ghost" onClick={() => setEditingId(null)}>
-                          Cancel
+                          {t('common.cancel')}
                         </button>
                       </div>
                     </form>
@@ -180,19 +182,19 @@ export function HourTypesPage() {
                     </td>
                     <td>
                       <span className={type.isActive ? "status status--active" : "status status--inactive"}>
-                        {type.isActive ? "Active" : "Deactivated"}
+                        {type.isActive ? t('hourTypes.statusActive') : t('hourTypes.statusDeactivated')}
                       </span>
                     </td>
                     <td className="list-view__actions">
                       <button className="btn btn--ghost btn--sm" onClick={() => startEdit(type)}>
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         className={type.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
                         onClick={() => handleToggleActive(type)}
                         disabled={busyId === type.id}
                       >
-                        {type.isActive ? "Deactivate" : "Reactivate"}
+                        {type.isActive ? t('hourTypes.deactivate') : t('hourTypes.reactivate')}
                       </button>
                     </td>
                   </>

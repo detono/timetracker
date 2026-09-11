@@ -1,9 +1,11 @@
 import { FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { changePassword } from "../api/authApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 
 export function AccountPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -18,7 +20,7 @@ export function AccountPage() {
     setSuccess(false);
 
     if (newPassword !== confirmPassword) {
-      setError("New password and confirmation don't match.");
+      setError(t('account.errorMismatch'));
       return;
     }
 
@@ -36,22 +38,25 @@ export function AccountPage() {
     }
   }
 
+  // Safely translate the role if it exists
+  const translatedRole = user?.role === "Employer" ? t('roles.employer') : t('roles.employee');
+
   return (
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>My account</h1>
+          <h1>{t('account.title')}</h1>
           <p className="page__subtitle">
-            Signed in as <strong>{user?.fullName}</strong> ({user?.role})
+            {t('account.signedInAs')} <strong>{user?.fullName}</strong> ({translatedRole})
           </p>
         </div>
       </div>
 
       <div className="panel" style={{ maxWidth: 420 }}>
-        <h2>Change password</h2>
+        <h2>{t('account.changePasswordTitle')}</h2>
         <form className="form" onSubmit={handleSubmit}>
           <label className="form__field">
-            <span>Current password</span>
+            <span>{t('account.currentPassword')}</span>
             <input
               type="password"
               value={currentPassword}
@@ -60,7 +65,7 @@ export function AccountPage() {
             />
           </label>
           <label className="form__field">
-            <span>New password</span>
+            <span>{t('account.newPassword')}</span>
             <input
               type="password"
               value={newPassword}
@@ -70,7 +75,7 @@ export function AccountPage() {
             />
           </label>
           <label className="form__field">
-            <span>Confirm new password</span>
+            <span>{t('account.confirmPassword')}</span>
             <input
               type="password"
               value={confirmPassword}
@@ -81,11 +86,11 @@ export function AccountPage() {
           </label>
 
           {error && <p className="form__error">{error}</p>}
-          {success && <p className="form__success">Password updated.</p>}
+          {success && <p className="form__success">{t('account.successMessage')}</p>}
 
           <div className="form__actions">
             <button className="btn btn--primary" type="submit" disabled={submitting}>
-              {submitting ? "Updating…" : "Update password"}
+              {submitting ? t('account.updating') : t('account.updateBtn')}
             </button>
           </div>
         </form>

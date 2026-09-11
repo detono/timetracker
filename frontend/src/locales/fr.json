@@ -4,13 +4,167 @@
     "cancel": "Annuler",
     "edit": "Modifier",
     "delete": "Supprimer",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "loading": "Chargement…",
+    "running": "En cours…",
+    "signingIn": "Connexion…",
+    "saving": "Enregistrement…",
+    "signOut": "Se déconnecter"
+  },
+  "timeEntryForm": {
+    "errorSave": "Impossible d'enregistrer cette entrée.",
+    "type": "Type",
+    "noHourTypes": "Aucun type d'heure disponible",
+    "date": "Date",
+    "start": "Début",
+    "end": "Fin",
+    "break": "Pause (min)",
+    "notes": "Remarques (facultatif)",
+    "notesPlaceholder": "Sur quoi avez-vous travaillé ?",
+    "saveChanges": "Enregistrer les modifications",
+    "logHoursBtn": "Enregistrer des heures"
+  },
+  "planBoard": {
+    "emptyState": "Aucune heure enregistrée pour cette période pour le moment."
+  },
+  "listView": {
+    "emptyState": "Aucune heure enregistrée pour cette période pour le moment.",
+    "employee": "Employé",
+    "type": "Type",
+    "date": "Date",
+    "start": "Début",
+    "end": "Fin",
+    "break": "Pause",
+    "duration": "Durée",
+    "notes": "Remarques",
+    "actions": "Actions",
+    "minutes": "min"
+  },
+  "login": {
+    "tagline": "Enregistrez les heures. Voyez toute l'équipe. Plus de devinettes à la paie.",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "signIn": "Se connecter"
+  },
+  "employees": {
+    "title": "Gérer les employés",
+    "subtitle": "Créez des comptes, désactivez les partants et assignez des superviseurs.",
+    "addNew": "Ajouter un nouveau compte",
+    "firstName": "Prénom",
+    "lastName": "Nom de famille",
+    "email": "E-mail",
+    "tempPassword": "Mot de passe temporaire",
+    "min8chars": "min. 8 caractères",
+    "role": "Rôle",
+    "creating": "Création…",
+    "createAccount": "Créer le compte",
+    "resetPasswordFor": "Réinitialiser le mot de passe de {{name}}",
+    "newTempPassword": "Nouveau mot de passe temporaire",
+    "saving": "Enregistrement…",
+    "setNewPassword": "Définir le nouveau mot de passe",
+    "table": {
+      "name": "Nom",
+      "email": "E-mail",
+      "role": "Rôle",
+      "supervisor": "Superviseur",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "youBadge": "Vous",
+    "none": "— aucun —",
+    "statusActive": "Actif",
+    "statusDeactivated": "Désactivé",
+    "btnResetPassword": "Réinitialiser le mot de passe",
+    "cannotDeactivateSelf": "Vous ne pouvez pas désactiver votre propre compte",
+    "deactivate": "Désactiver",
+    "reactivate": "Réactiver",
+    "confirmDeactivate": "Désactiver {{name}} ? Ils ne pourront plus se connecter, mais leurs heures enregistrées seront conservées."
+  },
+  "dashboard": {
+    "title": "Mes heures",
+    "weekTotal": "Total de la semaine :",
+    "logHoursBtn": "+ Enregistrer des heures",
+    "editEntry": "Modifier l'entrée",
+    "logNewHours": "Enregistrer de nouvelles heures",
+    "confirmDelete": "Supprimer cette entrée de temps ?"
+  },
+  "account": {
+    "title": "Mon compte",
+    "signedInAs": "Connecté en tant que",
+    "changePasswordTitle": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le nouveau mot de passe",
+    "updateBtn": "Mettre à jour le mot de passe",
+    "updating": "Mise à jour…",
+    "successMessage": "Mot de passe mis à jour.",
+    "errorMismatch": "Le nouveau mot de passe et la confirmation ne correspondent pas."
+  },
+  "weekNavigator": {
+    "prevWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante",
+    "today": "Aujourd'hui"
+  },
+  "hourTypes": {
+    "title": "Types d'heures",
+    "subtitle": "Définissez les catégories sous lesquelles les employés peuvent enregistrer des heures - Travail, Maladie, Congés, RTT, ou autre.",
+    "addNewType": "Ajouter un nouveau type",
+    "name": "Nom",
+    "namePlaceholder": "ex. RTT",
+    "color": "Couleur",
+    "adding": "Ajout…",
+    "addType": "Ajouter un type",
+    "saving": "Enregistrement…",
+    "statusActive": "Actif",
+    "statusDeactivated": "Désactivé",
+    "deactivate": "Désactiver",
+    "reactivate": "Réactiver",
+    "table": {
+      "name": "Nom",
+      "color": "Couleur",
+      "status": "Statut",
+      "actions": "Actions"
+    }
+  },
+  "reports": {
+    "title": "Rapports",
+    "subtitle": "Extrayez les heures travaillées par jour, semaine ou mois, réparties par type.",
+    "from": "De",
+    "to": "À",
+    "groupBy": "Grouper par",
+    "grouping": {
+      "day": "Jour",
+      "week": "Semaine",
+      "month": "Mois"
+    },
+    "runReport": "Générer le rapport",
+    "downloadCsv": "Télécharger CSV",
+    "grandTotal": "Total général :",
+    "lines_one": "sur {{count}} ligne",
+    "lines_other": "sur {{count}} lignes",
+    "emptyState": "Aucune heure enregistrée pour cette période.",
+    "table": {
+      "employee": "Employé",
+      "type": "Type",
+      "period": "Période",
+      "range": "Plage",
+      "entries": "Entrées",
+      "totalHours": "Total des heures"
+    }
+  },
+  "team": {
+    "title": "Aperçu de l'équipe",
+    "subtitle": "Toutes les personnes dont vous avez l'autorisation de voir les heures."
   },
   "nav": {
     "planboard": "Planning",
     "list": "Vue Liste",
     "reports": "Rapports",
-    "manageEmployees": "Gérer les Employés"
+    "manageEmployees": "Gérer les Employés",
+    "myHours": "Mes heures",
+    "allEmployees": "Tous les employés",
+    "teamOverview": "Aperçu de l'équipe",
+    "hourTypes": "Types d'heures"
   },
   "time": {
     "logHours": "Enregistrer des Heures",

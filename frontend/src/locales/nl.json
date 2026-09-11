@@ -4,13 +4,167 @@
     "cancel": "Annuleren",
     "edit": "Bewerken",
     "delete": "Verwijderen",
-    "logout": "Uitloggen"
+    "logout": "Uitloggen",
+    "loading": "Laden…",
+    "running": "Bezig…",
+    "signingIn": "Bezig met inloggen…",
+    "saving": "Opslaan…",
+    "signOut": "Uitloggen"
+  },
+  "timeEntryForm": {
+    "errorSave": "Kon deze registratie niet opslaan.",
+    "type": "Type",
+    "noHourTypes": "Geen uurtypes beschikbaar",
+    "date": "Datum",
+    "start": "Start",
+    "end": "Einde",
+    "break": "Pauze (min)",
+    "notes": "Opmerkingen (optioneel)",
+    "notesPlaceholder": "Waar heb je aan gewerkt?",
+    "saveChanges": "Wijzigingen opslaan",
+    "logHoursBtn": "Uren registreren"
+  },
+  "planBoard": {
+    "emptyState": "Nog geen uren geregistreerd voor deze periode."
+  },
+  "listView": {
+    "emptyState": "Nog geen uren geregistreerd voor deze periode.",
+    "employee": "Werknemer",
+    "type": "Type",
+    "date": "Datum",
+    "start": "Start",
+    "end": "Einde",
+    "break": "Pauze",
+    "duration": "Duur",
+    "notes": "Opmerkingen",
+    "actions": "Acties",
+    "minutes": "min"
+  },
+  "employees": {
+    "title": "Medewerkers beheren",
+    "subtitle": "Maak accounts aan, deactiveer vertrekkers en wijs leidinggevenden toe.",
+    "addNew": "Nieuw account toevoegen",
+    "firstName": "Voornaam",
+    "lastName": "Achternaam",
+    "email": "E-mailadres",
+    "tempPassword": "Tijdelijk wachtwoord",
+    "min8chars": "min. 8 tekens",
+    "role": "Rol",
+    "creating": "Aanmaken…",
+    "createAccount": "Account aanmaken",
+    "resetPasswordFor": "Wachtwoord resetten voor {{name}}",
+    "newTempPassword": "Nieuw tijdelijk wachtwoord",
+    "saving": "Opslaan…",
+    "setNewPassword": "Nieuw wachtwoord instellen",
+    "table": {
+      "name": "Naam",
+      "email": "E-mailadres",
+      "role": "Rol",
+      "supervisor": "Leidinggevende",
+      "status": "Status",
+      "actions": "Acties"
+    },
+    "youBadge": "Jij",
+    "none": "— geen —",
+    "statusActive": "Actief",
+    "statusDeactivated": "Gedeactiveerd",
+    "btnResetPassword": "Wachtwoord resetten",
+    "cannotDeactivateSelf": "Je kunt je eigen account niet deactiveren",
+    "deactivate": "Deactiveren",
+    "reactivate": "Heractiveren",
+    "confirmDeactivate": "{{name}} deactiveren? Deze persoon kan niet meer inloggen, maar de geregistreerde uren blijven bewaard."
+  },
+  "dashboard": {
+    "title": "Mijn uren",
+    "weekTotal": "Weektotaal:",
+    "logHoursBtn": "+ Uren registreren",
+    "editEntry": "Registratie bewerken",
+    "logNewHours": "Nieuwe uren registreren",
+    "confirmDelete": "Deze urenregistratie verwijderen?"
+  },
+  "account": {
+    "title": "Mijn account",
+    "signedInAs": "Ingelogd als",
+    "changePasswordTitle": "Wachtwoord wijzigen",
+    "currentPassword": "Huidig wachtwoord",
+    "newPassword": "Nieuw wachtwoord",
+    "confirmPassword": "Nieuw wachtwoord bevestigen",
+    "updateBtn": "Wachtwoord bijwerken",
+    "updating": "Bijwerken…",
+    "successMessage": "Wachtwoord is bijgewerkt.",
+    "errorMismatch": "Het nieuwe wachtwoord en de bevestiging komen niet overeen."
+  },
+  "weekNavigator": {
+    "prevWeek": "Vorige week",
+    "nextWeek": "Volgende week",
+    "today": "Vandaag"
+  },
+  "login": {
+    "tagline": "Uren registreren. Het hele team bekijken. Geen giswerk bij de verloning.",
+    "email": "E-mailadres",
+    "password": "Wachtwoord",
+    "signIn": "Inloggen"
+  },
+  "hourTypes": {
+    "title": "Uurtypes",
+    "subtitle": "Bedenk de categorieën waaronder werknemers uren kunnen registreren - Werk, Ziekte, Verlof, ADV of iets anders.",
+    "addNewType": "Nieuw type toevoegen",
+    "name": "Naam",
+    "namePlaceholder": "bijv. ADV",
+    "color": "Kleur",
+    "adding": "Toevoegen…",
+    "addType": "Type toevoegen",
+    "saving": "Opslaan…",
+    "statusActive": "Actief",
+    "statusDeactivated": "Gedeactiveerd",
+    "deactivate": "Deactiveren",
+    "reactivate": "Heractiveren",
+    "table": {
+      "name": "Naam",
+      "color": "Kleur",
+      "status": "Status",
+      "actions": "Acties"
+    }
+  },
+  "reports": {
+    "title": "Rapportages",
+    "subtitle": "Exporteer gewerkte uren per dag, week of maand, onderverdeeld per type.",
+    "from": "Van",
+    "to": "Tot",
+    "groupBy": "Groeperen op",
+    "grouping": {
+      "day": "Dag",
+      "week": "Week",
+      "month": "Maand"
+    },
+    "runReport": "Rapport genereren",
+    "downloadCsv": "CSV Downloaden",
+    "grandTotal": "Eindtotaal:",
+    "lines_one": "over {{count}} regel",
+    "lines_other": "over {{count}} regels",
+    "emptyState": "Geen uren geregistreerd in deze periode.",
+    "table": {
+      "employee": "Werknemer",
+      "type": "Type",
+      "period": "Periode",
+      "range": "Bereik",
+      "entries": "Registraties",
+      "totalHours": "Totaal uren"
+    }
+  },
+  "team": {
+    "title": "Teamoverzicht",
+    "subtitle": "Iedereen van wie je de uren mag inzien."
   },
   "nav": {
     "planboard": "Planbord",
     "list": "Lijstweergave",
     "reports": "Rapportages",
-    "manageEmployees": "Medewerkers Beheren"
+    "manageEmployees": "Medewerkers Beheren",
+    "myHours": "Mijn uren",
+    "allEmployees": "Alle medewerkers",
+    "teamOverview": "Teamoverzicht",
+    "hourTypes": "Uurtypes"
   },
   "time": {
     "logHours": "Uren Registreren",

@@ -6,6 +6,7 @@ import { AuthProvider } from "./auth/AuthContext";
 import { appConfig } from "./config";
 import { darken } from "./utils/color";
 import "./styles/global.css";
+import './i18n';
 
 // Apply the runtime-configured title and brand colors before the app renders, so a single
 // built image can be reused for different deployments/clients just by changing environment

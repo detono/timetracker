@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getTeamTimeEntries } from "../api/timeEntriesApi";
 import { extractErrorMessage } from "../api/client";
 import { ViewToggle, type ViewMode } from "../components/ViewToggle";
@@ -13,6 +14,7 @@ import type { TimeEntry } from "../types";
  * or the caller plus their supervisees, for an Employee with delegated authority.
  */
 export function TeamPage() {
+  const { t } = useTranslation();
   const [anchorDate, setAnchorDate] = useState(new Date());
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [view, setView] = useState<ViewMode>("planboard");
@@ -28,7 +30,7 @@ export function TeamPage() {
       const data = await getTeamTimeEntries(from, to);
       setEntries(data);
     } catch (err) {
-      setError(extractErrorMessage(err));
+      setError(extractErrorMessage(err)); // The API error translation can be handled in a wrapper later if needed
     } finally {
       setLoading(false);
     }
@@ -42,8 +44,8 @@ export function TeamPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Team overview</h1>
-          <p className="page__subtitle">Everyone whose hours you have authority to view.</p>
+          <h1>{t('team.title')}</h1>
+          <p className="page__subtitle">{t('team.subtitle')}</p>
         </div>
         <ViewToggle value={view} onChange={setView} />
       </div>
@@ -53,7 +55,7 @@ export function TeamPage() {
       {error && <p className="form__error">{error}</p>}
 
       {loading ? (
-        <p className="empty-state">Loading…</p>
+        <p className="empty-state">{t('common.loading')}</p>
       ) : view === "list" ? (
         <ListView entries={entries} showEmployeeColumn />
       ) : (

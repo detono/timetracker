@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { format, startOfMonth } from "date-fns";
 import { downloadHoursReportCsv, getHoursReport } from "../api/reportsApi";
 import { extractErrorMessage } from "../api/client";
@@ -7,6 +8,7 @@ import type { HoursReport, ReportGrouping } from "../types";
 import { hoursToHm } from "../utils/dateRange";
 
 export function ReportsPage() {
+  const { t } = useTranslation();
   const [from, setFrom] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [to, setTo] = useState(format(new Date(), "yyyy-MM-dd"));
   const [grouping, setGrouping] = useState<ReportGrouping>("Week");
@@ -39,36 +41,36 @@ export function ReportsPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Reports</h1>
-          <p className="page__subtitle">Extract worked hours by day, week, or month, broken out by type.</p>
+          <h1>{t('reports.title')}</h1>
+          <p className="page__subtitle">{t('reports.subtitle')}</p>
         </div>
       </div>
 
       <div className="panel">
         <div className="form__row form__row--reports">
           <label className="form__field">
-            <span>From</span>
+            <span>{t('reports.from')}</span>
             <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           </label>
           <label className="form__field">
-            <span>To</span>
+            <span>{t('reports.to')}</span>
             <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
           </label>
           <label className="form__field form__field--narrow">
-            <span>Group by</span>
+            <span>{t('reports.groupBy')}</span>
             <select value={grouping} onChange={(e) => setGrouping(e.target.value as ReportGrouping)}>
-              <option value="Day">Day</option>
-              <option value="Week">Week</option>
-              <option value="Month">Month</option>
+              <option value="Day">{t('reports.grouping.day')}</option>
+              <option value="Week">{t('reports.grouping.week')}</option>
+              <option value="Month">{t('reports.grouping.month')}</option>
             </select>
           </label>
           <div className="form__actions form__actions--inline">
             <button className="btn btn--primary" onClick={runReport} disabled={loading}>
-              {loading ? "Running…" : "Run report"}
+              {loading ? t('common.running') : t('reports.runReport')}
             </button>
             {report && (
               <button className="btn btn--ghost" onClick={handleDownload}>
-                Download CSV
+                {t('reports.downloadCsv')}
               </button>
             )}
           </div>
@@ -80,18 +82,17 @@ export function ReportsPage() {
       {report && (
         <>
           <p className="page__subtitle">
-            Grand total: <strong>{hoursToHm(report.grandTotalHours)}</strong> across {report.lines.length} line
-            {report.lines.length === 1 ? "" : "s"}
+            {t('reports.grandTotal')} <strong>{hoursToHm(report.grandTotalHours)}</strong> {t('reports.lines', { count: report.lines.length })}
           </p>
           <table className="list-view">
             <thead>
               <tr>
-                <th>Employee</th>
-                <th>Type</th>
-                <th>Period</th>
-                <th>Range</th>
-                <th>Entries</th>
-                <th>Total hours</th>
+                <th>{t('reports.table.employee')}</th>
+                <th>{t('reports.table.type')}</th>
+                <th>{t('reports.table.period')}</th>
+                <th>{t('reports.table.range')}</th>
+                <th>{t('reports.table.entries')}</th>
+                <th>{t('reports.table.totalHours')}</th>
               </tr>
             </thead>
             <tbody>
@@ -112,7 +113,7 @@ export function ReportsPage() {
               {report.lines.length === 0 && (
                 <tr>
                   <td colSpan={6} className="empty-state">
-                    No hours logged in this period.
+                    {t('reports.emptyState')}
                   </td>
                 </tr>
               )}

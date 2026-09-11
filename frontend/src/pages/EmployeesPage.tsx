@@ -1,4 +1,5 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   activateUser,
   assignSupervisor,
@@ -20,6 +21,7 @@ const emptyForm = {
 };
 
 export function EmployeesPage() {
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,7 +70,7 @@ export function EmployeesPage() {
     setError(null);
     try {
       if (target.isActive) {
-        if (!confirm(`Deactivate ${target.firstName} ${target.lastName}? They will no longer be able to log in, but their logged hours are kept.`)) {
+        if (!confirm(t('employees.confirmDeactivate', { name: `${target.firstName} ${target.lastName}` }))) {
           return;
         }
         await deactivateUser(target.id);
@@ -118,17 +120,17 @@ export function EmployeesPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Manage employees</h1>
-          <p className="page__subtitle">Create accounts, deactivate leavers, and assign supervisors.</p>
+          <h1>{t('employees.title')}</h1>
+          <p className="page__subtitle">{t('employees.subtitle')}</p>
         </div>
       </div>
 
       <div className="panel">
-        <h2>Add a new account</h2>
+        <h2>{t('employees.addNew')}</h2>
         <form className="form" onSubmit={handleCreate}>
           <div className="form__row">
             <label className="form__field">
-              <span>First name</span>
+              <span>{t('employees.firstName')}</span>
               <input
                 value={form.firstName}
                 onChange={(e) => setForm({ ...form, firstName: e.target.value })}
@@ -136,7 +138,7 @@ export function EmployeesPage() {
               />
             </label>
             <label className="form__field">
-              <span>Last name</span>
+              <span>{t('employees.lastName')}</span>
               <input
                 value={form.lastName}
                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
@@ -144,7 +146,7 @@ export function EmployeesPage() {
               />
             </label>
             <label className="form__field">
-              <span>Email</span>
+              <span>{t('employees.email')}</span>
               <input
                 type="email"
                 value={form.email}
@@ -153,27 +155,27 @@ export function EmployeesPage() {
               />
             </label>
             <label className="form__field">
-              <span>Temporary password</span>
+              <span>{t('employees.tempPassword')}</span>
               <input
                 type="text"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="min. 8 characters"
+                placeholder={t('employees.min8chars')}
                 required
               />
             </label>
             <label className="form__field form__field--narrow">
-              <span>Role</span>
+              <span>{t('employees.role')}</span>
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}>
-                <option value="Employee">Employee</option>
-                <option value="Employer">Employer</option>
+                <option value="Employee">{t('roles.employee')}</option>
+                <option value="Employer">{t('roles.employer')}</option>
               </select>
             </label>
           </div>
 
           <div className="form__actions">
             <button className="btn btn--primary" type="submit" disabled={creating}>
-              {creating ? "Creating…" : "Create account"}
+              {creating ? t('employees.creating') : t('employees.createAccount')}
             </button>
           </div>
         </form>
@@ -183,22 +185,22 @@ export function EmployeesPage() {
 
       {resettingUser && (
         <div className="panel">
-          <h2>Reset password for {resettingUser.firstName} {resettingUser.lastName}</h2>
+          <h2>{t('employees.resetPasswordFor', { name: `${resettingUser.firstName} ${resettingUser.lastName}` })}</h2>
           <form className="form" onSubmit={handleResetPassword}>
             <label className="form__field">
-              <span>New temporary password</span>
+              <span>{t('employees.newTempPassword')}</span>
               <input
                 type="text"
                 value={resetPasswordValue}
                 onChange={(e) => setResetPasswordValue(e.target.value)}
                 minLength={8}
-                placeholder="min. 8 characters"
+                placeholder={t('employees.min8chars')}
                 required
               />
             </label>
             <div className="form__actions">
               <button className="btn btn--primary" type="submit" disabled={resetSubmitting}>
-                {resetSubmitting ? "Saving…" : "Set new password"}
+                {resetSubmitting ? t('employees.saving') : t('employees.setNewPassword')}
               </button>
               <button
                 type="button"
@@ -208,7 +210,7 @@ export function EmployeesPage() {
                   setResetPasswordValue("");
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </form>
@@ -216,17 +218,17 @@ export function EmployeesPage() {
       )}
 
       {loading ? (
-        <p className="empty-state">Loading…</p>
+        <p className="empty-state">{t('common.loading')}</p>
       ) : (
         <table className="list-view">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Supervisor</th>
-              <th>Status</th>
-              <th aria-label="Actions" />
+              <th>{t('employees.table.name')}</th>
+              <th>{t('employees.table.email')}</th>
+              <th>{t('employees.table.role')}</th>
+              <th>{t('employees.table.supervisor')}</th>
+              <th>{t('employees.table.status')}</th>
+              <th aria-label={t('employees.table.actions')} />
             </tr>
           </thead>
           <tbody>
@@ -234,10 +236,10 @@ export function EmployeesPage() {
               <tr key={u.id}>
                 <td>
                   {u.firstName} {u.lastName}
-                  {u.id === currentUser?.userId && <span className="badge">You</span>}
+                  {u.id === currentUser?.userId && <span className="badge">{t('employees.youBadge')}</span>}
                 </td>
                 <td>{u.email}</td>
-                <td>{u.role}</td>
+                <td>{u.role === "Employer" ? t('roles.employer') : t('roles.employee')}</td>
                 <td>
                   {u.role === "Employee" ? (
                     <select
@@ -245,7 +247,7 @@ export function EmployeesPage() {
                       onChange={(e) => handleSupervisorChange(u, e.target.value)}
                       disabled={busyUserId === u.id}
                     >
-                      <option value="">— none —</option>
+                      <option value="">{t('employees.none')}</option>
                       {potentialSupervisors
                         .filter((s) => s.id !== u.id)
                         .map((s) => (
@@ -260,7 +262,7 @@ export function EmployeesPage() {
                 </td>
                 <td>
                   <span className={u.isActive ? "status status--active" : "status status--inactive"}>
-                    {u.isActive ? "Active" : "Deactivated"}
+                    {u.isActive ? t('employees.statusActive') : t('employees.statusDeactivated')}
                   </span>
                 </td>
                 <td className="list-view__actions">
@@ -271,15 +273,15 @@ export function EmployeesPage() {
                       setResetPasswordValue("");
                     }}
                   >
-                    Reset password
+                    {t('employees.btnResetPassword')}
                   </button>
                   <button
                     className={u.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
                     onClick={() => handleToggleActive(u)}
                     disabled={busyUserId === u.id || u.id === currentUser?.userId}
-                    title={u.id === currentUser?.userId ? "You cannot deactivate your own account" : undefined}
+                    title={u.id === currentUser?.userId ? t('employees.cannotDeactivateSelf') : undefined}
                   >
-                    {u.isActive ? "Deactivate" : "Reactivate"}
+                    {u.isActive ? t('employees.deactivate') : t('employees.reactivate')}
                   </button>
                 </td>
               </tr>

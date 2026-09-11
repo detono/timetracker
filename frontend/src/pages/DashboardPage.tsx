@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import {
   createTimeEntry,
@@ -17,6 +18,7 @@ import { getWeekRange, hoursToHm } from "../utils/dateRange";
 import type { HourType, TimeEntry } from "../types";
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [anchorDate, setAnchorDate] = useState(new Date());
   const [entries, setEntries] = useState<TimeEntry[]>([]);
@@ -78,7 +80,7 @@ export function DashboardPage() {
   }
 
   async function handleDelete(entry: TimeEntry) {
-    if (!confirm("Delete this time entry?")) return;
+    if (!confirm(t('dashboard.confirmDelete'))) return;
     await deleteTimeEntry(entry.id);
     await loadEntries();
   }
@@ -89,15 +91,15 @@ export function DashboardPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>My hours</h1>
+          <h1>{t('dashboard.title')}</h1>
           <p className="page__subtitle">
-            Week total: <strong>{hoursToHm(totalHours)}</strong>
+            {t('dashboard.weekTotal')} <strong>{hoursToHm(totalHours)}</strong>
           </p>
         </div>
         <div className="page__header-actions">
           <ViewToggle value={view} onChange={setView} />
           <button className="btn btn--primary" onClick={() => setShowForm(true)}>
-            + Log hours
+            {t('dashboard.logHoursBtn')}
           </button>
         </div>
       </div>
@@ -106,7 +108,7 @@ export function DashboardPage() {
 
       {(showForm || editing) && (
         <div className="panel">
-          <h2>{editing ? "Edit entry" : "Log new hours"}</h2>
+          <h2>{editing ? t('dashboard.editEntry') : t('dashboard.logNewHours')}</h2>
           <TimeEntryForm
             initial={editing ?? undefined}
             hourTypes={hourTypes}
@@ -122,7 +124,7 @@ export function DashboardPage() {
       {error && <p className="form__error">{error}</p>}
 
       {loading ? (
-        <p className="empty-state">Loading…</p>
+        <p className="empty-state">{t('common.loading')}</p>
       ) : view === "list" ? (
         <ListView entries={entries} onEdit={setEditing} onDelete={handleDelete} />
       ) : (

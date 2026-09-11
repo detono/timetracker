@@ -4,13 +4,164 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
-    "logout": "Log out"
+    "loading": "Loading…",
+    "logout": "Log out",
+    "running": "Running…",
+    "signingIn": "Signing in…",
+    "saving": "Saving…",
+    "signOut": "Sign out"
+  },
+
+  "planBoard": {
+    "emptyState": "No hours logged for this period yet."
+  },
+  "listView": {
+    "emptyState": "No hours logged for this period yet.",
+    "employee": "Employee",
+    "type": "Type",
+    "date": "Date",
+    "start": "Start",
+    "end": "End",
+    "break": "Break",
+    "duration": "Duration",
+    "notes": "Notes",
+    "actions": "Actions",
+    "minutes": "min"
+  },
+  "timeEntryForm": {
+    "errorSave": "Could not save this entry.",
+    "type": "Type",
+    "noHourTypes": "No hour types available",
+    "date": "Date",
+    "start": "Start",
+    "end": "End",
+    "break": "Break (min)",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "What did you work on?",
+    "saveChanges": "Save changes",
+    "logHoursBtn": "Log hours"
+  },
+  "employees": {
+    "title": "Manage employees",
+    "subtitle": "Create accounts, deactivate leavers, and assign supervisors.",
+    "addNew": "Add a new account",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "tempPassword": "Temporary password",
+    "min8chars": "min. 8 characters",
+    "role": "Role",
+    "creating": "Creating…",
+    "createAccount": "Create account",
+    "resetPasswordFor": "Reset password for {{name}}",
+    "newTempPassword": "New temporary password",
+    "saving": "Saving…",
+    "setNewPassword": "Set new password",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "supervisor": "Supervisor",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "youBadge": "You",
+    "none": "— none —",
+    "statusActive": "Active",
+    "statusDeactivated": "Deactivated",
+    "btnResetPassword": "Reset password",
+    "cannotDeactivateSelf": "You cannot deactivate your own account",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in, but their logged hours are kept."
+  },
+  "dashboard": {
+    "title": "My hours",
+    "weekTotal": "Week total:",
+    "logHoursBtn": "+ Log hours",
+    "editEntry": "Edit entry",
+    "logNewHours": "Log new hours",
+    "confirmDelete": "Delete this time entry?"
+  },
+  "account": {
+    "title": "My account",
+    "signedInAs": "Signed in as",
+    "changePasswordTitle": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "updateBtn": "Update password",
+    "updating": "Updating…",
+    "successMessage": "Password updated.",
+    "errorMismatch": "New password and confirmation don't match."
+  },
+  "weekNavigator": {
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "today": "Today"
+  },
+  "hourTypes": {
+    "title": "Hour types",
+    "subtitle": "Define the categories employees can log hours under - Work, Sick Leave, PTO, ADV, or anything else.",
+    "addNewType": "Add a new type",
+    "name": "Name",
+    "namePlaceholder": "e.g. ADV",
+    "color": "Color",
+    "adding": "Adding…",
+    "addType": "Add type",
+    "saving": "Saving…",
+    "statusActive": "Active",
+    "statusDeactivated": "Deactivated",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "table": {
+      "name": "Name",
+      "color": "Color",
+      "status": "Status",
+      "actions": "Actions"
+    }
+  },
+  "login": {
+    "tagline": "Log hours. See the whole team. No guesswork at payroll time.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Extract worked hours by day, week, or month, broken out by type.",
+    "from": "From",
+    "to": "To",
+    "groupBy": "Group by",
+    "grouping": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "runReport": "Run report",
+    "downloadCsv": "Download CSV",
+    "grandTotal": "Grand total:",
+    "lines_one": "across {{count}} line",
+    "lines_other": "across {{count}} lines",
+    "emptyState": "No hours logged in this period.",
+    "table": {
+      "employee": "Employee",
+      "type": "Type",
+      "period": "Period",
+      "range": "Range",
+      "entries": "Entries",
+      "totalHours": "Total hours"
+    }
   },
   "nav": {
     "planboard": "Planboard",
     "list": "List View",
     "reports": "Reports",
-    "manageEmployees": "Manage Employees"
+    "manageEmployees": "Manage Employees",
+    "myHours": "My hours",
+    "allEmployees": "All employees",
+    "teamOverview": "Team overview",
+    "hourTypes": "Hour types"
   },
   "time": {
     "logHours": "Log Hours",
@@ -27,5 +178,9 @@
   "errors": {
     "ERR_DATE_LOCKED": "You cannot log hours for a locked date.",
     "ERR_UNAUTHORIZED": "You do not have permission to view this."
+  },
+  "team": {
+    "title": "Team overview",
+    "subtitle": "Everyone whose hours you have authority to view."
   }
 }

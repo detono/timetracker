@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { HourType, TimeEntry } from "../types";
 
 export interface TimeEntryFormValues {
@@ -18,6 +19,8 @@ interface Props {
 }
 
 export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props) {
+  const { t } = useTranslation();
+
   const [values, setValues] = useState<TimeEntryFormValues>({
     hourTypeId: initial?.hourTypeId ?? hourTypes[0]?.id ?? "",
     workDate: initial?.workDate ?? new Date().toISOString().slice(0, 10),
@@ -36,7 +39,7 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
     try {
       await onSubmit(values);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save this entry.");
+      setError(err instanceof Error ? err.message : t('timeEntryForm.errorSave'));
     } finally {
       setSubmitting(false);
     }
@@ -46,13 +49,13 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
     <form className="form form--entry" onSubmit={handleSubmit}>
       <div className="form__row">
         <label className="form__field">
-          <span>Type</span>
+          <span>{t('timeEntryForm.type')}</span>
           <select
             value={values.hourTypeId}
             onChange={(e) => setValues({ ...values, hourTypeId: e.target.value })}
             required
           >
-            {hourTypes.length === 0 && <option value="">No hour types available</option>}
+            {hourTypes.length === 0 && <option value="">{t('timeEntryForm.noHourTypes')}</option>}
             {hourTypes.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -61,7 +64,7 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
           </select>
         </label>
         <label className="form__field">
-          <span>Date</span>
+          <span>{t('timeEntryForm.date')}</span>
           <input
             type="date"
             value={values.workDate}
@@ -70,7 +73,7 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
           />
         </label>
         <label className="form__field">
-          <span>Start</span>
+          <span>{t('timeEntryForm.start')}</span>
           <input
             type="time"
             value={values.startTime}
@@ -79,7 +82,7 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
           />
         </label>
         <label className="form__field">
-          <span>End</span>
+          <span>{t('timeEntryForm.end')}</span>
           <input
             type="time"
             value={values.endTime}
@@ -88,7 +91,7 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
           />
         </label>
         <label className="form__field form__field--narrow">
-          <span>Break (min)</span>
+          <span>{t('timeEntryForm.break')}</span>
           <input
             type="number"
             min={0}
@@ -99,12 +102,12 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
       </div>
 
       <label className="form__field">
-        <span>Notes (optional)</span>
+        <span>{t('timeEntryForm.notes')}</span>
         <input
           type="text"
           value={values.notes}
           onChange={(e) => setValues({ ...values, notes: e.target.value })}
-          placeholder="What did you work on?"
+          placeholder={t('timeEntryForm.notesPlaceholder')}
         />
       </label>
 
@@ -112,11 +115,11 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
 
       <div className="form__actions">
         <button type="submit" className="btn btn--primary" disabled={submitting || !values.hourTypeId}>
-          {submitting ? "Saving…" : initial ? "Save changes" : "Log hours"}
+          {submitting ? t('common.saving') : initial ? t('timeEntryForm.saveChanges') : t('timeEntryForm.logHoursBtn')}
         </button>
         {onCancel && (
           <button type="button" className="btn btn--ghost" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </button>
         )}
       </div>
