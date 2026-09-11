@@ -18,14 +18,13 @@ namespace TimeTracker.Infrastructure.Persistence;
 /// regardless of whether a bootstrap employer is configured - the employer can rename,
 /// recolor, deactivate, or add more of these later from "Hour types".
 /// </summary>
-public static class DbSeeder
-{
+public static class DbSeeder {
     public static async Task SeedAsync(
         ApplicationDbContext context,
         IPasswordHasher passwordHasher,
         IConfiguration configuration,
-        ILogger logger)
-    {
+        ILogger logger
+    ) {
         // Creates the schema directly from the current EF Core model - no hand-generated
         // migration files required. Trade-off: this can only create the schema on an empty
         // database, it can't incrementally alter one that already has real data when the
@@ -36,15 +35,12 @@ public static class DbSeeder
         await SeedBootstrapEmployerAsync(context, passwordHasher, configuration, logger);
     }
 
-    private static async Task SeedHourTypesAsync(ApplicationDbContext context, ILogger logger)
-    {
-        if (await context.HourTypes.AnyAsync())
-        {
+    private static async Task SeedHourTypesAsync(ApplicationDbContext context, ILogger logger) {
+        if (await context.HourTypes.AnyAsync()) {
             return;
         }
 
-        var defaults = new[]
-        {
+        var defaults = new[] {
             HourType.Create("Work", "#932e4a"),
             HourType.Create("Sick Leave", "#b3452f"),
             HourType.Create("PTO", "#2f6f62"),
@@ -61,18 +57,15 @@ public static class DbSeeder
         ApplicationDbContext context,
         IPasswordHasher passwordHasher,
         IConfiguration configuration,
-        ILogger logger)
-    {
-        if (await context.Users.AnyAsync())
-        {
+        ILogger logger) {
+        if (await context.Users.AnyAsync()) {
             return;
         }
 
         var email = configuration["Seed:EmployerEmail"];
         var password = configuration["Seed:EmployerPassword"];
 
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-        {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) {
             logger.LogWarning(
                 "No users exist and no bootstrap employer is configured (Seed:EmployerEmail / " +
                 "Seed:EmployerPassword). The database is empty and nobody will be able to log in " +
