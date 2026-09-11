@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: timetracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: timetracker
+      POSTGRES_USER: "${DB_USER:-timetracker}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?Set DB_PASSWORD in a .env file - see .env.example}"
+    volumes:
+      - timetracker-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-timetracker} -d timetracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: src/TimeTracker.API/Dockerfile
+    container_name: timetracker-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=timetracker;Username=${DB_USER:-timetracker};Password=${DB_PASSWORD:?Set DB_PASSWORD in a .env file - see .env.example}"
+      Jwt__Secret: "${JWT_SECRET:?Set JWT_SECRET in a .env file - see .env.example}"
+      Jwt__Issuer: "TimeTracker.API"
+      Jwt__Audience: "TimeTracker.Client"
+      Cors__AllowedOrigins__0: "http://localhost:8080"
+      # Bootstrap employer, created once on first startup if the database is empty.
+      # Leave these two unset and the app starts with zero users (nobody can log in
+      # until you set them and restart) - see .env.example.
+      Seed__EmployerEmail: "${SEED_EMPLOYER_EMAIL:-}"
+      Seed__EmployerPassword: "${SEED_EMPLOYER_PASSWORD:-}"
+      Seed__EmployerFirstName: "${SEED_EMPLOYER_FIRST_NAME:-}"
+      Seed__EmployerLastName: "${SEED_EMPLOYER_LAST_NAME:-}"
+    ports:
+      - "5067:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: "http://localhost:5067/api"
+    container_name: timetracker-frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  timetracker-db-data:

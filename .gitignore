@@ -1,0 +1,17 @@
+## .NET
+bin/
+obj/
+*.user
+.vs/
+
+## Environment files (root docker-compose config + frontend Vite config)
+.env
+.env.local
+
+## Frontend
+node_modules/
+dist/
+
+## Misc
+.DS_Store
+*.log
