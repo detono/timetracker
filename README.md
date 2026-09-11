@@ -1,4 +1,13 @@
 # Shiftlog — Employee Time Tracking
+[![Docker Version](https://img.shields.io/docker/v/detono/timetracker?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/detono/timetracker/deploy.yml?branch=main&style=flat-square)](https://github.com/detono/timetracker/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/detono/timetracker/deploy.yml?branch=main&label=tests&style=flat-square)](https://github.com/detono/timetracker/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/detono/timetracker?style=flat-square&logo=codecov)](https://app.codecov.io/gh/detono/timetracker)
+[![Docker Pulls](https://img.shields.io/docker/pulls/detono/timetracker?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
+[![Image Size](https://img.shields.io/docker/image-size/detono/timetracker/latest?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
+[![Rust Version](https://img.shields.io/badge/rust-1.94.0-blue.svg?style=flat-square&logo=rust)](https://github.com/detono/timetracker)
+![License](https://img.shields.io/github/license/detono/timetracker?style=flat-square)
+[![Support Tono on Ko-fi](https://img.shields.io/badge/Support_Tono-Tea-BD8C5E?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/detono)
 
 A full-stack time-tracking application: employees log their worked hours, employers get
 a complete overview and can extract reports per day/week/month, and everyone can switch
