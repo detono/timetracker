@@ -1,10 +1,16 @@
 # Shiftlog — Employee Time Tracking
-[![Docker Version](https://img.shields.io/docker/v/detono/timetracker?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
+
+[![Docker Version](https://img.shields.io/docker/v/detono/timetracker-api?style=flat-square)](https://hub.docker.com/r/detono/timetracker-api)
+[![Docker Pulls](https://img.shields.io/docker/pulls/detono/timetracker-api?style=flat-square)](https://hub.docker.com/r/detono/timetracker-api)
+[![Image Size](https://img.shields.io/docker/image-size/detono/timetracker-api/latest?style=flat-square)](https://hub.docker.com/r/detono/timetracker-api)
+
+[![Docker Version](https://img.shields.io/docker/v/detono/timetracker-frontend?style=flat-square)](https://hub.docker.com/r/detono/timetracker-api)
+[![Docker Pulls](https://img.shields.io/docker/pulls/detono/timetracker-frontend?style=flat-square)](https://hub.docker.com/r/detono/timetracker-api)
+[![Image Size](https://img.shields.io/docker/image-size/detono/timetracker-frontend/latest?style=flat-square)](https://hub.docker.com/r/detono/timetracker-api)
+
 [![Build Status](https://img.shields.io/github/actions/workflow/status/detono/timetracker/ci-cd.yml?branch=main&style=flat-square)](https://github.com/detono/timetracker/actions)
 [![Tests](https://img.shields.io/github/actions/workflow/status/detono/timetracker/ci-cd.yml?branch=main&label=tests&style=flat-square)](https://github.com/detono/timetracker/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/detono/timetracker?style=flat-square&logo=codecov)](https://app.codecov.io/gh/detono/timetracker)
-[![Docker Pulls](https://img.shields.io/docker/pulls/detono/timetracker?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
-[![Image Size](https://img.shields.io/docker/image-size/detono/timetracker/latest?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet)](https://github.com/detono/timetracker)
 [![C#](https://img.shields.io/badge/C%23-239120?style=flat-square&logo=csharp&logoColor=white)](https://github.com/detono/timetracker)
 [![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://github.com/detono/timetracker)
@@ -244,8 +250,8 @@ Once images exist on Docker Hub, anyone can run the app without cloning or build
 anything, using `docker-compose.release.yml`:
 
 ```bash
-curl -O https://raw.githubusercontent.com/<you>/<repo>/main/docker-compose.release.yml
-curl -O https://raw.githubusercontent.com/<you>/<repo>/main/.env.example
+curl -O https://raw.githubusercontent.com/detono/timetracker/main/docker-compose.release.yml
+curl -O https://raw.githubusercontent.com/detono/timetracker/main/.env.example
 cp .env.example .env   # fill in DB_PASSWORD, JWT_SECRET, SEED_EMPLOYER_*, branding, etc.
 DOCKERHUB_NAMESPACE=<your-dockerhub-username> docker compose -f docker-compose.release.yml up -d
 ```
