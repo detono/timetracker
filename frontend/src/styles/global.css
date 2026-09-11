@@ -169,7 +169,7 @@ button {
   align-items: center;
   gap: 2rem;
   padding: 0.9rem 1.75rem;
-  background: var(--ink);
+  background: var(--color-primary);
   color: #fff;
 }
 
