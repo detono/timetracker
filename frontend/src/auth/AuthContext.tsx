@@ -23,8 +23,9 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthState | null>(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
+    const initial = raw ? (JSON.parse(raw) as AuthState) : null;
     setAuthToken(initial?.token ?? null);
-    return raw ? (JSON.parse(raw) as AuthState) : null;
+    return initial;
   });
 
   const value = useMemo<AuthContextValue>(
@@ -38,12 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: result.role,
           token: result.token
         };
-        setAuthToken(state.token); 
+        setAuthToken(state.token);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         setUser(state);
       },
       logout: () => {
-        setAuthToken(null); 
+        setAuthToken(null);
         localStorage.removeItem(STORAGE_KEY);
         setUser(null);
       }
