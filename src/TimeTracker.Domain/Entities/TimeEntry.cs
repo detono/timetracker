@@ -6,8 +6,7 @@ namespace TimeTracker.Domain.Entities;
 /// A single logged block of time for a given user on a given date, categorized by an
 /// employer-managed <see cref="HourType"/> (Work, Sick Leave, PTO, ADV, ...).
 /// </summary>
-public class TimeEntry : BaseEntity
-{
+public class TimeEntry : BaseEntity {
     public Guid UserId { get; private set; }
     public Guid HourTypeId { get; private set; }
     public DateOnly WorkDate { get; private set; }
@@ -18,13 +17,12 @@ public class TimeEntry : BaseEntity
     /// <summary>Total break time subtracted from the worked duration, in minutes.</summary>
     public int BreakMinutes { get; private set; }
 
-    private TimeEntry()
-    {
+    private TimeEntry() {
         // EF Core
     }
 
-    private TimeEntry(Guid userId, Guid hourTypeId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime, int breakMinutes, string? notes)
-    {
+    private TimeEntry(Guid userId, Guid hourTypeId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime,
+        int breakMinutes, string? notes) {
         UserId = userId;
         SetHourType(hourTypeId);
         WorkDate = workDate;
@@ -39,20 +37,16 @@ public class TimeEntry : BaseEntity
         TimeOnly startTime,
         TimeOnly endTime,
         int breakMinutes = 0,
-        string? notes = null)
-    {
-        if (userId == Guid.Empty)
-        {
+        string? notes = null) {
+        if (userId == Guid.Empty) {
             throw new DomainException("A time entry must belong to a user.");
         }
 
         return new TimeEntry(userId, hourTypeId, workDate, startTime, endTime, breakMinutes, notes);
     }
 
-    public void SetHourType(Guid hourTypeId)
-    {
-        if (hourTypeId == Guid.Empty)
-        {
+    public void SetHourType(Guid hourTypeId) {
+        if (hourTypeId == Guid.Empty) {
             throw new DomainException("A time entry must have an hour type.");
         }
 
@@ -60,21 +54,17 @@ public class TimeEntry : BaseEntity
         MarkUpdated();
     }
 
-    public void SetTimes(TimeOnly startTime, TimeOnly endTime, int breakMinutes)
-    {
-        if (endTime <= startTime)
-        {
+    public void SetTimes(TimeOnly startTime, TimeOnly endTime, int breakMinutes) {
+        if (endTime <= startTime) {
             throw new DomainException("End time must be after start time.");
         }
 
-        if (breakMinutes < 0)
-        {
+        if (breakMinutes < 0) {
             throw new DomainException("Break minutes cannot be negative.");
         }
 
         var grossMinutes = (endTime - startTime).TotalMinutes;
-        if (breakMinutes >= grossMinutes)
-        {
+        if (breakMinutes >= grossMinutes) {
             throw new DomainException("Break time cannot exceed or equal the total shift duration.");
         }
 
@@ -84,14 +74,12 @@ public class TimeEntry : BaseEntity
         MarkUpdated();
     }
 
-    public void UpdateNotes(string? notes)
-    {
+    public void UpdateNotes(string? notes) {
         Notes = notes;
         MarkUpdated();
     }
 
-    public void Reschedule(DateOnly workDate)
-    {
+    public void Reschedule(DateOnly workDate) {
         WorkDate = workDate;
         MarkUpdated();
     }
