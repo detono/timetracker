@@ -1,0 +1,31 @@
+{
+  "common": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "logout": "Uitloggen"
+  },
+  "nav": {
+    "planboard": "Planbord",
+    "list": "Lijstweergave",
+    "reports": "Rapportages",
+    "manageEmployees": "Medewerkers Beheren"
+  },
+  "time": {
+    "logHours": "Uren Registreren",
+    "date": "Datum",
+    "duration": "Duur",
+    "hourType": "Uurtype",
+    "notes": "Opmerkingen"
+  },
+  "roles": {
+    "employee": "Werknemer",
+    "employer": "Werkgever",
+    "supervisor": "Leidinggevende"
+  },
+  "errors": {
+    "ERR_DATE_LOCKED": "Je kunt geen uren registreren voor een geblokkeerde datum.",
+    "ERR_UNAUTHORIZED": "Je hebt geen toestemming om dit te bekijken."
+  }
+}

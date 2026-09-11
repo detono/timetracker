@@ -1,0 +1,31 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "logout": "Se déconnecter"
+  },
+  "nav": {
+    "planboard": "Planning",
+    "list": "Vue Liste",
+    "reports": "Rapports",
+    "manageEmployees": "Gérer les Employés"
+  },
+  "time": {
+    "logHours": "Enregistrer des Heures",
+    "date": "Date",
+    "duration": "Durée",
+    "hourType": "Type d'heure",
+    "notes": "Remarques"
+  },
+  "roles": {
+    "employee": "Employé",
+    "employer": "Employeur",
+    "supervisor": "Superviseur"
+  },
+  "errors": {
+    "ERR_DATE_LOCKED": "Vous ne pouvez pas enregistrer d'heures pour une date verrouillée.",
+    "ERR_UNAUTHORIZED": "Vous n'avez pas l'autorisation de voir ceci."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "logout": "Log out"
+  },
+  "nav": {
+    "planboard": "Planboard",
+    "list": "List View",
+    "reports": "Reports",
+    "manageEmployees": "Manage Employees"
+  },
+  "time": {
+    "logHours": "Log Hours",
+    "date": "Date",
+    "duration": "Duration",
+    "hourType": "Hour Type",
+    "notes": "Notes"
+  },
+  "roles": {
+    "employee": "Employee",
+    "employer": "Employer",
+    "supervisor": "Supervisor"
+  },
+  "errors": {
+    "ERR_DATE_LOCKED": "You cannot log hours for a locked date.",
+    "ERR_UNAUTHORIZED": "You do not have permission to view this."
+  }
+}
