@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TimeTracker.Infrastructure.Persistence;
 
 namespace TimeTracker.API.IntegrationTests;
@@ -11,18 +12,15 @@ namespace TimeTracker.API.IntegrationTests;
 /// Boots the real API pipeline (auth, middleware, controllers) against an in-memory
 /// EF Core database so integration tests don't require a running Postgres instance.
 /// </summary>
-public class CustomWebApplicationFactory : WebApplicationFactory<Program>
-{
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
+public class CustomWebApplicationFactory : WebApplicationFactory<Program> {
+    private readonly string _dbName = $"TimeTrackerTests-{Guid.NewGuid()}";
+    protected override void ConfigureWebHost(IWebHostBuilder builder) {
         builder.UseEnvironment("Testing");
 
         // Provide a bootstrap employer for tests, the same way a real deployment would
         // via environment variables - nothing here is hardcoded into the app itself.
-        builder.ConfigureAppConfiguration((_, config) =>
-        {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
-            {
+        builder.ConfigureAppConfiguration((_, config) => {
+            config.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["Seed:EmployerEmail"] = "employer@demo.local",
                 ["Seed:EmployerPassword"] = "Password123!",
                 ["Seed:EmployerFirstName"] = "Test",
@@ -30,16 +28,28 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             });
         });
 
-        builder.ConfigureServices(services =>
-        {
-            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-            if (descriptor is not null)
-            {
+        builder.ConfigureServices(services => {
+            var descriptor = services.SingleOrDefault(d => 
+                d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>)
+            );
+            
+            if (descriptor is not null) {
                 services.Remove(descriptor);
             }
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase($"TimeTrackerTests-{Guid.NewGuid()}"));
+                options.UseInMemoryDatabase(_dbName)
+            );
+            
+            var sp = services.BuildServiceProvider();
+            using var scope = sp.CreateScope();
+            
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var passwordHasher = scope.ServiceProvider.GetRequiredService<Application.Common.Interfaces.IPasswordHasher>();
+            var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<CustomWebApplicationFactory>>();
+            
+            DbSeeder.SeedAsync(context, passwordHasher, config, logger).GetAwaiter().GetResult();
         });
     }
 }
