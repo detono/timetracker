@@ -1,7 +1,7 @@
 # Runs the app from the published Docker Hub images - no source clone or build required.
 #
-#   curl -O https://raw.githubusercontent.com/<you>/<repo>/main/docker-compose.release.yml
-#   curl -O https://raw.githubusercontent.com/<you>/<repo>/main/.env.example
+#   curl -O https://raw.githubusercontent.com/detono/timetracker/main/docker-compose.release.yml
+#   curl -O https://raw.githubusercontent.com/detono/timetracker/main/.env.example
 #   cp .env.example .env   # fill in real values, including DOCKERHUB_NAMESPACE
 #   docker compose -f docker-compose.release.yml up -d
 #
