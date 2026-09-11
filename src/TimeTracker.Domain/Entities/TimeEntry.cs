@@ -9,6 +9,7 @@ namespace TimeTracker.Domain.Entities;
 public class TimeEntry : BaseEntity {
     public Guid UserId { get; private set; }
     public Guid HourTypeId { get; private set; }
+    public Guid? ProjectId { get; private set; }
     public DateOnly WorkDate { get; private set; }
     public TimeOnly StartTime { get; private set; }
     public TimeOnly EndTime { get; private set; }
@@ -21,13 +22,22 @@ public class TimeEntry : BaseEntity {
         // EF Core
     }
 
-    private TimeEntry(Guid userId, Guid hourTypeId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime,
-        int breakMinutes, string? notes) {
+    private TimeEntry(
+        Guid userId, 
+        Guid hourTypeId, 
+        DateOnly workDate, 
+        TimeOnly startTime, 
+        TimeOnly endTime,
+        int breakMinutes, 
+        string? notes,
+        Guid? projectId
+    ) {
         UserId = userId;
         SetHourType(hourTypeId);
         WorkDate = workDate;
         SetTimes(startTime, endTime, breakMinutes);
         Notes = notes;
+        ProjectId = projectId;
     }
 
     public static TimeEntry Create(
@@ -37,12 +47,23 @@ public class TimeEntry : BaseEntity {
         TimeOnly startTime,
         TimeOnly endTime,
         int breakMinutes = 0,
-        string? notes = null) {
+        string? notes = null,
+        Guid? projectId = null
+    ) {
         if (userId == Guid.Empty) {
             throw new DomainException("A time entry must belong to a user.");
         }
 
-        return new TimeEntry(userId, hourTypeId, workDate, startTime, endTime, breakMinutes, notes);
+        return new TimeEntry(
+            userId, 
+            hourTypeId, 
+            workDate, 
+            startTime, 
+            endTime, 
+            breakMinutes, 
+            notes,
+            projectId
+        );
     }
 
     public void SetHourType(Guid hourTypeId) {
@@ -51,6 +72,11 @@ public class TimeEntry : BaseEntity {
         }
 
         HourTypeId = hourTypeId;
+        MarkUpdated();
+    }
+    
+    public void SetProject(Guid? projectId) {
+        ProjectId = projectId;
         MarkUpdated();
     }
 
