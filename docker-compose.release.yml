@@ -1,0 +1,69 @@
+# Runs the app from the published Docker Hub images - no source clone or build required.
+#
+#   curl -O https://raw.githubusercontent.com/<you>/<repo>/main/docker-compose.release.yml
+#   curl -O https://raw.githubusercontent.com/<you>/<repo>/main/.env.example
+#   cp .env.example .env   # fill in real values, including DOCKERHUB_NAMESPACE
+#   docker compose -f docker-compose.release.yml up -d
+#
+# Pin a specific version instead of the rolling ":latest" tag by setting IMAGE_TAG=v1.0.0
+# in .env.
+#
+# The "api" service has no published host port by default - only the frontend container
+# talks to it, over the internal Docker network (see frontend/nginx.conf). This is more
+# secure out of the box. If you want direct access to Swagger from the host, uncomment the
+# "ports" line under "api" below.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: timetracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: timetracker
+      POSTGRES_USER: "${DB_USER:-timetracker}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?Set DB_PASSWORD in a .env file - see .env.example}"
+    volumes:
+      - timetracker-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-timetracker} -d timetracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: "${DOCKERHUB_NAMESPACE:?Set DOCKERHUB_NAMESPACE in a .env file - see .env.example}/timetracker-api:${IMAGE_TAG:-latest}"
+    container_name: timetracker-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=timetracker;Username=${DB_USER:-timetracker};Password=${DB_PASSWORD:?Set DB_PASSWORD in a .env file - see .env.example}"
+      Jwt__Secret: "${JWT_SECRET:?Set JWT_SECRET in a .env file - see .env.example}"
+      Jwt__Issuer: "TimeTracker.API"
+      Jwt__Audience: "TimeTracker.Client"
+      Seed__EmployerEmail: "${SEED_EMPLOYER_EMAIL:-}"
+      Seed__EmployerPassword: "${SEED_EMPLOYER_PASSWORD:-}"
+      Seed__EmployerFirstName: "${SEED_EMPLOYER_FIRST_NAME:-}"
+      Seed__EmployerLastName: "${SEED_EMPLOYER_LAST_NAME:-}"
+    # ports:
+    #   - "127.0.0.1:5067:8080"   # uncomment for local Swagger access at http://localhost:5067/swagger
+
+  frontend:
+    image: "${DOCKERHUB_NAMESPACE:?Set DOCKERHUB_NAMESPACE in a .env file - see .env.example}/timetracker-frontend:${IMAGE_TAG:-latest}"
+    container_name: timetracker-frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      APP_TITLE: "${APP_TITLE:-Shiftlog}"
+      COLOR_PRIMARY: "${COLOR_PRIMARY:-#932e4a}"
+      COLOR_ON_PRIMARY: "${COLOR_ON_PRIMARY:-#ffffff}"
+      COLOR_SECONDARY: "${COLOR_SECONDARY:-#e4d1dc}"
+      COLOR_ON_SECONDARY: "${COLOR_ON_SECONDARY:-#000000}"
+    ports:
+      - "8080:80"
+
+volumes:
+  timetracker-db-data:

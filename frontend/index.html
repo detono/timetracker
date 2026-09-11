@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Time Tracker</title>
+    <!--
+      Rendered from environment variables at container start (docker-entrypoint.sh), not
+      baked into the build - this is what makes title/color branding reconfigurable without
+      a rebuild. Loaded as a plain (non-module) script so it runs before the deferred
+      main.tsx module script below. In local dev this 404s harmlessly; config.ts falls back
+      to its own defaults in that case.
+    -->
+    <script src="/config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
