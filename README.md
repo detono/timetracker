@@ -1,11 +1,14 @@
 # Shiftlog — Employee Time Tracking
 [![Docker Version](https://img.shields.io/docker/v/detono/timetracker?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/detono/timetracker/deploy.yml?branch=main&style=flat-square)](https://github.com/detono/timetracker/actions)
-[![Tests](https://img.shields.io/github/actions/workflow/status/detono/timetracker/deploy.yml?branch=main&label=tests&style=flat-square)](https://github.com/detono/timetracker/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/detono/timetracker/ci-cd.yml?branch=main&style=flat-square)](https://github.com/detono/timetracker/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/detono/timetracker/ci-cd.yml?branch=main&label=tests&style=flat-square)](https://github.com/detono/timetracker/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/detono/timetracker?style=flat-square&logo=codecov)](https://app.codecov.io/gh/detono/timetracker)
 [![Docker Pulls](https://img.shields.io/docker/pulls/detono/timetracker?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
 [![Image Size](https://img.shields.io/docker/image-size/detono/timetracker/latest?style=flat-square)](https://hub.docker.com/r/detono/timetracker)
-[![Rust Version](https://img.shields.io/badge/rust-1.94.0-blue.svg?style=flat-square&logo=rust)](https://github.com/detono/timetracker)
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet)](https://github.com/detono/timetracker)
+[![C#](https://img.shields.io/badge/C%23-239120?style=flat-square&logo=csharp&logoColor=white)](https://github.com/detono/timetracker)
+[![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://github.com/detono/timetracker)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://github.com/detono/timetracker)
 ![License](https://img.shields.io/github/license/detono/timetracker?style=flat-square)
 [![Support Tono on Ko-fi](https://img.shields.io/badge/Support_Tono-Tea-BD8C5E?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/detono)
 
