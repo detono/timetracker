@@ -57,7 +57,8 @@ public static class DbSeeder {
         ApplicationDbContext context,
         IPasswordHasher passwordHasher,
         IConfiguration configuration,
-        ILogger logger) {
+        ILogger logger
+    ) {
         if (await context.Users.AnyAsync()) {
             return;
         }
@@ -84,8 +85,8 @@ public static class DbSeeder {
             UserRole.Employer);
 
         context.Users.Add(employer);
-        await context.SaveChangesAsync();
+        var seedAmount = await context.SaveChangesAsync();
 
-        logger.LogInformation("Seeded bootstrap employer account {Email}.", email);
+        logger.LogInformation("Seeded bootstrap employer account {Email}. Success? {Success}", email,  seedAmount == 1);
     }
 }
