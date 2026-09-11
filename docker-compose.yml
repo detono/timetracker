@@ -1,3 +1,7 @@
+# Reads variables from a .env file placed next to this file (docker compose does this
+# automatically - no extra flag needed). Copy .env.example to .env and fill in real
+# values before running `docker compose up`. .env is gitignored; never commit it.
+
 services:
   db:
     image: postgres:16-alpine
@@ -33,6 +37,9 @@ services:
       Jwt__Issuer: "TimeTracker.API"
       Jwt__Audience: "TimeTracker.Client"
       Cors__AllowedOrigins__0: "http://localhost:8080"
+      # ^ Not needed by the app itself anymore (the frontend proxies same-origin, see
+      # frontend/nginx.conf), kept as a harmless default in case you ever call the API
+      # directly from a browser tool during development.
       # Bootstrap employer, created once on first startup if the database is empty.
       # Leave these two unset and the app starts with zero users (nobody can log in
       # until you set them and restart) - see .env.example.
@@ -41,18 +48,35 @@ services:
       Seed__EmployerFirstName: "${SEED_EMPLOYER_FIRST_NAME:-}"
       Seed__EmployerLastName: "${SEED_EMPLOYER_LAST_NAME:-}"
     ports:
+      # Exposed for direct API/Swagger access during development (http://localhost:5067/swagger).
+      # Host port 5000 collides with macOS AirPlay Receiver on many machines (it answers
+      # with a misleading 403 instead of a normal connection error), hence 5067 instead.
+      # The app itself doesn't depend on this exact number - the frontend reaches the API
+      # over the internal Docker network regardless of what's published here.
       - "5067:8080"
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: "http://localhost:5067/api"
+      # No VITE_API_BASE_URL build arg here on purpose - it defaults to the relative path
+      # "/api", which this container's own nginx now reverse-proxies to the api service
+      # (see frontend/nginx.conf). The browser only ever talks to this one origin: no
+      # CORS, and nothing to keep in sync if you change ports later.
     container_name: timetracker-frontend
     restart: unless-stopped
     depends_on:
       - api
+    environment:
+      # Rendered into config.js at container start (docker-entrypoint.sh), not baked into
+      # the build - change these and just restart (no rebuild needed) to reuse this same
+      # image for a different client/brand. Quote hex values in .env, e.g. COLOR_PRIMARY="#932e4a",
+      # or the "#" can be misread as a comment by some .env parsers.
+      APP_TITLE: "${APP_TITLE:-TimeTracker}"
+      COLOR_PRIMARY: "${COLOR_PRIMARY:-#932e4a}"
+      COLOR_ON_PRIMARY: "${COLOR_ON_PRIMARY:-#ffffff}"
+      COLOR_SECONDARY: "${COLOR_SECONDARY:-#e4d1dc}"
+      COLOR_ON_SECONDARY: "${COLOR_ON_SECONDARY:-#000000}"
     ports:
       - "8080:80"
 

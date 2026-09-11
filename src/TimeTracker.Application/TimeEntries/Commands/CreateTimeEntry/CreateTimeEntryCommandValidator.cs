@@ -6,6 +6,7 @@ public class CreateTimeEntryCommandValidator : AbstractValidator<CreateTimeEntry
 {
     public CreateTimeEntryCommandValidator()
     {
+        RuleFor(x => x.HourTypeId).NotEmpty();
         RuleFor(x => x.WorkDate).NotEqual(default(DateOnly));
         RuleFor(x => x.EndTime).GreaterThan(x => x.StartTime)
             .WithMessage("End time must be after start time.");

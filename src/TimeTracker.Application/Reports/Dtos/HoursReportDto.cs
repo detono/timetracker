@@ -3,6 +3,9 @@ namespace TimeTracker.Application.Reports.Dtos;
 public record HoursReportLineDto(
     Guid UserId,
     string UserFullName,
+    Guid HourTypeId,
+    string HourTypeName,
+    string HourTypeColor,
     string PeriodLabel,
     DateOnly PeriodStart,
     DateOnly PeriodEnd,

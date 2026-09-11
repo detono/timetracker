@@ -19,6 +19,11 @@ public class TimeEntryConfiguration : IEntityTypeConfiguration<TimeEntry>
 
         builder.HasIndex(t => new { t.UserId, t.WorkDate });
 
+        builder.HasOne<HourType>()
+            .WithMany()
+            .HasForeignKey(t => t.HourTypeId)
+            .OnDelete(DeleteBehavior.Restrict); // hour types are deactivated, never deleted, once in use
+
         builder.Ignore(t => t.Duration);
     }
 }

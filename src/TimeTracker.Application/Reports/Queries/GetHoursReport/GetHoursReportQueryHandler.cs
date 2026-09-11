@@ -59,26 +59,32 @@ public class GetHoursReportQueryHandler : IRequestHandler<GetHoursReportQuery, R
 
         var userIds = scopeUsers.Select(u => u.Id).ToList();
         var userLookup = scopeUsers.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}");
+        var hourTypes = (await _unitOfWork.HourTypes.GetAllAsync(includeInactive: true, cancellationToken))
+            .ToDictionary(t => t.Id);
 
         var entries = userIds.Count == 0
             ? Array.Empty<TimeEntry>()
             : await _unitOfWork.TimeEntries.GetForUsersAsync(userIds, request.From, request.To, cancellationToken);
 
         var lines = entries
-            .GroupBy(e => new { e.UserId, Period = GetPeriodKey(e.WorkDate, request.Grouping) })
+            .GroupBy(e => new { e.UserId, e.HourTypeId, Period = GetPeriodKey(e.WorkDate, request.Grouping) })
             .Select(g =>
             {
                 var (start, end, label) = GetPeriodBounds(g.Key.Period, request.Grouping);
+                hourTypes.TryGetValue(g.Key.HourTypeId, out var hourType);
                 return new HoursReportLineDto(
                     g.Key.UserId,
                     userLookup.TryGetValue(g.Key.UserId, out var name) ? name : "Unknown",
+                    g.Key.HourTypeId,
+                    hourType?.Name ?? "Unknown",
+                    hourType?.ColorHex ?? "#999999",
                     label,
                     start,
                     end,
                     Math.Round(g.Sum(e => e.Duration.TotalHours), 2),
                     g.Count());
             })
-            .OrderBy(l => l.PeriodStart).ThenBy(l => l.UserFullName)
+            .OrderBy(l => l.PeriodStart).ThenBy(l => l.UserFullName).ThenBy(l => l.HourTypeName)
             .ToList();
 
         var report = new HoursReportDto(

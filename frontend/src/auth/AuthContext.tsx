@@ -23,9 +23,8 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthState | null>(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
-    const initial = raw ? (JSON.parse(raw) as AuthState) : null;
     setAuthToken(initial?.token ?? null);
-    return initial;
+    return raw ? (JSON.parse(raw) as AuthState) : null;
   });
 
   const value = useMemo<AuthContextValue>(
@@ -39,12 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: result.role,
           token: result.token
         };
-        setAuthToken(state.token); // <-- this line was missing: keep axios's header in sync
+        setAuthToken(state.token); 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         setUser(state);
       },
       logout: () => {
-        setAuthToken(null); // <-- this line was missing too
+        setAuthToken(null); 
         localStorage.removeItem(STORAGE_KEY);
         setUser(null);
       }

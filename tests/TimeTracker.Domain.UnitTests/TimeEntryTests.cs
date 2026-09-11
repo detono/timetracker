@@ -12,6 +12,7 @@ public class TimeEntryTests
     {
         var entry = TimeEntry.Create(
             Guid.NewGuid(),
+            Guid.NewGuid(),
             new DateOnly(2026, 1, 5),
             new TimeOnly(9, 0),
             new TimeOnly(17, 30),
@@ -24,7 +25,7 @@ public class TimeEntryTests
     public void Create_WithEndBeforeStart_Throws()
     {
         var act = () => TimeEntry.Create(
-            Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(17, 0), new TimeOnly(9, 0));
+            Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(17, 0), new TimeOnly(9, 0));
 
         act.Should().Throw<DomainException>().WithMessage("*after*");
     }
@@ -33,7 +34,16 @@ public class TimeEntryTests
     public void Create_WithEmptyUserId_Throws()
     {
         var act = () => TimeEntry.Create(
-            Guid.Empty, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
+            Guid.Empty, Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
+
+        act.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Create_WithEmptyHourTypeId_Throws()
+    {
+        var act = () => TimeEntry.Create(
+            Guid.NewGuid(), Guid.Empty, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
 
         act.Should().Throw<DomainException>();
     }
@@ -41,7 +51,7 @@ public class TimeEntryTests
     [Fact]
     public void SetTimes_WithBreakExceedingDuration_Throws()
     {
-        var entry = TimeEntry.Create(Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(10, 0));
+        var entry = TimeEntry.Create(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(10, 0));
 
         var act = () => entry.SetTimes(new TimeOnly(9, 0), new TimeOnly(10, 0), breakMinutes: 60);
 
@@ -51,7 +61,7 @@ public class TimeEntryTests
     [Fact]
     public void SetTimes_WithNegativeBreak_Throws()
     {
-        var entry = TimeEntry.Create(Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
+        var entry = TimeEntry.Create(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
 
         var act = () => entry.SetTimes(new TimeOnly(9, 0), new TimeOnly(17, 0), breakMinutes: -5);
 
@@ -61,10 +71,20 @@ public class TimeEntryTests
     [Fact]
     public void UpdateNotes_SetsNotes()
     {
-        var entry = TimeEntry.Create(Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
+        var entry = TimeEntry.Create(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
 
         entry.UpdateNotes("Worked on reports");
 
         entry.Notes.Should().Be("Worked on reports");
+    }
+
+    [Fact]
+    public void SetHourType_WithEmptyId_Throws()
+    {
+        var entry = TimeEntry.Create(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
+
+        var act = () => entry.SetHourType(Guid.Empty);
+
+        act.Should().Throw<DomainException>();
     }
 }

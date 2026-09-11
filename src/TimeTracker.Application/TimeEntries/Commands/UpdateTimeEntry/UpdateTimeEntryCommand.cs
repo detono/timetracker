@@ -6,6 +6,7 @@ namespace TimeTracker.Application.TimeEntries.Commands.UpdateTimeEntry;
 
 public record UpdateTimeEntryCommand(
     Guid Id,
+    Guid HourTypeId,
     DateOnly WorkDate,
     TimeOnly StartTime,
     TimeOnly EndTime,

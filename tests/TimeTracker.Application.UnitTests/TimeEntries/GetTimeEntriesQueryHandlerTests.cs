@@ -14,11 +14,17 @@ public class GetTimeEntriesQueryHandlerTests
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<IUserRepository> _userRepository = new();
     private readonly Mock<ITimeEntryRepository> _timeEntryRepository = new();
+    private readonly Mock<IHourTypeRepository> _hourTypeRepository = new();
+    private readonly HourType _workType = HourType.Create("Work", "#932e4a");
 
     public GetTimeEntriesQueryHandlerTests()
     {
         _unitOfWork.SetupGet(u => u.Users).Returns(_userRepository.Object);
         _unitOfWork.SetupGet(u => u.TimeEntries).Returns(_timeEntryRepository.Object);
+        _unitOfWork.SetupGet(u => u.HourTypes).Returns(_hourTypeRepository.Object);
+        _hourTypeRepository
+            .Setup(r => r.GetAllAsync(true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<HourType> { _workType });
     }
 
     [Fact]
@@ -30,7 +36,7 @@ public class GetTimeEntriesQueryHandlerTests
             .Setup(r => r.GetForUserAsync(employee.Id, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<TimeEntry>
             {
-                TimeEntry.Create(employee.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0))
+                TimeEntry.Create(employee.Id, _workType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0))
             });
 
         var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object, new TestCurrentUserService(employee.Id, UserRole.Employee));
@@ -38,6 +44,7 @@ public class GetTimeEntriesQueryHandlerTests
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().HaveCount(1);
+        result.Value![0].HourTypeName.Should().Be("Work");
     }
 
     [Fact]

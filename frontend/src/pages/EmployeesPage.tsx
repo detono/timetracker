@@ -4,7 +4,8 @@ import {
   assignSupervisor,
   createUser,
   deactivateUser,
-  getAllUsers
+  getAllUsers,
+  resetPassword
 } from "../api/usersApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
@@ -26,6 +27,9 @@ export function EmployeesPage() {
   const [form, setForm] = useState(emptyForm);
   const [creating, setCreating] = useState(false);
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
+  const [resettingUser, setResettingUser] = useState<UserAccount | null>(null);
+  const [resetPasswordValue, setResetPasswordValue] = useState("");
+  const [resetSubmitting, setResetSubmitting] = useState(false);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -94,6 +98,22 @@ export function EmployeesPage() {
 
   const potentialSupervisors = users.filter((u) => u.role === "Employee");
 
+  async function handleResetPassword(e: FormEvent) {
+    e.preventDefault();
+    if (!resettingUser) return;
+    setError(null);
+    setResetSubmitting(true);
+    try {
+      await resetPassword(resettingUser.id, resetPasswordValue);
+      setResettingUser(null);
+      setResetPasswordValue("");
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setResetSubmitting(false);
+    }
+  }
+
   return (
     <div className="page">
       <div className="page__header">
@@ -161,6 +181,40 @@ export function EmployeesPage() {
 
       {error && <p className="form__error">{error}</p>}
 
+      {resettingUser && (
+        <div className="panel">
+          <h2>Reset password for {resettingUser.firstName} {resettingUser.lastName}</h2>
+          <form className="form" onSubmit={handleResetPassword}>
+            <label className="form__field">
+              <span>New temporary password</span>
+              <input
+                type="text"
+                value={resetPasswordValue}
+                onChange={(e) => setResetPasswordValue(e.target.value)}
+                minLength={8}
+                placeholder="min. 8 characters"
+                required
+              />
+            </label>
+            <div className="form__actions">
+              <button className="btn btn--primary" type="submit" disabled={resetSubmitting}>
+                {resetSubmitting ? "Saving…" : "Set new password"}
+              </button>
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => {
+                  setResettingUser(null);
+                  setResetPasswordValue("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {loading ? (
         <p className="empty-state">Loading…</p>
       ) : (
@@ -210,6 +264,15 @@ export function EmployeesPage() {
                   </span>
                 </td>
                 <td className="list-view__actions">
+                  <button
+                    className="btn btn--ghost btn--sm"
+                    onClick={() => {
+                      setResettingUser(u);
+                      setResetPasswordValue("");
+                    }}
+                  >
+                    Reset password
+                  </button>
                   <button
                     className={u.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
                     onClick={() => handleToggleActive(u)}

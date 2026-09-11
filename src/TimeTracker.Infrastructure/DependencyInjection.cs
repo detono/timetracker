@@ -25,6 +25,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ITimeEntryRepository, TimeEntryRepository>();
+        services.AddScoped<IHourTypeRepository, HourTypeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();

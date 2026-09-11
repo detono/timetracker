@@ -11,6 +11,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
+    public DbSet<HourType> HourTypes => Set<HourType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

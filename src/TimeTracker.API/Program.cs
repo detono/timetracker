@@ -32,18 +32,22 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddCors(options => {
-    options.AddPolicy("Frontend", policy => {
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                      ?? new[] { "http://localhost:5173" };
+            ?? new[] { "http://localhost:5173" };
         policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
     });
 });
 
-builder.Services.AddSwaggerGen(options => {
+builder.Services.AddSwaggerGen(options =>
+{
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "TimeTracker API", Version = "v1" });
 
-    var jwtScheme = new OpenApiSecurityScheme {
+    var jwtScheme = new OpenApiSecurityScheme
+    {
         Scheme = "bearer",
         BearerFormat = "JWT",
         Name = "Authorization",
@@ -52,25 +56,25 @@ builder.Services.AddSwaggerGen(options => {
         Description = "Enter a valid JWT bearer token."
     };
     options.AddSecurityDefinition("Bearer", jwtScheme);
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-        {
-            new OpenApiSecurityScheme
-                { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
-            Array.Empty<string>()
-        }
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }, Array.Empty<string>() }
     });
 });
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
-                  ?? throw new InvalidOperationException("Jwt configuration section is missing.");
+    ?? throw new InvalidOperationException("Jwt configuration section is missing.");
 
 builder.Services
-    .AddAuthentication(options => {
+    .AddAuthentication(options =>
+    {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer(options => {
-        options.TokenValidationParameters = new TokenValidationParameters {
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -91,7 +95,8 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -104,8 +109,9 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Apply migrations and seed demo data on startup so the container is usable immediately.
-using (var scope = app.Services.CreateScope()) {
+// Apply migrations and seed a bootstrap employer (from configuration only) on startup.
+using (var scope = app.Services.CreateScope())
+{
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<ApplicationDbContext>();
     var passwordHasher = services.GetRequiredService<IPasswordHasher>();

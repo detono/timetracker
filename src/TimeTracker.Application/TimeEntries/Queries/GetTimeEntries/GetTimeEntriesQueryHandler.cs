@@ -41,18 +41,30 @@ public class GetTimeEntriesQueryHandler : IRequestHandler<GetTimeEntriesQuery, R
         var entries = await _unitOfWork.TimeEntries.GetForUserAsync(
             targetUser.Id, request.From, request.To, cancellationToken);
 
+        // Includes inactive types too, so historical entries still display their type's
+        // name/color correctly even after an employer retires that type.
+        var hourTypes = (await _unitOfWork.HourTypes.GetAllAsync(includeInactive: true, cancellationToken))
+            .ToDictionary(t => t.Id);
+
         var dtos = entries
             .OrderBy(e => e.WorkDate).ThenBy(e => e.StartTime)
-            .Select(e => new TimeEntryDto(
-                e.Id,
-                e.UserId,
-                $"{targetUser.FirstName} {targetUser.LastName}",
-                e.WorkDate,
-                e.StartTime,
-                e.EndTime,
-                e.BreakMinutes,
-                Math.Round(e.Duration.TotalHours, 2),
-                e.Notes))
+            .Select(e =>
+            {
+                hourTypes.TryGetValue(e.HourTypeId, out var hourType);
+                return new TimeEntryDto(
+                    e.Id,
+                    e.UserId,
+                    $"{targetUser.FirstName} {targetUser.LastName}",
+                    e.HourTypeId,
+                    hourType?.Name ?? "Unknown",
+                    hourType?.ColorHex ?? "#999999",
+                    e.WorkDate,
+                    e.StartTime,
+                    e.EndTime,
+                    e.BreakMinutes,
+                    Math.Round(e.Duration.TotalHours, 2),
+                    e.Notes);
+            })
             .ToList();
 
         return Result<IReadOnlyList<TimeEntryDto>>.Success(dtos);

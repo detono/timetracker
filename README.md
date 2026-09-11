@@ -50,7 +50,8 @@ relevant Application handler — never left to the UI alone.
 There's no public sign-up: creating accounts is an Employer-only action, both in the API
 (`POST /api/users` requires the `Employer` role) and in the UI (an Employer sees a **"Manage
 employees"** page to create accounts, deactivate leavers, reactivate them, and assign
-supervisors). Log in as the seeded `employer@demo.local` account to try it. Deactivating a
+supervisors). Log in with the bootstrap employer account you configure via `.env` (see
+"Configuration" below) to try it. Deactivating a
 user is a soft delete — their historical time entries and report data are kept; they simply
 can no longer log in.
 
@@ -68,30 +69,77 @@ can no longer log in.
 - Passwords are hashed with PBKDF2/HMAC-SHA256 (100k iterations) — no plaintext, no
   external dependency required to run the sample.
 
-## Database migrations
+## Database schema
 
-This repository intentionally does **not** ship pre-generated EF Core migration files,
-since they must be generated with the exact EF Core tooling version you build with. Run
-this once (requires the [EF Core CLI tools](https://learn.microsoft.com/ef/core/cli/dotnet),
-`dotnet tool install --global dotnet-ef`), before your first `docker compose up --build`
-or `dotnet run`:
+This project doesn't use EF Core migrations — on startup, the API creates its schema
+directly from the current model (`Database.EnsureCreatedAsync()`), so there's nothing to
+generate or commit before your first run. **Trade-off**: this can only create a schema on
+an empty database; it can't incrementally alter one that already holds real data if you
+change an entity later. That's a fine trade for how most self-hosted instances of this
+run, but if you need proper zero-downtime schema evolution against a database with
+production data, switch to migrations:
 
 ```bash
+dotnet tool install --global dotnet-ef
 dotnet ef migrations add InitialCreate \
   --project src/TimeTracker.Infrastructure \
   --startup-project src/TimeTracker.API \
   --output-dir Persistence/Migrations
 ```
 
-Commit the generated `Persistence/Migrations` folder — from then on the API applies it
-automatically on startup (`DbSeeder.SeedAsync` calls `Database.MigrateAsync()`), including
-inside the Docker container, so nobody else on the team needs to repeat this step. If you
-change any entity or configuration later, generate a follow-up migration the same way
-with a new name (e.g. `AddOvertimeFlag`).
+commit the generated `Persistence/Migrations` folder, and change the `EnsureCreatedAsync()`
+call in `DbSeeder.cs` to `MigrateAsync()`.
+
+## Configuration (do this first)
+
+Copy the environment template and fill in real values:
+
+```bash
+cp .env.example .env
+```
+
+`.env` is gitignored — it's read automatically by `docker compose` (no flag needed). At minimum, set:
+
+- `DB_PASSWORD` — Postgres password
+- `JWT_SECRET` — any long random string (`openssl rand -base64 48` works well); compose will
+  refuse to start without it
+- `SEED_EMPLOYER_EMAIL` / `SEED_EMPLOYER_PASSWORD` — see below
+
+### Your first account
+
+There's no public sign-up — creating accounts is Employer-only, both in the API and the UI
+(see "Managing accounts" above). So something has to exist to log in with the very first
+time: on startup, if the database is completely empty, the API creates **exactly one**
+Employer account from `SEED_EMPLOYER_EMAIL` / `SEED_EMPLOYER_PASSWORD` (and optionally
+`SEED_EMPLOYER_FIRST_NAME` / `SEED_EMPLOYER_LAST_NAME`) in your `.env` file. No demo data,
+no placeholder employees — just the one account you asked for. Log in with it, then use
+**"Manage employees"** to create everyone else and change your own password from the
+account page.
+
+If you leave those two blank, the app starts with zero users and logs a warning — set them
+and restart (`docker compose up --build api`) whenever you're ready.
+
+### Branding (white-label)
+
+The app's title and two brand colors (primary/on-primary, secondary/on-secondary) are
+**runtime-configurable** — set via `APP_TITLE`, `COLOR_PRIMARY`, `COLOR_ON_PRIMARY`,
+`COLOR_SECONDARY`, `COLOR_ON_SECONDARY` in `.env`. Unlike the API URL (which is compiled
+into the JS bundle at build time), these are rendered into a small `config.js` by
+`frontend/docker-entrypoint.sh` every time the container starts. That means the exact same
+built frontend image can be reused for a different client or deployment just by changing
+these values and restarting — `docker compose up -d`, no `--build` needed:
+
+```bash
+# re-skin without rebuilding
+docker compose up -d frontend
+```
+
+Quote hex values in `.env` (e.g. `COLOR_PRIMARY="#932e4a"`) — an unquoted `#` can be
+misread as a comment by some `.env` parsers.
 
 ## Running locally with Docker (recommended)
 
-Requires Docker and Docker Compose.
+Requires Docker and Docker Compose, and the `.env` file from the section above.
 
 ```bash
 docker compose up --build
@@ -105,19 +153,12 @@ This starts three containers:
 | API      | http://localhost:5067/swagger |
 | Postgres | localhost:5432                |
 
-On first boot the API automatically applies EF Core migrations and seeds three demo
-accounts (see below). No manual database setup is required.
+The frontend's own nginx reverse-proxies `/api/*` straight to the API container over the
+internal Docker network — so the app itself only ever needs `http://localhost:8080`; the
+API's port above is just there for convenience (hitting Swagger directly, debugging, etc).
 
-> **Before deploying to anything but your own machine**, set a strong `JWT_SECRET`
-> environment variable (32+ random bytes) — see `docker-compose.yml`.
-
-### Demo accounts
-
-| Email                  | Password       | Role     | Notes                              |
-|-------------------------|----------------|----------|-------------------------------------|
-| `employer@demo.local`   | `Password123!` | Employer | Sees and reports on everyone        |
-| `lead@demo.local`       | `Password123!` | Employee | Supervises `employee@demo.local`    |
-| `employee@demo.local`   | `Password123!` | Employee | Own hours only                      |
+On first boot the API automatically creates its schema from the current EF Core model and
+seeds your bootstrap employer account (see above). No manual database setup is required.
 
 ## Running without Docker
 
@@ -129,6 +170,8 @@ Requires the .NET 8 SDK and a PostgreSQL instance.
 cd src/TimeTracker.API
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=timetracker;Username=timetracker;Password=changeme"
 dotnet user-secrets set "Jwt:Secret" "some-long-random-development-secret"
+dotnet user-secrets set "Seed:EmployerEmail" "owner@yourcompany.com"
+dotnet user-secrets set "Seed:EmployerPassword" "some-strong-password"
 dotnet run
 ```
 
@@ -160,14 +203,51 @@ cd frontend && npm install && npm run test -- --run
 
 ## CI/CD
 
-`.github/workflows/ci-cd.yml` runs on every push/PR to `main`:
+`.github/workflows/ci-cd.yml`:
 
 1. **backend-build-and-test** — restores, builds, and runs the full .NET test suite with
-   coverage collection.
-2. **frontend-build-and-test** — installs, lints, unit-tests, and builds the SPA.
-3. **docker-publish** (main branch only, after both jobs pass) — builds and pushes the API
-   and frontend Docker images to GitHub Container Registry (`ghcr.io`), tagged with the
-   commit SHA and `latest`.
+   coverage collection. Runs on every push/PR to `main`.
+2. **frontend-build-and-test** — installs, lints, unit-tests, and builds the SPA. Runs on
+   every push/PR to `main`.
+3. **docker-publish** (after both jobs pass, push events only — never on PRs) — builds and
+   pushes the API and frontend images to **Docker Hub**:
+   - Push to `main` → updates the rolling `:latest` tag (plus a `:<commit-sha>` tag).
+   - Push a tag like `v1.2.0` → also publishes `:1.2.0`, `:1.2`, and `:1` tags — a proper
+     versioned release self-hosters can pin to instead of riding `:latest`.
+4. **github-release** (tag pushes only) — creates a GitHub Release with auto-generated
+   notes, linking the exact image tags published for that version.
+
+Required repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret               | Value                                                              |
+|----------------------|---------------------------------------------------------------------|
+| `DOCKERHUB_USERNAME` | Your Docker Hub username/org                                       |
+| `DOCKERHUB_TOKEN`    | A Docker Hub [access token](https://hub.docker.com/settings/security) (not your password) |
+
+To cut a release: `git tag v1.0.0 && git push origin v1.0.0`.
+
+## Self-hosting from the published images (no build required)
+
+Once images exist on Docker Hub, anyone can run the app without cloning or building
+anything, using `docker-compose.release.yml`:
+
+```bash
+curl -O https://raw.githubusercontent.com/<you>/<repo>/main/docker-compose.release.yml
+curl -O https://raw.githubusercontent.com/<you>/<repo>/main/.env.example
+cp .env.example .env   # fill in DB_PASSWORD, JWT_SECRET, SEED_EMPLOYER_*, branding, etc.
+DOCKERHUB_NAMESPACE=<your-dockerhub-username> docker compose -f docker-compose.release.yml up -d
+```
+
+Pin a specific version instead of `latest` with `IMAGE_TAG=v1.0.0` alongside
+`DOCKERHUB_NAMESPACE` above.
+
+## License
+
+[Mozilla Public License 2.0](LICENSE) (MPL-2.0) — a file-level copyleft license: you're free
+to use, modify, and self-host this (including commercially), but changes to MPL-covered
+files must themselves stay under MPL-2.0 if you distribute them. You *can* combine this
+code with proprietary code in a larger work, as long as the MPL-covered files stay in their
+own files under MPL-2.0. See the [LICENSE](LICENSE) file for the full text.
 
 ## Extending this project
 

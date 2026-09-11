@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { appConfig } from "../config";
 
 export function AppShell() {
   const { user, logout } = useAuth();
@@ -8,7 +9,7 @@ export function AppShell() {
     <div className="shell">
       <header className="shell__header">
         <div className="shell__brand">
-          <span className="shell__brand-mark">InstaLog</span>
+          <span className="shell__brand-mark">{appConfig.title}</span>
         </div>
         <nav className="shell__nav">
           <NavLink to="/" end className={({ isActive }) => (isActive ? "shell__nav-link is-active" : "shell__nav-link")}>
@@ -23,6 +24,11 @@ export function AppShell() {
           {user?.role === "Employer" && (
             <NavLink to="/employees" className={({ isActive }) => (isActive ? "shell__nav-link is-active" : "shell__nav-link")}>
               Manage employees
+            </NavLink>
+          )}
+          {user?.role === "Employer" && (
+            <NavLink to="/hour-types" className={({ isActive }) => (isActive ? "shell__nav-link is-active" : "shell__nav-link")}>
+              Hour types
             </NavLink>
           )}
         </nav>

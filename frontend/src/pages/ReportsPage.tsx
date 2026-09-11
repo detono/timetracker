@@ -2,6 +2,7 @@ import { useState } from "react";
 import { format, startOfMonth } from "date-fns";
 import { downloadHoursReportCsv, getHoursReport } from "../api/reportsApi";
 import { extractErrorMessage } from "../api/client";
+import { HourTypeBadge } from "../components/HourTypeBadge";
 import type { HoursReport, ReportGrouping } from "../types";
 import { hoursToHm } from "../utils/dateRange";
 
@@ -39,7 +40,7 @@ export function ReportsPage() {
       <div className="page__header">
         <div>
           <h1>Reports</h1>
-          <p className="page__subtitle">Extract worked hours by day, week, or month.</p>
+          <p className="page__subtitle">Extract worked hours by day, week, or month, broken out by type.</p>
         </div>
       </div>
 
@@ -79,13 +80,14 @@ export function ReportsPage() {
       {report && (
         <>
           <p className="page__subtitle">
-            Grand total: <strong>{hoursToHm(report.grandTotalHours)}</strong> across {report.lines.length} period
+            Grand total: <strong>{hoursToHm(report.grandTotalHours)}</strong> across {report.lines.length} line
             {report.lines.length === 1 ? "" : "s"}
           </p>
           <table className="list-view">
             <thead>
               <tr>
                 <th>Employee</th>
+                <th>Type</th>
                 <th>Period</th>
                 <th>Range</th>
                 <th>Entries</th>
@@ -94,8 +96,11 @@ export function ReportsPage() {
             </thead>
             <tbody>
               {report.lines.map((line, idx) => (
-                <tr key={`${line.userId}-${line.periodLabel}-${idx}`}>
+                <tr key={`${line.userId}-${line.hourTypeId}-${line.periodLabel}-${idx}`}>
                   <td>{line.userFullName}</td>
+                  <td>
+                    <HourTypeBadge name={line.hourTypeName} colorHex={line.hourTypeColor} />
+                  </td>
                   <td>{line.periodLabel}</td>
                   <td>
                     {line.periodStart} → {line.periodEnd}
@@ -106,7 +111,7 @@ export function ReportsPage() {
               ))}
               {report.lines.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="empty-state">
+                  <td colSpan={6} className="empty-state">
                     No hours logged in this period.
                   </td>
                 </tr>

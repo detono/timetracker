@@ -40,11 +40,12 @@ public class ReportsController : ApiControllerBase
         }
 
         var csv = new StringBuilder();
-        csv.AppendLine("Employee,Period,PeriodStart,PeriodEnd,TotalHours,Entries");
+        csv.AppendLine("Employee,HourType,Period,PeriodStart,PeriodEnd,TotalHours,Entries");
         foreach (var line in result.Value.Lines)
         {
             csv.AppendLine(string.Join(',',
                 Escape(line.UserFullName),
+                Escape(line.HourTypeName),
                 Escape(line.PeriodLabel),
                 line.PeriodStart.ToString("yyyy-MM-dd"),
                 line.PeriodEnd.ToString("yyyy-MM-dd"),

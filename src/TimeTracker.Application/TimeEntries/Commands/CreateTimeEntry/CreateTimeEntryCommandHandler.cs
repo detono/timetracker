@@ -37,8 +37,15 @@ public class CreateTimeEntryCommandHandler : IRequestHandler<CreateTimeEntryComm
             return Result<TimeEntryDto>.Failure("Target user was not found.", ResultErrorType.NotFound);
         }
 
+        var hourType = await _unitOfWork.HourTypes.GetByIdAsync(request.HourTypeId, cancellationToken);
+        if (hourType is null || !hourType.IsActive)
+        {
+            return Result<TimeEntryDto>.Failure("Hour type was not found or is no longer active.", ResultErrorType.Validation);
+        }
+
         var entry = TimeEntry.Create(
             targetUserId,
+            request.HourTypeId,
             request.WorkDate,
             request.StartTime,
             request.EndTime,
@@ -52,6 +59,9 @@ public class CreateTimeEntryCommandHandler : IRequestHandler<CreateTimeEntryComm
             entry.Id,
             entry.UserId,
             $"{targetUser.FirstName} {targetUser.LastName}",
+            hourType.Id,
+            hourType.Name,
+            hourType.ColorHex,
             entry.WorkDate,
             entry.StartTime,
             entry.EndTime,

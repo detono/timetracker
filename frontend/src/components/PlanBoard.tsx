@@ -43,12 +43,17 @@ export function PlanBoard({ days, entries, onEdit }: Props) {
                     <button
                       key={entry.id}
                       className="planboard__shift"
+                      style={{
+                        borderLeftColor: entry.hourTypeColor,
+                        backgroundColor: `${entry.hourTypeColor}22`
+                      }}
                       onClick={() => onEdit?.(entry)}
                       title={entry.notes ?? undefined}
                     >
                       <span className="planboard__shift-time">
                         {entry.startTime.slice(0, 5)}–{entry.endTime.slice(0, 5)}
                       </span>
+                      <span className="planboard__shift-type">{entry.hourTypeName}</span>
                       <span className="planboard__shift-duration">{hoursToHm(entry.durationHours)}</span>
                     </button>
                   ))}

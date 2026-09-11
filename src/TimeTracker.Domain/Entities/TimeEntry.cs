@@ -3,11 +3,13 @@ using TimeTracker.Domain.Exceptions;
 namespace TimeTracker.Domain.Entities;
 
 /// <summary>
-/// A single logged block of work for a given user on a given date.
+/// A single logged block of time for a given user on a given date, categorized by an
+/// employer-managed <see cref="HourType"/> (Work, Sick Leave, PTO, ADV, ...).
 /// </summary>
 public class TimeEntry : BaseEntity
 {
     public Guid UserId { get; private set; }
+    public Guid HourTypeId { get; private set; }
     public DateOnly WorkDate { get; private set; }
     public TimeOnly StartTime { get; private set; }
     public TimeOnly EndTime { get; private set; }
@@ -21,22 +23,41 @@ public class TimeEntry : BaseEntity
         // EF Core
     }
 
-    private TimeEntry(Guid userId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime, int breakMinutes, string? notes)
+    private TimeEntry(Guid userId, Guid hourTypeId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime, int breakMinutes, string? notes)
     {
         UserId = userId;
+        SetHourType(hourTypeId);
         WorkDate = workDate;
         SetTimes(startTime, endTime, breakMinutes);
         Notes = notes;
     }
 
-    public static TimeEntry Create(Guid userId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime, int breakMinutes = 0, string? notes = null)
+    public static TimeEntry Create(
+        Guid userId,
+        Guid hourTypeId,
+        DateOnly workDate,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        int breakMinutes = 0,
+        string? notes = null)
     {
         if (userId == Guid.Empty)
         {
             throw new DomainException("A time entry must belong to a user.");
         }
 
-        return new TimeEntry(userId, workDate, startTime, endTime, breakMinutes, notes);
+        return new TimeEntry(userId, hourTypeId, workDate, startTime, endTime, breakMinutes, notes);
+    }
+
+    public void SetHourType(Guid hourTypeId)
+    {
+        if (hourTypeId == Guid.Empty)
+        {
+            throw new DomainException("A time entry must have an hour type.");
+        }
+
+        HourTypeId = hourTypeId;
+        MarkUpdated();
     }
 
     public void SetTimes(TimeOnly startTime, TimeOnly endTime, int breakMinutes)

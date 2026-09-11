@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../api/authApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { appConfig } from "../config";
 
 export function LoginPage() {
   const auth = useAuth();
@@ -30,7 +31,7 @@ export function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-card__brand">InstaLog</div>
+        <div className="auth-card__brand">{appConfig.title}</div>
         <p className="auth-card__tagline">Log hours. See the whole team. No guesswork at payroll time.</p>
 
         <form onSubmit={handleSubmit} className="form">

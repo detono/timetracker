@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
-import type { TimeEntry } from "../types";
+import type { HourType, TimeEntry } from "../types";
 
 export interface TimeEntryFormValues {
+  hourTypeId: string;
   workDate: string;
   startTime: string;
   endTime: string;
@@ -11,12 +12,14 @@ export interface TimeEntryFormValues {
 
 interface Props {
   initial?: TimeEntry;
+  hourTypes: HourType[];
   onSubmit: (values: TimeEntryFormValues) => Promise<void>;
   onCancel?: () => void;
 }
 
-export function TimeEntryForm({ initial, onSubmit, onCancel }: Props) {
+export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props) {
   const [values, setValues] = useState<TimeEntryFormValues>({
+    hourTypeId: initial?.hourTypeId ?? hourTypes[0]?.id ?? "",
     workDate: initial?.workDate ?? new Date().toISOString().slice(0, 10),
     startTime: initial?.startTime.slice(0, 5) ?? "09:00",
     endTime: initial?.endTime.slice(0, 5) ?? "17:00",
@@ -42,6 +45,21 @@ export function TimeEntryForm({ initial, onSubmit, onCancel }: Props) {
   return (
     <form className="form form--entry" onSubmit={handleSubmit}>
       <div className="form__row">
+        <label className="form__field">
+          <span>Type</span>
+          <select
+            value={values.hourTypeId}
+            onChange={(e) => setValues({ ...values, hourTypeId: e.target.value })}
+            required
+          >
+            {hourTypes.length === 0 && <option value="">No hour types available</option>}
+            {hourTypes.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="form__field">
           <span>Date</span>
           <input
@@ -93,7 +111,7 @@ export function TimeEntryForm({ initial, onSubmit, onCancel }: Props) {
       {error && <p className="form__error">{error}</p>}
 
       <div className="form__actions">
-        <button type="submit" className="btn btn--primary" disabled={submitting}>
+        <button type="submit" className="btn btn--primary" disabled={submitting || !values.hourTypeId}>
           {submitting ? "Saving…" : initial ? "Save changes" : "Log hours"}
         </button>
         {onCancel && (

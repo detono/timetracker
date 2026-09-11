@@ -17,10 +17,20 @@ export interface UserAccount {
   isActive: boolean;
 }
 
+export interface HourType {
+  id: string;
+  name: string;
+  colorHex: string;
+  isActive: boolean;
+}
+
 export interface TimeEntry {
   id: string;
   userId: string;
   userFullName: string;
+  hourTypeId: string;
+  hourTypeName: string;
+  hourTypeColor: string;
   workDate: string; // yyyy-MM-dd
   startTime: string; // HH:mm:ss
   endTime: string;
@@ -34,6 +44,9 @@ export type ReportGrouping = "Day" | "Week" | "Month";
 export interface HoursReportLine {
   userId: string;
   userFullName: string;
+  hourTypeId: string;
+  hourTypeName: string;
+  hourTypeColor: string;
   periodLabel: string;
   periodStart: string;
   periodEnd: string;

@@ -31,8 +31,15 @@ public class UpdateTimeEntryCommandHandler : IRequestHandler<UpdateTimeEntryComm
             return Result<TimeEntryDto>.Failure("You are not allowed to edit this time entry.", ResultErrorType.Forbidden);
         }
 
+        var hourType = await _unitOfWork.HourTypes.GetByIdAsync(request.HourTypeId, cancellationToken);
+        if (hourType is null || !hourType.IsActive)
+        {
+            return Result<TimeEntryDto>.Failure("Hour type was not found or is no longer active.", ResultErrorType.Validation);
+        }
+
         entry.Reschedule(request.WorkDate);
         entry.SetTimes(request.StartTime, request.EndTime, request.BreakMinutes);
+        entry.SetHourType(request.HourTypeId);
         entry.UpdateNotes(request.Notes);
 
         _unitOfWork.TimeEntries.Update(entry);
@@ -44,6 +51,9 @@ public class UpdateTimeEntryCommandHandler : IRequestHandler<UpdateTimeEntryComm
             entry.Id,
             entry.UserId,
             user is null ? string.Empty : $"{user.FirstName} {user.LastName}",
+            hourType.Id,
+            hourType.Name,
+            hourType.ColorHex,
             entry.WorkDate,
             entry.StartTime,
             entry.EndTime,

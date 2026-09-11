@@ -6,6 +6,7 @@ import {
   getMyTimeEntries,
   updateTimeEntry
 } from "../api/timeEntriesApi";
+import { getHourTypes } from "../api/hourTypesApi";
 import { extractErrorMessage } from "../api/client";
 import { ViewToggle, type ViewMode } from "../components/ViewToggle";
 import { ListView } from "../components/ListView";
@@ -13,12 +14,13 @@ import { PlanBoard } from "../components/PlanBoard";
 import { TimeEntryForm, type TimeEntryFormValues } from "../components/TimeEntryForm";
 import { WeekNavigator } from "../components/WeekNavigator";
 import { getWeekRange, hoursToHm } from "../utils/dateRange";
-import type { TimeEntry } from "../types";
+import type { HourType, TimeEntry } from "../types";
 
 export function DashboardPage() {
   const { user } = useAuth();
   const [anchorDate, setAnchorDate] = useState(new Date());
   const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [hourTypes, setHourTypes] = useState<HourType[]>([]);
   const [view, setView] = useState<ViewMode>("list");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +33,12 @@ export function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getMyTimeEntries(user?.userId, from, to);
-      setEntries(data);
+      const [entriesData, hourTypesData] = await Promise.all([
+        getMyTimeEntries(user?.userId, from, to),
+        getHourTypes()
+      ]);
+      setEntries(entriesData);
+      setHourTypes(hourTypesData);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -46,6 +52,7 @@ export function DashboardPage() {
 
   async function handleCreate(values: TimeEntryFormValues) {
     await createTimeEntry({
+      hourTypeId: values.hourTypeId,
       workDate: values.workDate,
       startTime: values.startTime,
       endTime: values.endTime,
@@ -59,6 +66,7 @@ export function DashboardPage() {
   async function handleUpdate(values: TimeEntryFormValues) {
     if (!editing) return;
     await updateTimeEntry(editing.id, {
+      hourTypeId: values.hourTypeId,
       workDate: values.workDate,
       startTime: values.startTime,
       endTime: values.endTime,
@@ -101,6 +109,7 @@ export function DashboardPage() {
           <h2>{editing ? "Edit entry" : "Log new hours"}</h2>
           <TimeEntryForm
             initial={editing ?? undefined}
+            hourTypes={hourTypes}
             onSubmit={editing ? handleUpdate : handleCreate}
             onCancel={() => {
               setShowForm(false);
