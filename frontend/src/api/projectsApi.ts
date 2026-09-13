@@ -17,6 +17,8 @@ export const projectsApi = {
     },
 
     toggleStatus: async (id: string, isActive: boolean): Promise<void> => {
-        await apiClient.patch(`/projects/${id}/status`, isActive);
+        await apiClient.patch(`/projects/${id}/status`, isActive, {
+            headers: { "Content-Type": "application/json" }
+        });
     }
 };
