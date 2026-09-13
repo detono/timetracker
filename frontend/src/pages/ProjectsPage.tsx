@@ -83,12 +83,6 @@ export function ProjectsPage() {
         setBusyProjectId(target.id);
         setError(null);
         try {
-            if (target.isActive) {
-                if (!confirm(t('projects.confirmDeactivate', { name: target.name }))) {
-                    return;
-                }
-            }
-
             await projectsApi.toggleStatus(target.id, !target.isActive);
             await loadProjects();
         } catch (err) {
