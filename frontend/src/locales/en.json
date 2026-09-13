@@ -161,7 +161,8 @@
     "myHours": "My hours",
     "allEmployees": "All employees",
     "teamOverview": "Team overview",
-    "hourTypes": "Hour types"
+    "hourTypes": "Hour types",
+    "projects": "Projects"
   },
   "time": {
     "logHours": "Log Hours",

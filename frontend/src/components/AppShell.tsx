@@ -35,6 +35,11 @@ export function AppShell() {
               {t('nav.hourTypes')}
             </NavLink>
           )}
+          {user?.role === 'Employer' && (
+            <NavLink to="/projects" className={({ isActive }) => isActive ? "shell__nav-link is-active" : "shell__nav-link"}>
+              {t('nav.projects')}
+            </NavLink>
+          )}
         </nav>
         <div className="shell__account">
           <NavLink to="/account" className="shell__account-info shell__account-info--link">

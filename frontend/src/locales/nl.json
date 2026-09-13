@@ -164,7 +164,8 @@
     "myHours": "Mijn uren",
     "allEmployees": "Alle medewerkers",
     "teamOverview": "Teamoverzicht",
-    "hourTypes": "Uurtypes"
+    "hourTypes": "Uurtypes",
+    "projects": "Projecten"
   },
   "time": {
     "logHours": "Uren Registreren",

@@ -11,10 +11,8 @@ namespace TimeTracker.Application;
 /// (rather than in the API project) means the API only needs to know "Add the Application
 /// layer", respecting the Dependency Inversion Principle.
 /// </summary>
-public static class DependencyInjection
-{
-    public static IServiceCollection AddApplication(this IServiceCollection services)
-    {
+public static class DependencyInjection {
+    public static IServiceCollection AddApplication(this IServiceCollection services) {
         var assembly = Assembly.GetExecutingAssembly();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));

@@ -8,6 +8,7 @@ import {
   updateTimeEntry
 } from "../api/timeEntriesApi";
 import { getHourTypes } from "../api/hourTypesApi";
+import { projectsApi } from "../api/projectsApi"; // <-- 1. Added this import
 import { extractErrorMessage } from "../api/client";
 import { ViewToggle, type ViewMode } from "../components/ViewToggle";
 import { ListView } from "../components/ListView";
@@ -15,7 +16,7 @@ import { PlanBoard } from "../components/PlanBoard";
 import { TimeEntryForm, type TimeEntryFormValues } from "../components/TimeEntryForm";
 import { WeekNavigator } from "../components/WeekNavigator";
 import { getWeekRange, hoursToHm } from "../utils/dateRange";
-import type { HourType, TimeEntry } from "../types";
+import type { HourType, Project, TimeEntry } from "../types";
 
 export function DashboardPage() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<TimeEntry | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   const { from, to, days } = getWeekRange(anchorDate);
 
@@ -35,12 +37,15 @@ export function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [entriesData, hourTypesData] = await Promise.all([
+      // 2. Added projectsApi.getAll(false) to fetch active projects alongside the other data
+      const [entriesData, hourTypesData, projectsData] = await Promise.all([
         getMyTimeEntries(user?.userId, from, to),
-        getHourTypes()
+        getHourTypes(),
+        projectsApi.getAll(false)
       ]);
       setEntries(entriesData);
       setHourTypes(hourTypesData);
+      setProjects(projectsData);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -55,6 +60,8 @@ export function DashboardPage() {
   async function handleCreate(values: TimeEntryFormValues) {
     await createTimeEntry({
       hourTypeId: values.hourTypeId,
+      // 3. Map the empty string to null for the database
+      projectId: values.projectId?.trim() === "" ? null : values.projectId,
       workDate: values.workDate,
       startTime: values.startTime,
       endTime: values.endTime,
@@ -69,6 +76,8 @@ export function DashboardPage() {
     if (!editing) return;
     await updateTimeEntry(editing.id, {
       hourTypeId: values.hourTypeId,
+      // 3. Map the empty string to null for the database
+      projectId: values.projectId?.trim() === "" ? null : values.projectId,
       workDate: values.workDate,
       startTime: values.startTime,
       endTime: values.endTime,
@@ -110,6 +119,7 @@ export function DashboardPage() {
         <div className="panel">
           <h2>{editing ? t('dashboard.editEntry') : t('dashboard.logNewHours')}</h2>
           <TimeEntryForm
+            projects={projects}
             initial={editing ?? undefined}
             hourTypes={hourTypes}
             onSubmit={editing ? handleUpdate : handleCreate}

@@ -8,6 +8,7 @@ import { TeamPage } from "./pages/TeamPage";
 import { EmployeesPage } from "./pages/EmployeesPage";
 import { AccountPage } from "./pages/AccountPage";
 import { HourTypesPage } from "./pages/HourTypesPage";
+import { ProjectsPage } from "./pages/ProjectsPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -52,6 +53,10 @@ export default function App() {
               <HourTypesPage />
             </RequireEmployer>
           }
+        />
+        <Route
+          path="/projects"
+          element={<ProjectsPage />}
         />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

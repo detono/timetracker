@@ -3,6 +3,7 @@ import type { TimeEntry } from "../types";
 
 export interface CreateTimeEntryPayload {
   targetUserId?: string | null;
+  projectId: string | null;
   hourTypeId: string;
   workDate: string;
   startTime: string;

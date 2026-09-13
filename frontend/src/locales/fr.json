@@ -164,7 +164,8 @@
     "myHours": "Mes heures",
     "allEmployees": "Tous les employés",
     "teamOverview": "Aperçu de l'équipe",
-    "hourTypes": "Types d'heures"
+    "hourTypes": "Types d'heures",
+    "projects": "Projets"
   },
   "time": {
     "logHours": "Enregistrer des Heures",
