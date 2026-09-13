@@ -12,4 +12,5 @@ namespace TimeTracker.Application.TimeEntries.Queries.GetTimeEntries;
 public record GetTimeEntriesQuery(
     Guid TargetUserId,
     DateOnly? From,
-    DateOnly? To) : IRequest<Result<IReadOnlyList<TimeEntryDto>>>;
+    DateOnly? To
+) : IRequest<Result<IReadOnlyList<TimeEntryDto>>>;

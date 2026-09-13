@@ -12,6 +12,7 @@ namespace TimeTracker.Application.TimeEntries.Commands.CreateTimeEntry;
 public record CreateTimeEntryCommand(
     Guid? TargetUserId,
     Guid HourTypeId,
+    Guid? ProjectId,
     DateOnly WorkDate,
     TimeOnly StartTime,
     TimeOnly EndTime,

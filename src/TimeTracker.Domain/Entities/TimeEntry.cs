@@ -105,6 +105,11 @@ public class TimeEntry : BaseEntity {
         MarkUpdated();
     }
 
+    public void UpdateProjectId(Guid? projectId) {
+        ProjectId = projectId;
+        MarkUpdated();
+    }
+
     public void Reschedule(DateOnly workDate) {
         WorkDate = workDate;
         MarkUpdated();

@@ -9,30 +9,32 @@ using Xunit;
 
 namespace TimeTracker.Application.UnitTests.TimeEntries;
 
-public class CreateTimeEntryCommandHandlerTests
-{
+public class CreateTimeEntryCommandHandlerTests {
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<IUserRepository> _userRepository = new();
     private readonly Mock<ITimeEntryRepository> _timeEntryRepository = new();
     private readonly Mock<IHourTypeRepository> _hourTypeRepository = new();
+    private readonly Mock<IProjectRepository> _projectRepository = new(); // <-- Added Mock
     private readonly HourType _workType = HourType.Create("Work", "#932e4a");
 
-    public CreateTimeEntryCommandHandlerTests()
-    {
+    public CreateTimeEntryCommandHandlerTests() {
         _unitOfWork.SetupGet(u => u.Users).Returns(_userRepository.Object);
         _unitOfWork.SetupGet(u => u.TimeEntries).Returns(_timeEntryRepository.Object);
         _unitOfWork.SetupGet(u => u.HourTypes).Returns(_hourTypeRepository.Object);
-        _hourTypeRepository.Setup(r => r.GetByIdAsync(_workType.Id, It.IsAny<CancellationToken>())).ReturnsAsync(_workType);
+        _unitOfWork.SetupGet(u => u.Projects).Returns(_projectRepository.Object); // <-- Added Setup
+        _hourTypeRepository.Setup(r => r.GetByIdAsync(_workType.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_workType);
     }
 
     [Fact]
-    public async Task Handle_LoggingForSelf_Succeeds()
-    {
+    public async Task Handle_LoggingForSelf_Succeeds() {
         var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new TestCurrentUserService(user.Id, UserRole.Employee));
-        var command = new CreateTimeEntryCommand(null, _workType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0), 30, "Notes");
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(user.Id, UserRole.Employee));
+        var command = new CreateTimeEntryCommand(null, _workType.Id, null, new DateOnly(2026, 1, 5), new TimeOnly(9, 0),
+            new TimeOnly(17, 0), 30, "Notes");
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -44,13 +46,14 @@ public class CreateTimeEntryCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_EmployeeLoggingForSomeoneElse_ReturnsForbidden()
-    {
+    public async Task Handle_EmployeeLoggingForSomeoneElse_ReturnsForbidden() {
         var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
         var otherUserId = Guid.NewGuid();
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employee.Id, UserRole.Employee));
-        var command = new CreateTimeEntryCommand(otherUserId, _workType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(employee.Id, UserRole.Employee));
+        var command = new CreateTimeEntryCommand(otherUserId, _workType.Id, null, new DateOnly(2026, 1, 5),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -60,14 +63,15 @@ public class CreateTimeEntryCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_EmployerLoggingForSomeoneElse_Succeeds()
-    {
+    public async Task Handle_EmployerLoggingForSomeoneElse_Succeeds() {
         var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
         var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer));
-        var command = new CreateTimeEntryCommand(employee.Id, _workType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(employer.Id, UserRole.Employer));
+        var command = new CreateTimeEntryCommand(employee.Id, _workType.Id, null, new DateOnly(2026, 1, 5),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -75,14 +79,16 @@ public class CreateTimeEntryCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_TargetUserNotFound_ReturnsNotFound()
-    {
+    public async Task Handle_TargetUserNotFound_ReturnsNotFound() {
         var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
         var missingUserId = Guid.NewGuid();
-        _userRepository.Setup(r => r.GetByIdAsync(missingUserId, It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
+        _userRepository.Setup(r => r.GetByIdAsync(missingUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer));
-        var command = new CreateTimeEntryCommand(missingUserId, _workType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(employer.Id, UserRole.Employer));
+        var command = new CreateTimeEntryCommand(missingUserId, _workType.Id, null, new DateOnly(2026, 1, 5),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -91,14 +97,15 @@ public class CreateTimeEntryCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_UnknownHourType_ReturnsValidationFailure()
-    {
+    public async Task Handle_UnknownHourType_ReturnsValidationFailure() {
         var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         var unknownTypeId = Guid.NewGuid();
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new TestCurrentUserService(user.Id, UserRole.Employee));
-        var command = new CreateTimeEntryCommand(null, unknownTypeId, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(user.Id, UserRole.Employee));
+        var command = new CreateTimeEntryCommand(null, unknownTypeId, null, new DateOnly(2026, 1, 5),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -107,19 +114,71 @@ public class CreateTimeEntryCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_DeactivatedHourType_ReturnsValidationFailure()
-    {
+    public async Task Handle_DeactivatedHourType_ReturnsValidationFailure() {
         var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         var retiredType = HourType.Create("Retired Type", "#000000");
         retiredType.Deactivate();
-        _hourTypeRepository.Setup(r => r.GetByIdAsync(retiredType.Id, It.IsAny<CancellationToken>())).ReturnsAsync(retiredType);
+        _hourTypeRepository.Setup(r => r.GetByIdAsync(retiredType.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(retiredType);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new TestCurrentUserService(user.Id, UserRole.Employee));
-        var command = new CreateTimeEntryCommand(null, retiredType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(user.Id, UserRole.Employee));
+        var command = new CreateTimeEntryCommand(null, retiredType.Id, null, new DateOnly(2026, 1, 5),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
+    }
+
+    // --- NEW TESTS START HERE ---
+
+    [Fact]
+    public async Task Handle_WithValidProject_ReturnsDtoWithProjectDetails() {
+        // Arrange
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+
+        var project = Project.Create("Internal Migration", "Tradecom NV");
+        _projectRepository.Setup(r => r.GetByIdAsync(project.Id, It.IsAny<CancellationToken>())).ReturnsAsync(project);
+
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(user.Id, UserRole.Employee));
+        var command = new CreateTimeEntryCommand(null, _workType.Id, project.Id, new DateOnly(2026, 9, 13),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 30, "Migration work");
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.Succeeded.Should().BeTrue();
+        result.Value!.ProjectId.Should().Be(project.Id);
+        result.Value.ProjectName.Should().Be("Internal Migration");
+    }
+
+    [Fact]
+    public async Task Handle_WithNonExistentProject_ReturnsDtoWithNullProjectName() {
+        // Arrange
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+
+        var missingProjectId = Guid.NewGuid();
+        _projectRepository.Setup(r => r.GetByIdAsync(missingProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Project?)null);
+
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(user.Id, UserRole.Employee));
+        var command = new CreateTimeEntryCommand(null, _workType.Id, missingProjectId, new DateOnly(2026, 9, 13),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 30, "Lost project");
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.Succeeded.Should().BeTrue();
+        // Since the lookup fails gracefully in the handler, the ID is stored but Name is mapped to null
+        result.Value!.ProjectId.Should().Be(missingProjectId);
+        result.Value.ProjectName.Should().BeNull();
     }
 }

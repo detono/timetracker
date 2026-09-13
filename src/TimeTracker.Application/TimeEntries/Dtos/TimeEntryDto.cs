@@ -12,4 +12,7 @@ public record TimeEntryDto(
     TimeOnly EndTime,
     int BreakMinutes,
     double DurationHours,
-    string? Notes);
+    string? Notes,
+    Guid? ProjectId,
+    string? ProjectName
+);

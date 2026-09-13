@@ -7,45 +7,44 @@ using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.TimeEntries.Commands.UpdateTimeEntry;
 
-public class UpdateTimeEntryCommandHandler : IRequestHandler<UpdateTimeEntryCommand, Result<TimeEntryDto>>
-{
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly ICurrentUserService _currentUser;
-
-    public UpdateTimeEntryCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
-    {
-        _unitOfWork = unitOfWork;
-        _currentUser = currentUser;
-    }
-
-    public async Task<Result<TimeEntryDto>> Handle(UpdateTimeEntryCommand request, CancellationToken cancellationToken)
-    {
-        var entry = await _unitOfWork.TimeEntries.GetByIdAsync(request.Id, cancellationToken);
-        if (entry is null)
-        {
+public class UpdateTimeEntryCommandHandler(
+    IUnitOfWork unitOfWork, 
+    ICurrentUserService currentUser
+) : IRequestHandler<UpdateTimeEntryCommand, Result<TimeEntryDto>> {
+    public async Task<Result<TimeEntryDto>>
+        Handle(UpdateTimeEntryCommand request, CancellationToken cancellationToken) {
+        var entry = await unitOfWork.TimeEntries.GetByIdAsync(request.Id, cancellationToken);
+        if (entry is null) {
             return Result<TimeEntryDto>.Failure("Time entry was not found.", ResultErrorType.NotFound);
         }
 
-        if (entry.UserId != _currentUser.UserId && _currentUser.Role != UserRole.Employer)
-        {
-            return Result<TimeEntryDto>.Failure("You are not allowed to edit this time entry.", ResultErrorType.Forbidden);
+        if (entry.UserId != currentUser.UserId && currentUser.Role != UserRole.Employer) {
+            return Result<TimeEntryDto>.Failure("You are not allowed to edit this time entry.",
+                ResultErrorType.Forbidden);
         }
 
-        var hourType = await _unitOfWork.HourTypes.GetByIdAsync(request.HourTypeId, cancellationToken);
-        if (hourType is null || !hourType.IsActive)
-        {
-            return Result<TimeEntryDto>.Failure("Hour type was not found or is no longer active.", ResultErrorType.Validation);
+        var hourType = await unitOfWork.HourTypes.GetByIdAsync(request.HourTypeId, cancellationToken);
+        if (hourType is null || !hourType.IsActive) {
+            return Result<TimeEntryDto>.Failure("Hour type was not found or is no longer active.",
+                ResultErrorType.Validation);
         }
 
         entry.Reschedule(request.WorkDate);
         entry.SetTimes(request.StartTime, request.EndTime, request.BreakMinutes);
         entry.SetHourType(request.HourTypeId);
         entry.UpdateNotes(request.Notes);
+        entry.UpdateProjectId(request.ProjectId);
+        
+        string? projectName = null;
+        if (request.ProjectId.HasValue) { 
+            var project = await unitOfWork.Projects.GetByIdAsync(request.ProjectId.Value, cancellationToken);
+            projectName = project?.Name; 
+        }
+        
+        unitOfWork.TimeEntries.Update(entry);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        _unitOfWork.TimeEntries.Update(entry);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        var user = await _unitOfWork.Users.GetByIdAsync(entry.UserId, cancellationToken);
+        var user = await unitOfWork.Users.GetByIdAsync(entry.UserId, cancellationToken);
 
         var dto = new TimeEntryDto(
             entry.Id,
@@ -59,7 +58,10 @@ public class UpdateTimeEntryCommandHandler : IRequestHandler<UpdateTimeEntryComm
             entry.EndTime,
             entry.BreakMinutes,
             Math.Round(entry.Duration.TotalHours, 2),
-            entry.Notes);
+            entry.Notes,
+            entry.ProjectId,
+            projectName
+        );
 
         return Result<TimeEntryDto>.Success(dto);
     }
