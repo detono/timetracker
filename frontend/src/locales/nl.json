@@ -11,6 +11,28 @@
     "saving": "Opslaan…",
     "signOut": "Uitloggen"
   },
+  "projects": {
+    "title": "Projecten",
+    "subtitle": "Beheer klanten en projecttoewijzingen.",
+    "addNew": "Nieuw project toevoegen",
+    "editProject": "Project bewerken",
+    "name": "Projectnaam",
+    "clientName": "Klantnaam",
+    "optional": "Optioneel",
+    "createProject": "Project aanmaken",
+    "confirmDeactivate": "Weet je zeker dat je het project '{{name}}' wilt archiveren?",
+    "table": {
+      "name": "Naam",
+      "client": "Klant",
+      "status": "Status",
+      "actions": "Acties"
+    },
+    "statusActive": "Actief",
+    "statusArchived": "Gearchiveerd",
+    "archive": "Archiveren",
+    "reactivate": "Reactiveren",
+    "noProjects": "Geen projecten gevonden."
+  },
   "timeEntryForm": {
     "errorSave": "Kon deze registratie niet opslaan.",
     "type": "Type",
@@ -22,7 +44,9 @@
     "notes": "Opmerkingen (optioneel)",
     "notesPlaceholder": "Waar heb je aan gewerkt?",
     "saveChanges": "Wijzigingen opslaan",
-    "logHoursBtn": "Uren registreren"
+    "logHoursBtn": "Uren registreren",
+    "project": "Project",
+    "noProject": "Geen"
   },
   "planBoard": {
     "emptyState": "Nog geen uren geregistreerd voor deze periode."

@@ -11,6 +11,28 @@
     "saving": "Enregistrement…",
     "signOut": "Se déconnecter"
   },
+  "projects": {
+    "title": "Projets",
+    "subtitle": "Gérez les clients et les affectations de projets.",
+    "addNew": "Ajouter un nouveau projet",
+    "editProject": "Modifier le projet",
+    "name": "Nom du projet",
+    "clientName": "Nom du client",
+    "optional": "Optionnel",
+    "createProject": "Créer le projet",
+    "confirmDeactivate": "Êtes-vous sûr de vouloir archiver le projet '{{name}}' ?",
+    "table": {
+      "name": "Nom",
+      "client": "Client",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "statusActive": "Actif",
+    "statusArchived": "Archivé",
+    "archive": "Archiver",
+    "reactivate": "Réactiver",
+    "noProjects": "Aucun projet trouvé."
+  },
   "timeEntryForm": {
     "errorSave": "Impossible d'enregistrer cette entrée.",
     "type": "Type",
@@ -22,7 +44,9 @@
     "notes": "Remarques (facultatif)",
     "notesPlaceholder": "Sur quoi avez-vous travaillé ?",
     "saveChanges": "Enregistrer les modifications",
-    "logHoursBtn": "Enregistrer des heures"
+    "logHoursBtn": "Enregistrer des heures",
+    "project": "Projet",
+    "noProject": "Aucun"
   },
   "planBoard": {
     "emptyState": "Aucune heure enregistrée pour cette période pour le moment."

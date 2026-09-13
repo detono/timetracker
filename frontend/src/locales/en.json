@@ -39,7 +39,9 @@
     "notes": "Notes (optional)",
     "notesPlaceholder": "What did you work on?",
     "saveChanges": "Save changes",
-    "logHoursBtn": "Log hours"
+    "logHoursBtn": "Log hours",
+    "project": "Project",
+    "noProject": "None"
   },
   "employees": {
     "title": "Manage employees",
@@ -152,6 +154,28 @@
       "entries": "Entries",
       "totalHours": "Total hours"
     }
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Manage clients and project assignments.",
+    "addNew": "Add New Project",
+    "editProject": "Edit Project",
+    "name": "Project Name",
+    "clientName": "Client Name",
+    "optional": "Optional",
+    "createProject": "Create Project",
+    "confirmDeactivate": "Are you sure you want to archive the project '{{name}}'?",
+    "table": {
+      "name": "Name",
+      "client": "Client",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "statusActive": "Active",
+    "statusArchived": "Archived",
+    "archive": "Archive",
+    "reactivate": "Reactivate",
+    "noProjects": "No projects found."
   },
   "nav": {
     "planboard": "Planboard",
