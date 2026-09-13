@@ -29,6 +29,7 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Prop
           <th>{t('listView.break')}</th>
           <th>{t('listView.duration')}</th>
           <th>{t('listView.notes')}</th>
+          <th>{t('timeEntryForm.project')}</th>
           {(onEdit || onDelete) && <th aria-label={t('listView.actions')} />}
         </tr>
       </thead>
@@ -45,6 +46,13 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Prop
             <td>{entry.breakMinutes} {t('listView.minutes')}</td>
             <td className="list-view__duration">{hoursToHm(entry.durationHours)}</td>
             <td className="list-view__notes">{entry.notes ?? "—"}</td>
+            <td>
+              {entry.projectName ? (
+                <span className="badge badge--neutral">{entry.projectName}</span>
+              ) : (
+                <span className="list-view__notes">—</span>
+              )}
+            </td>
             {(onEdit || onDelete) && (
               <td className="list-view__actions">
                 {onEdit && (

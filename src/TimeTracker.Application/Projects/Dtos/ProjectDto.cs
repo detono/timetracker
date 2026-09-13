@@ -1,3 +1,10 @@
 namespace TimeTracker.Application.Projects.Dtos;
 
-public record ProjectDto(Guid Id, string Name, string? ClientName, bool IsActive);
+public record ProjectDto(
+    Guid Id,
+    string Name,
+    string? ClientName,
+    bool IsActive,
+    double TotalHoursLifetime, 
+    double TotalHoursThisMonth 
+);

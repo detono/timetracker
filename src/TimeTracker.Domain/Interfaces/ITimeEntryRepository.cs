@@ -22,6 +22,12 @@ public interface ITimeEntryRepository
         DateOnly? from = null,
         DateOnly? to = null,
         CancellationToken cancellationToken = default);
+    
+    Task<IReadOnlyList<TimeEntry>> GetAllWithProjectIdAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TimeEntry>> GetByProjectIdAsync(
+        Guid projectId, 
+        CancellationToken cancellationToken = default
+    );
 
     Task AddAsync(TimeEntry timeEntry, CancellationToken cancellationToken = default);
     void Update(TimeEntry timeEntry);

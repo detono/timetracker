@@ -1,4 +1,4 @@
-import type { Project } from "../types";
+import type { Project, ProjectBreakdown } from "../types";
 import { apiClient } from "./client";
 
 export const projectsApi = {
@@ -20,5 +20,10 @@ export const projectsApi = {
         await apiClient.patch(`/projects/${id}/status`, isActive, {
             headers: { "Content-Type": "application/json" }
         });
+    },
+
+    getBreakdown: async (id: string): Promise<ProjectBreakdown[]> => {
+        const response = await apiClient.get<ProjectBreakdown[]>(`/projects/${id}/breakdown`);
+        return response.data;
     }
 };

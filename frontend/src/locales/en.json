@@ -169,7 +169,9 @@
       "name": "Name",
       "client": "Client",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "thisMonth": "This Month",
+      "lifetime": "Lifetime"
     },
     "statusActive": "Active",
     "statusArchived": "Archived",

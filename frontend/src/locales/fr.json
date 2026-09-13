@@ -25,7 +25,9 @@
       "name": "Nom",
       "client": "Client",
       "status": "Statut",
-      "actions": "Actions"
+      "actions": "Actions",
+      "thisMonth": "Ce mois-ci",
+      "lifetime": "Total"
     },
     "statusActive": "Actif",
     "statusArchived": "Archivé",

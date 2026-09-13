@@ -36,4 +36,10 @@ public class ProjectsController : ApiControllerBase {
     public async Task<ActionResult> ToggleStatus(Guid id, [FromBody] bool isActive) {
         return HandleResult(await Mediator.Send(new ToggleProjectStatusCommand(id, isActive)));
     }
+    
+    [HttpGet("{id:guid}/breakdown")]
+    [Authorize(Roles = "Employer")]
+    public async Task<ActionResult<IReadOnlyList<ProjectBreakdownDto>>> GetBreakdown(Guid id, CancellationToken cancellationToken) {
+        return HandleResult(await Mediator.Send(new GetProjectBreakdownQuery(id), cancellationToken));
+    }
 }

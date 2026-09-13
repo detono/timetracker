@@ -1,8 +1,8 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, Fragment, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { projectsApi } from "../api/projectsApi";
 import { extractErrorMessage } from "../api/client";
-import type { Project } from "../types";
+import type { Project, ProjectBreakdown } from "../types";
 
 const emptyForm = {
     name: "",
@@ -19,6 +19,10 @@ export function ProjectsPage() {
     const [saving, setSaving] = useState(false);
     const [busyProjectId, setBusyProjectId] = useState<string | null>(null);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
+
+    const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [breakdowns, setBreakdowns] = useState<Record<string, ProjectBreakdown[]>>({});
+    const [loadingBreakdown, setLoadingBreakdown] = useState(false);
 
     const loadProjects = useCallback(async () => {
         setLoading(true);
@@ -92,6 +96,26 @@ export function ProjectsPage() {
         }
     }
 
+    async function handleToggleExpand(projectId: string) {
+        if (expandedId === projectId) {
+            setExpandedId(null);
+            return;
+        }
+        setExpandedId(projectId);
+
+        if (!breakdowns[projectId]) {
+            setLoadingBreakdown(true);
+            try {
+                const data = await projectsApi.getBreakdown(projectId);
+                setBreakdowns(prev => ({ ...prev, [projectId]: data }));
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoadingBreakdown(false);
+            }
+        }
+    }
+
     return (
         <div className="page">
             <div className="page__header">
@@ -155,37 +179,71 @@ export function ProjectsPage() {
                         <tr>
                             <th>{t('projects.table.name')}</th>
                             <th>{t('projects.table.client')}</th>
+                            <th>{t('projects.table.thisMonth')}</th>
+                            <th>{t('projects.table.lifetime')}</th>
                             <th>{t('projects.table.status')}</th>
                             <th aria-label={t('projects.table.actions')} />
                         </tr>
                     </thead>
                     <tbody>
                         {projects.map((p) => (
-                            <tr key={p.id}>
-                                <td>{p.name}</td>
-                                <td>{p.clientName ? p.clientName : <span className="list-view__notes">—</span>}</td>
-                                <td>
-                                    <span className={p.isActive ? "status status--active" : "status status--inactive"}>
-                                        {p.isActive ? t('projects.statusActive') : t('projects.statusArchived')}
-                                    </span>
-                                </td>
-                                <td className="list-view__actions">
-                                    <button
-                                        className="btn btn--ghost btn--sm"
-                                        onClick={() => handleEditClick(p)}
-                                        disabled={busyProjectId === p.id}
-                                    >
-                                        {t('common.edit')}
-                                    </button>
-                                    <button
-                                        className={p.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                                        onClick={() => handleToggleActive(p)}
-                                        disabled={busyProjectId === p.id}
-                                    >
-                                        {p.isActive ? t('projects.archive') : t('projects.reactivate')}
-                                    </button>
-                                </td>
-                            </tr>
+                            <Fragment key={p.id}>
+                                <tr>
+                                    <td>{p.name}</td>
+                                    <td>{p.clientName ? p.clientName : <span className="list-view__notes">—</span>}</td>
+                                    <td>{p.totalHoursThisMonth}h</td>
+                                    <td>{p.totalHoursLifetime}h</td>
+                                    <td>
+                                        <span className={p.isActive ? "status status--active" : "status status--inactive"}>
+                                            {p.isActive ? t('projects.statusActive') : t('projects.statusArchived')}
+                                        </span>
+                                    </td>
+                                    <td className="list-view__actions">
+                                        <button className="btn btn--ghost btn--sm" onClick={() => handleToggleExpand(p.id)}>
+                                            {expandedId === p.id ? "Hide Details" : "View Details"}
+                                        </button>
+                                        <button className="btn btn--ghost btn--sm" onClick={() => handleEditClick(p)} disabled={busyProjectId === p.id}>
+                                            {t('common.edit')}
+                                        </button>
+                                        <button className={p.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"} onClick={() => handleToggleActive(p)} disabled={busyProjectId === p.id}>
+                                            {p.isActive ? t('projects.archive') : t('projects.reactivate')}
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                {/* The Expandable Drill-down Row */}
+                                {expandedId === p.id && (
+                                    <tr style={{ backgroundColor: "#f9fafb" }}>
+                                        <td colSpan={6} style={{ padding: "1.5rem" }}>
+                                            <h4 style={{ marginTop: 0, marginBottom: "1rem" }}>Time Breakdown</h4>
+                                            {loadingBreakdown ? (
+                                                <p style={{ fontStyle: "italic", color: "#666" }}>Loading data...</p>
+                                            ) : (
+                                                <table className="list-view" style={{ background: "white", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Employee</th>
+                                                            <th>Total Hours</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {breakdowns[p.id]?.length > 0 ? (
+                                                            breakdowns[p.id].map(b => (
+                                                                <tr key={b.userId}>
+                                                                    <td>{b.employeeName}</td>
+                                                                    <td>{b.totalHours}h</td>
+                                                                </tr>
+                                                            ))
+                                                        ) : (
+                                                            <tr><td colSpan={2} style={{ textAlign: "center" }}>No time logged yet.</td></tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            )}
+                                        </td>
+                                    </tr>
+                                )}
+                            </Fragment>
                         ))}
                         {projects.length === 0 && (
                             <tr>

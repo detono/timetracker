@@ -25,7 +25,9 @@
       "name": "Naam",
       "client": "Klant",
       "status": "Status",
-      "actions": "Acties"
+      "actions": "Acties",
+      "thisMonth": "Deze maand",
+      "lifetime": "Totaal"
     },
     "statusActive": "Actief",
     "statusArchived": "Gearchiveerd",

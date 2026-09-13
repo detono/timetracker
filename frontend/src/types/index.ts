@@ -38,6 +38,7 @@ export interface TimeEntry {
   breakMinutes: number;
   durationHours: number;
   notes: string | null;
+  projectName: string | null;
 }
 
 export interface Project {
@@ -45,6 +46,13 @@ export interface Project {
   name: string;
   clientName: string | null;
   isActive: boolean;
+  totalHoursLifetime: number;
+  totalHoursThisMonth: number;
+}
+export interface ProjectBreakdown {
+  userId: string;
+  employeeName: string;
+  totalHours: number;
 }
 
 export type ReportGrouping = "Day" | "Week" | "Month";
