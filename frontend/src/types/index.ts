@@ -29,6 +29,7 @@ export interface TimeEntry {
   userId: string;
   userFullName: string;
   hourTypeId: string;
+  projectId: string | null;
   hourTypeName: string;
   hourTypeColor: string;
   workDate: string; // yyyy-MM-dd
@@ -39,12 +40,20 @@ export interface TimeEntry {
   notes: string | null;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  clientName: string | null;
+  isActive: boolean;
+}
+
 export type ReportGrouping = "Day" | "Week" | "Month";
 
 export interface HoursReportLine {
   userId: string;
   userFullName: string;
   hourTypeId: string;
+  projectId?: string;
   hourTypeName: string;
   hourTypeColor: string;
   periodLabel: string;

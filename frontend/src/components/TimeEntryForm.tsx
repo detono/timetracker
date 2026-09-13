@@ -1,9 +1,10 @@
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { HourType, TimeEntry } from "../types";
+import type { HourType, TimeEntry, Project } from "../types";
 
 export interface TimeEntryFormValues {
   hourTypeId: string;
+  projectId: string; // Added this
   workDate: string;
   startTime: string;
   endTime: string;
@@ -14,15 +15,17 @@ export interface TimeEntryFormValues {
 interface Props {
   initial?: TimeEntry;
   hourTypes: HourType[];
+  projects: Project[]; // Added this
   onSubmit: (values: TimeEntryFormValues) => Promise<void>;
   onCancel?: () => void;
 }
 
-export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props) {
+export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel }: Props) {
   const { t } = useTranslation();
 
   const [values, setValues] = useState<TimeEntryFormValues>({
     hourTypeId: initial?.hourTypeId ?? hourTypes[0]?.id ?? "",
+    projectId: initial?.projectId ?? "", // Added this
     workDate: initial?.workDate ?? new Date().toISOString().slice(0, 10),
     startTime: initial?.startTime.slice(0, 5) ?? "09:00",
     endTime: initial?.endTime.slice(0, 5) ?? "17:00",
@@ -63,6 +66,23 @@ export function TimeEntryForm({ initial, hourTypes, onSubmit, onCancel }: Props)
             ))}
           </select>
         </label>
+
+        {/* NEW PROJECT DROPDOWN */}
+        <label className="form__field">
+          <span>{t('timeEntryForm.project')}</span>
+          <select
+            value={values.projectId}
+            onChange={(e) => setValues({ ...values, projectId: e.target.value })}
+          >
+            <option value="">{t('timeEntryForm.noProject')}</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <label className="form__field">
           <span>{t('timeEntryForm.date')}</span>
           <input
