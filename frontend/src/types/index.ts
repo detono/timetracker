@@ -19,9 +19,10 @@ export interface UserAccount {
 
 export interface HourType {
   id: string;
-  name: string;
+  localizedNames: Record<string, string>;
   colorHex: string;
   isActive: boolean;
+  isDefault: boolean;
 }
 
 export interface TimeEntry {
@@ -30,7 +31,7 @@ export interface TimeEntry {
   userFullName: string;
   hourTypeId: string;
   projectId: string | null;
-  hourTypeName: string;
+  localizedHourTypeNames: Record<string, string>;
   hourTypeColor: string;
   workDate: string; // yyyy-MM-dd
   startTime: string; // HH:mm:ss
@@ -62,7 +63,7 @@ export interface HoursReportLine {
   userFullName: string;
   hourTypeId: string;
   projectId?: string;
-  hourTypeName: string;
+  localizedHourTypeNames: Record<string, string>;
   hourTypeColor: string;
   periodLabel: string;
   periodStart: string;

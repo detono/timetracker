@@ -62,7 +62,7 @@ public class CreateTimeEntryCommandHandler(
             entry.UserId,
             $"{targetUser.FirstName} {targetUser.LastName}",
             hourType.Id,
-            hourType.Name,
+            hourType.LocalizedNames, 
             hourType.ColorHex,
             entry.WorkDate,
             entry.StartTime,

@@ -25,11 +25,12 @@ public static class DbSeeder {
         IConfiguration configuration,
         ILogger logger
     ) {
-        // Creates the schema directly from the current EF Core model - no hand-generated
-        // migration files required. Trade-off: this can only create the schema on an empty
-        // database, it can't incrementally alter one that already has real data when the
-        // model changes later. If you outgrow that, switch to proper migrations.
-        await context.Database.EnsureCreatedAsync();
+        if (context.Database.IsRelational()) {
+            await context.Database.MigrateAsync();
+        } else {
+            // Fallback for the In-Memory database provider used in integration tests
+            await context.Database.EnsureCreatedAsync();
+        }
 
         await SeedHourTypesAsync(context, logger);
         await SeedBootstrapEmployerAsync(context, passwordHasher, configuration, logger);
@@ -39,18 +40,8 @@ public static class DbSeeder {
         if (await context.HourTypes.AnyAsync()) {
             return;
         }
-
-        var defaults = new[] {
-            HourType.Create("Work", "#932e4a"),
-            HourType.Create("Sick Leave", "#b3452f"),
-            HourType.Create("PTO", "#2f6f62"),
-            HourType.Create("ADV", "#7a6a9e")
-        };
-
-        context.HourTypes.AddRange(defaults);
+        
         await context.SaveChangesAsync();
-
-        logger.LogInformation("Seeded {Count} default hour types.", defaults.Length);
     }
 
     private static async Task SeedBootstrapEmployerAsync(

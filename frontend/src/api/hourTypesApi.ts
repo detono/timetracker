@@ -6,13 +6,13 @@ export async function getHourTypes(includeInactive = false): Promise<HourType[]>
   return data;
 }
 
-export async function createHourType(name: string, colorHex: string): Promise<HourType> {
-  const { data } = await apiClient.post<HourType>("/hourtypes", { name, colorHex });
+export async function createHourType(localizedNames: Record<string, string>, colorHex: string, isDefault: boolean): Promise<HourType> {
+  const { data } = await apiClient.post<HourType>("/hourtypes", { localizedNames, colorHex, isDefault });
   return data;
 }
 
-export async function updateHourType(id: string, name: string, colorHex: string): Promise<HourType> {
-  const { data } = await apiClient.put<HourType>(`/hourtypes/${id}`, { id, name, colorHex });
+export async function updateHourType(id: string, localizedNames: Record<string, string>, colorHex: string, isDefault: boolean): Promise<HourType> {
+  const { data } = await apiClient.put<HourType>(`/hourtypes/${id}`, { id, localizedNames, colorHex, isDefault });
   return data;
 }
 

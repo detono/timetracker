@@ -9,58 +9,72 @@ namespace TimeTracker.Domain.Entities;
 /// retiring one is a <see cref="Deactivate"/> instead: it stops showing up as an option
 /// for new entries, but historical entries that reference it are unaffected.
 /// </summary>
-public class HourType : BaseEntity
-{
-    public string Name { get; private set; } = default!;
-
+public class HourType : BaseEntity {
+    public Dictionary<string, string> LocalizedNames { get; private set; } = new();
+    
     /// <summary>Hex color (e.g. "#932e4a") used to render this type consistently in the UI.</summary>
     public string ColorHex { get; private set; } = default!;
 
     public bool IsActive { get; private set; } = true;
-
-    private HourType()
-    {
+    
+    // 1. Renamed to IsDefault for consistency
+    public bool IsDefault { get; private set; } = false;
+    
+    private HourType() {
         // EF Core
     }
 
-    private HourType(string name, string colorHex)
-    {
-        SetName(name);
+    private HourType(Dictionary<string, string> localizedNames, string colorHex, bool isDefault) {
+        SetLocalizedNames(localizedNames);
         SetColor(colorHex);
+        IsActive = true;
+        IsDefault = isDefault;
     }
 
-    public static HourType Create(string name, string colorHex) => new(name, colorHex);
+    public static HourType Create(Dictionary<string, string> localizedNames, string colorHex, bool isDefault) {
+        return new HourType(localizedNames, colorHex, isDefault);
+    }
 
-    public void SetName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new DomainException("Hour type name is required.");
+    public void Update(Dictionary<string, string> localizedNames, string colorHex, bool isDefault) {
+        SetLocalizedNames(localizedNames);
+        SetColor(colorHex);
+        IsDefault = isDefault; 
+    }
+
+    public void SetLocalizedNames(Dictionary<string, string> localizedNames) {
+        if (localizedNames == null || !localizedNames.Any()) {
+            throw new DomainException("At least one localized name must be provided.");
         }
 
-        Name = name.Trim();
+        LocalizedNames = localizedNames;
         MarkUpdated();
     }
 
-    public void SetColor(string colorHex)
-    {
-        if (string.IsNullOrWhiteSpace(colorHex) || !colorHex.StartsWith('#') || colorHex.Length is not (4 or 7))
-        {
+    public void SetColor(string colorHex) {
+        if (string.IsNullOrWhiteSpace(colorHex) || !colorHex.StartsWith('#') || colorHex.Length is not (4 or 7)) {
             throw new DomainException("Color must be a hex value like #932e4a.");
         }
 
         ColorHex = colorHex;
         MarkUpdated();
     }
+    
+    public void SetAsDefault() {
+        IsDefault = true;
+        MarkUpdated();
+    }
 
-    public void Deactivate()
-    {
+    public void RemoveDefault() {
+        IsDefault = false;
+        MarkUpdated();
+    }
+
+    public void Deactivate() {
         IsActive = false;
         MarkUpdated();
     }
 
-    public void Activate()
-    {
+    public void Activate() {
         IsActive = true;
         MarkUpdated();
     }

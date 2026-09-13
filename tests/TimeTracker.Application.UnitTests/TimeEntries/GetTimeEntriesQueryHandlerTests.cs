@@ -9,54 +9,66 @@ using Xunit;
 
 namespace TimeTracker.Application.UnitTests.TimeEntries;
 
-public class GetTimeEntriesQueryHandlerTests
-{
+public class GetTimeEntriesQueryHandlerTests {
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<IUserRepository> _userRepository = new();
     private readonly Mock<ITimeEntryRepository> _timeEntryRepository = new();
     private readonly Mock<IHourTypeRepository> _hourTypeRepository = new();
-    private readonly HourType _workType = HourType.Create("Work", "#932e4a");
 
-    public GetTimeEntriesQueryHandlerTests()
-    {
+    private readonly Mock<IProjectRepository> _projectRepository = new();
+
+    private readonly HourType _workType = HourType.Create(
+        new Dictionary<string, string> { { "en", "Work" } }, "#932e4a", true
+    );
+
+    public GetTimeEntriesQueryHandlerTests() {
         _unitOfWork.SetupGet(u => u.Users).Returns(_userRepository.Object);
         _unitOfWork.SetupGet(u => u.TimeEntries).Returns(_timeEntryRepository.Object);
         _unitOfWork.SetupGet(u => u.HourTypes).Returns(_hourTypeRepository.Object);
+        
+        _unitOfWork.SetupGet(u => u.Projects).Returns(_projectRepository.Object);
+
         _hourTypeRepository
             .Setup(r => r.GetAllAsync(true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<HourType> { _workType });
+        
+        _projectRepository
+            .Setup(r => r.GetAllAsync(true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Project>());
     }
 
     [Fact]
-    public async Task Handle_SelfRequest_ReturnsEntries()
-    {
+    public async Task Handle_SelfRequest_ReturnsEntries() {
         var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
         _timeEntryRepository
             .Setup(r => r.GetForUserAsync(employee.Id, null, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<TimeEntry>
-            {
-                TimeEntry.Create(employee.Id, _workType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0))
+            .ReturnsAsync(new List<TimeEntry> {
+                TimeEntry.Create(employee.Id, _workType.Id, new DateOnly(2026, 1, 5), new TimeOnly(9, 0),
+                    new TimeOnly(17, 0))
             });
 
-        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object, new TestCurrentUserService(employee.Id, UserRole.Employee));
+        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object,
+            new TestCurrentUserService(employee.Id, UserRole.Employee));
+
         var result = await handler.Handle(new GetTimeEntriesQuery(employee.Id, null, null), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value.Should().HaveCount(1);
-        result.Value![0].HourTypeName.Should().Be("Work");
+        
+        result.Value![0].LocalizedHourTypeNames["en"].Should().Be("Work");
     }
 
     [Fact]
-    public async Task Handle_UnrelatedEmployeeRequestingAnothersHours_ReturnsForbidden()
-    {
+    public async Task Handle_UnrelatedEmployeeRequestingAnothersHours_ReturnsForbidden() {
         var requester = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
         var target = User.Create("Charlie", "Other", "charlie@co.com", "hash", UserRole.Employee);
 
         _userRepository.Setup(r => r.GetByIdAsync(requester.Id, It.IsAny<CancellationToken>())).ReturnsAsync(requester);
         _userRepository.Setup(r => r.GetByIdAsync(target.Id, It.IsAny<CancellationToken>())).ReturnsAsync(target);
 
-        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object, new TestCurrentUserService(requester.Id, UserRole.Employee));
+        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object,
+            new TestCurrentUserService(requester.Id, UserRole.Employee));
         var result = await handler.Handle(new GetTimeEntriesQuery(target.Id, null, null), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -64,27 +76,27 @@ public class GetTimeEntriesQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_SupervisorRequestingSuperviseesHours_Succeeds()
-    {
+    public async Task Handle_SupervisorRequestingSuperviseesHours_Succeeds() {
         var supervisor = User.Create("Lead", "Person", "lead@co.com", "hash", UserRole.Employee);
         var employee = User.Create("Charlie", "Worker", "charlie@co.com", "hash", UserRole.Employee);
         employee.AssignSupervisor(supervisor.Id);
 
-        _userRepository.Setup(r => r.GetByIdAsync(supervisor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(supervisor);
+        _userRepository.Setup(r => r.GetByIdAsync(supervisor.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(supervisor);
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
         _timeEntryRepository
             .Setup(r => r.GetForUserAsync(employee.Id, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<TimeEntry>());
 
-        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object, new TestCurrentUserService(supervisor.Id, UserRole.Employee));
+        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object,
+            new TestCurrentUserService(supervisor.Id, UserRole.Employee));
         var result = await handler.Handle(new GetTimeEntriesQuery(employee.Id, null, null), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Handle_Employer_CanViewAnyEmployee()
-    {
+    public async Task Handle_Employer_CanViewAnyEmployee() {
         var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
         var employee = User.Create("Charlie", "Worker", "charlie@co.com", "hash", UserRole.Employee);
 
@@ -94,7 +106,8 @@ public class GetTimeEntriesQueryHandlerTests
             .Setup(r => r.GetForUserAsync(employee.Id, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<TimeEntry>());
 
-        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer));
+        var handler = new GetTimeEntriesQueryHandler(_unitOfWork.Object,
+            new TestCurrentUserService(employer.Id, UserRole.Employer));
         var result = await handler.Handle(new GetTimeEntriesQuery(employee.Id, null, null), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();

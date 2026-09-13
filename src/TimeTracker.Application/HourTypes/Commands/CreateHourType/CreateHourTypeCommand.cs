@@ -5,4 +5,8 @@ using TimeTracker.Application.HourTypes.Dtos;
 namespace TimeTracker.Application.HourTypes.Commands.CreateHourType;
 
 /// <summary>Employer-only: defines a new category hours can be logged under.</summary>
-public record CreateHourTypeCommand(string Name, string ColorHex) : IRequest<Result<HourTypeDto>>;
+public record CreateHourTypeCommand(
+    Dictionary<string, string> LocalizedNames, 
+    string ColorHex,
+    bool IsDefault
+) : IRequest<Result<HourTypeDto>>;

@@ -59,7 +59,7 @@ public class GetTeamTimeEntriesQueryHandler(
                     e.UserId,
                     userLookup.TryGetValue(e.UserId, out var name) ? name : "Unknown",
                     e.HourTypeId,
-                    hourType?.Name ?? "Unknown",
+                    hourType?.LocalizedNames ?? new Dictionary<string, string>(),
                     hourType?.ColorHex ?? "#999999",
                     e.WorkDate,
                     e.StartTime,

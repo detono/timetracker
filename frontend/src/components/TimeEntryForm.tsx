@@ -21,10 +21,13 @@ interface Props {
 }
 
 export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.split('-')[0];
+
+  const defaultHourType = hourTypes.find(t => t.isDefault) || hourTypes[0];
 
   const [values, setValues] = useState<TimeEntryFormValues>({
-    hourTypeId: initial?.hourTypeId ?? hourTypes[0]?.id ?? "",
+    hourTypeId: initial?.hourTypeId ?? defaultHourType?.id ?? "",
     projectId: initial?.projectId ?? "", // Added this
     workDate: initial?.workDate ?? new Date().toISOString().slice(0, 10),
     startTime: initial?.startTime.slice(0, 5) ?? "09:00",
@@ -59,11 +62,14 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
             required
           >
             {hourTypes.length === 0 && <option value="">{t('timeEntryForm.noHourTypes')}</option>}
-            {hourTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
+            {hourTypes.map((type) => {
+              const displayName = type.localizedNames?.[currentLang] || type.localizedNames?.['en'] || 'Unknown';
+              return (
+                <option key={type.id} value={type.id}>
+                  {displayName}
+                </option>
+              );
+            })}
           </select>
         </label>
 

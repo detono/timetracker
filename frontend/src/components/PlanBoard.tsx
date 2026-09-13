@@ -15,7 +15,9 @@ interface Props {
  * when only the current user's entries are supplied.
  */
 export function PlanBoard({ days, entries, onEdit }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.split('-')[0];
+
   const employeeNames = Array.from(new Set(entries.map((e) => e.userFullName))).sort();
 
   if (employeeNames.length === 0) {
@@ -55,7 +57,10 @@ export function PlanBoard({ days, entries, onEdit }: Props) {
                       <span className="planboard__shift-time">
                         {entry.startTime.slice(0, 5)}–{entry.endTime.slice(0, 5)}
                       </span>
-                      <span className="planboard__shift-type">{entry.hourTypeName}</span>
+                      <span className="planboard__shift-type">
+                        {/* Resolve the dictionary right here in the component */}
+                        {entry.localizedHourTypeNames?.[currentLang] || entry.localizedHourTypeNames?.['en'] || 'Unknown'}
+                      </span>
                       <span className="planboard__shift-duration">{hoursToHm(entry.durationHours)}</span>
                     </button>
                   ))}

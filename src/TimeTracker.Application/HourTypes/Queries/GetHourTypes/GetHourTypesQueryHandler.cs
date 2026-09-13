@@ -7,24 +7,24 @@ using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.HourTypes.Queries.GetHourTypes;
 
-public class GetHourTypesQueryHandler : IRequestHandler<GetHourTypesQuery, Result<IReadOnlyList<HourTypeDto>>>
-{
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly ICurrentUserService _currentUser;
+public class GetHourTypesQueryHandler(
+    IUnitOfWork unitOfWork, 
+    ICurrentUserService currentUser
+) : IRequestHandler<GetHourTypesQuery, Result<IReadOnlyList<HourTypeDto>>> {
+    public async Task<Result<IReadOnlyList<HourTypeDto>>> Handle(GetHourTypesQuery request,
+        CancellationToken cancellationToken) {
+        var includeInactive = request.IncludeInactive && currentUser.Role == UserRole.Employer;
 
-    public GetHourTypesQueryHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
-    {
-        _unitOfWork = unitOfWork;
-        _currentUser = currentUser;
-    }
+        var types = await unitOfWork.HourTypes.GetAllAsync(includeInactive, cancellationToken);
 
-    public async Task<Result<IReadOnlyList<HourTypeDto>>> Handle(GetHourTypesQuery request, CancellationToken cancellationToken)
-    {
-        var includeInactive = request.IncludeInactive && _currentUser.Role == UserRole.Employer;
-
-        var types = await _unitOfWork.HourTypes.GetAllAsync(includeInactive, cancellationToken);
-
-        var dtos = types.Select(t => new HourTypeDto(t.Id, t.Name, t.ColorHex, t.IsActive)).ToList();
+        // Swapped t.Name for t.LocalizedNames, and added t.IsDefault
+        var dtos = types.Select(t => new HourTypeDto(
+            t.Id,
+            t.LocalizedNames,
+            t.ColorHex,
+            t.IsActive,
+            t.IsDefault
+        )).ToList();
 
         return Result<IReadOnlyList<HourTypeDto>>.Success(dtos);
     }

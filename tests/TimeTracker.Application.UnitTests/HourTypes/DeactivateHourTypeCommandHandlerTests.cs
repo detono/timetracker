@@ -9,23 +9,21 @@ using Xunit;
 
 namespace TimeTracker.Application.UnitTests.HourTypes;
 
-public class DeactivateHourTypeCommandHandlerTests
-{
+public class DeactivateHourTypeCommandHandlerTests {
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<IHourTypeRepository> _hourTypeRepository = new();
 
-    public DeactivateHourTypeCommandHandlerTests()
-    {
+    public DeactivateHourTypeCommandHandlerTests() {
         _unitOfWork.SetupGet(u => u.HourTypes).Returns(_hourTypeRepository.Object);
     }
 
     [Fact]
-    public async Task Handle_AsEmployer_DeactivatesType()
-    {
-        var type = HourType.Create("Old Type", "#999999");
+    public async Task Handle_AsEmployer_DeactivatesType() {
+        var type = HourType.Create(new Dictionary<string, string> { { "en", "Old Type" } }, "#999999", true);
         _hourTypeRepository.Setup(r => r.GetByIdAsync(type.Id, It.IsAny<CancellationToken>())).ReturnsAsync(type);
 
-        var handler = new DeactivateHourTypeCommandHandler(_unitOfWork.Object, new TestCurrentUserService(Guid.NewGuid(), UserRole.Employer));
+        var handler = new DeactivateHourTypeCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(Guid.NewGuid(), UserRole.Employer));
         var result = await handler.Handle(new DeactivateHourTypeCommand(type.Id), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
@@ -33,9 +31,9 @@ public class DeactivateHourTypeCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_AsEmployee_ReturnsForbidden()
-    {
-        var handler = new DeactivateHourTypeCommandHandler(_unitOfWork.Object, new TestCurrentUserService(Guid.NewGuid(), UserRole.Employee));
+    public async Task Handle_AsEmployee_ReturnsForbidden() {
+        var handler = new DeactivateHourTypeCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(Guid.NewGuid(), UserRole.Employee));
         var result = await handler.Handle(new DeactivateHourTypeCommand(Guid.NewGuid()), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();

@@ -52,13 +52,13 @@ public class GetTimeEntriesQueryHandler(
                 if (e.ProjectId.HasValue) {
                     projects.TryGetValue(e.ProjectId.Value, out project);
                 }
-
+                
                 return new TimeEntryDto(
                     e.Id,
                     e.UserId,
                     $"{targetUser.FirstName} {targetUser.LastName}",
                     e.HourTypeId,
-                    hourType?.Name ?? "Unknown",
+                    hourType?.LocalizedNames ?? new Dictionary<string, string>(),
                     hourType?.ColorHex ?? "#999999",
                     e.WorkDate,
                     e.StartTime,

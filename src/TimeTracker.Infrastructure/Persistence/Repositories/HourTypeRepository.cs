@@ -4,43 +4,45 @@ using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Infrastructure.Persistence.Repositories;
 
-public class HourTypeRepository : IHourTypeRepository
-{
-    private readonly ApplicationDbContext _context;
-
-    public HourTypeRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-
+public class HourTypeRepository(ApplicationDbContext context) : IHourTypeRepository {
     public Task<HourType?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        _context.HourTypes.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        context.HourTypes.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
-    public async Task<IReadOnlyList<HourType>> GetAllAsync(bool includeInactive, CancellationToken cancellationToken = default)
-    {
-        var query = _context.HourTypes.AsNoTracking().AsQueryable();
-        if (!includeInactive)
-        {
+    public async Task<IReadOnlyList<HourType>> GetAllAsync(
+        bool includeInactive,
+        CancellationToken cancellationToken = default
+    ) {
+        var query = context.HourTypes.AsNoTracking().AsQueryable();
+        if (!includeInactive) {
             query = query.Where(t => t.IsActive);
         }
-
-        return await query.OrderBy(t => t.Name).ToListAsync(cancellationToken);
+        
+        var hourTypes = await query.ToListAsync(cancellationToken);
+        
+        return hourTypes
+            .OrderBy(h => h.LocalizedNames.ContainsKey("en") 
+                ? h.LocalizedNames["en"] 
+                : "Unknown")
+            .ToList();
     }
 
-    public Task<bool> NameExistsAsync(string name, Guid? excludingId = null, CancellationToken cancellationToken = default)
-    {
+    public async Task<bool> NameExistsAsync(
+        string name, 
+        Guid? excludingId = null,
+        CancellationToken cancellationToken = default
+    ) {
         var normalized = name.Trim();
-        var query = _context.HourTypes.Where(t => t.Name == normalized);
-        if (excludingId.HasValue)
-        {
-            query = query.Where(t => t.Id != excludingId.Value);
-        }
 
-        return query.AnyAsync(cancellationToken);
+        var allTypes = await context.HourTypes.ToListAsync(cancellationToken);
+
+        return allTypes.Any(h => 
+            h.Id != excludingId && 
+            h.LocalizedNames.Values.Any(v => v.Trim().ToLowerInvariant() == normalized)
+        );
     }
 
     public async Task AddAsync(HourType hourType, CancellationToken cancellationToken = default) =>
-        await _context.HourTypes.AddAsync(hourType, cancellationToken);
+        await context.HourTypes.AddAsync(hourType, cancellationToken);
 
-    public void Update(HourType hourType) => _context.HourTypes.Update(hourType);
+    public void Update(HourType hourType) => context.HourTypes.Update(hourType);
 }

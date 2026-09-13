@@ -45,13 +45,13 @@ public class UpdateTimeEntryCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var user = await unitOfWork.Users.GetByIdAsync(entry.UserId, cancellationToken);
-
+        
         var dto = new TimeEntryDto(
             entry.Id,
             entry.UserId,
             user is null ? string.Empty : $"{user.FirstName} {user.LastName}",
             hourType.Id,
-            hourType.Name,
+            hourType.LocalizedNames, 
             hourType.ColorHex,
             entry.WorkDate,
             entry.StartTime,
@@ -62,6 +62,7 @@ public class UpdateTimeEntryCommandHandler(
             entry.ProjectId,
             projectName
         );
+
 
         return Result<TimeEntryDto>.Success(dto);
     }

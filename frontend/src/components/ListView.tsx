@@ -38,7 +38,10 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Prop
           <tr key={entry.id}>
             {showEmployeeColumn && <td>{entry.userFullName}</td>}
             <td>
-              <HourTypeBadge name={entry.hourTypeName} colorHex={entry.hourTypeColor} />
+              <HourTypeBadge
+                localizedNames={entry.localizedHourTypeNames}
+                colorHex={entry.hourTypeColor}
+              />
             </td>
             <td>{formatDayLabel(entry.workDate)}</td>
             <td>{entry.startTime.slice(0, 5)}</td>

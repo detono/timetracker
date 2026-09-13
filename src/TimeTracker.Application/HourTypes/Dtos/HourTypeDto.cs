@@ -1,3 +1,9 @@
 namespace TimeTracker.Application.HourTypes.Dtos;
 
-public record HourTypeDto(Guid Id, string Name, string ColorHex, bool IsActive);
+public record HourTypeDto(
+    Guid Id,
+    Dictionary<string, string> LocalizedNames,
+    string ColorHex,
+    bool IsActive,
+    bool IsDefault
+);

@@ -1,16 +1,21 @@
-interface Props {
-  name: string;
+import { useTranslation } from 'react-i18next';
+
+interface HourTypeBadgeProps {
+  localizedNames: Record<string, string>; // <-- Replaced 'name'
   colorHex: string;
 }
 
-/** Renders an hour type as a small colored pill, using its own color for a left accent bar. */
-export function HourTypeBadge({ name, colorHex }: Props) {
+export const HourTypeBadge = ({ localizedNames, colorHex }: HourTypeBadgeProps) => {
+  const { i18n } = useTranslation();
+
+  // Fallback chain: Current Locale -> English -> Unknown
+  const displayName = localizedNames[i18n.language]
+    || localizedNames['en']
+    || 'Unknown';
+
   return (
-    <span
-      className="hour-type-badge"
-      style={{ borderLeftColor: colorHex, backgroundColor: `${colorHex}22` }}
-    >
-      {name}
+    <span style={{ backgroundColor: colorHex }} className="...">
+      {displayName}
     </span>
   );
-}
+};

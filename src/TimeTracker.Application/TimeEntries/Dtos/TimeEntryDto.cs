@@ -5,7 +5,7 @@ public record TimeEntryDto(
     Guid UserId,
     string UserFullName,
     Guid HourTypeId,
-    string HourTypeName,
+    Dictionary<string, string> LocalizedHourTypeNames, 
     string HourTypeColor,
     DateOnly WorkDate,
     TimeOnly StartTime,

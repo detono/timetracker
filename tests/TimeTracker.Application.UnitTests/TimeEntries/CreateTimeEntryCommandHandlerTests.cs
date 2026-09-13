@@ -14,14 +14,20 @@ public class CreateTimeEntryCommandHandlerTests {
     private readonly Mock<IUserRepository> _userRepository = new();
     private readonly Mock<ITimeEntryRepository> _timeEntryRepository = new();
     private readonly Mock<IHourTypeRepository> _hourTypeRepository = new();
-    private readonly Mock<IProjectRepository> _projectRepository = new(); // <-- Added Mock
-    private readonly HourType _workType = HourType.Create("Work", "#932e4a");
+    private readonly Mock<IProjectRepository> _projectRepository = new(); 
+    
+    // FIX: Provide the dictionary instead of a single string
+    private readonly HourType _workType = HourType.Create(
+        new Dictionary<string, string> { { "en", "Work" }, { "nl", "Werken" }, { "fr", "Travail" } }, 
+        "#932e4a",
+        true
+    );
 
     public CreateTimeEntryCommandHandlerTests() {
         _unitOfWork.SetupGet(u => u.Users).Returns(_userRepository.Object);
         _unitOfWork.SetupGet(u => u.TimeEntries).Returns(_timeEntryRepository.Object);
         _unitOfWork.SetupGet(u => u.HourTypes).Returns(_hourTypeRepository.Object);
-        _unitOfWork.SetupGet(u => u.Projects).Returns(_projectRepository.Object); // <-- Added Setup
+        _unitOfWork.SetupGet(u => u.Projects).Returns(_projectRepository.Object); 
         _hourTypeRepository.Setup(r => r.GetByIdAsync(_workType.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(_workType);
     }
@@ -40,7 +46,8 @@ public class CreateTimeEntryCommandHandlerTests {
 
         result.Succeeded.Should().BeTrue();
         result.Value!.DurationHours.Should().Be(7.5);
-        result.Value.HourTypeName.Should().Be("Work");
+        
+        result.Value.LocalizedHourTypeNames["en"].Should().Be("Work");
         _timeEntryRepository.Verify(r => r.AddAsync(It.IsAny<TimeEntry>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -117,8 +124,11 @@ public class CreateTimeEntryCommandHandlerTests {
     public async Task Handle_DeactivatedHourType_ReturnsValidationFailure() {
         var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
-        var retiredType = HourType.Create("Retired Type", "#000000");
+        
+        // FIX: Provide the dictionary instead of a single string
+        var retiredType = HourType.Create(new Dictionary<string, string> { { "en", "Retired Type" } }, "#000000", true);
         retiredType.Deactivate();
+        
         _hourTypeRepository.Setup(r => r.GetByIdAsync(retiredType.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(retiredType);
 
@@ -132,11 +142,8 @@ public class CreateTimeEntryCommandHandlerTests {
         result.Succeeded.Should().BeFalse();
     }
 
-    // --- NEW TESTS START HERE ---
-
     [Fact]
     public async Task Handle_WithValidProject_ReturnsDtoWithProjectDetails() {
-        // Arrange
         var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
@@ -148,10 +155,8 @@ public class CreateTimeEntryCommandHandlerTests {
         var command = new CreateTimeEntryCommand(null, _workType.Id, project.Id, new DateOnly(2026, 9, 13),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 30, "Migration work");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Succeeded.Should().BeTrue();
         result.Value!.ProjectId.Should().Be(project.Id);
         result.Value.ProjectName.Should().Be("Internal Migration");
@@ -159,7 +164,6 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_WithNonExistentProject_ReturnsDtoWithNullProjectName() {
-        // Arrange
         var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
@@ -172,13 +176,33 @@ public class CreateTimeEntryCommandHandlerTests {
         var command = new CreateTimeEntryCommand(null, _workType.Id, missingProjectId, new DateOnly(2026, 9, 13),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 30, "Lost project");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Succeeded.Should().BeTrue();
-        // Since the lookup fails gracefully in the handler, the ID is stored but Name is mapped to null
         result.Value!.ProjectId.Should().Be(missingProjectId);
         result.Value.ProjectName.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task Handle_HourTypeMissingEnglishTranslation_ReturnsUnknownForName() {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        
+        // Create an HourType that deliberately lacks an "en" key
+        var frenchOnlyType = HourType.Create(new Dictionary<string, string> { { "fr", "Réunion" } }, "#123456", true);
+        
+        _hourTypeRepository.Setup(r => r.GetByIdAsync(frenchOnlyType.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(frenchOnlyType);
+
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+            new TestCurrentUserService(user.Id, UserRole.Employee));
+        var command = new CreateTimeEntryCommand(null, frenchOnlyType.Id, null, new DateOnly(2026, 9, 13),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
+
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value!.LocalizedHourTypeNames.Should().ContainKey("fr").WhoseValue.Should().Be("Réunion");
+        result.Value!.LocalizedHourTypeNames.Should().NotContainKey("en");
     }
 }
