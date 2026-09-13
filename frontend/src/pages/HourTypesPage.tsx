@@ -152,6 +152,18 @@ export function HourTypesPage() {
     return namesDict[currentLang] || namesDict['en'] || 'Unknown';
   };
 
+  const getValidHex = (hex: string | undefined) => {
+    if (!hex) return '#000000'; // Fallback to black if null/empty
+    if (/^#[0-9A-Fa-f]{6}$/.test(hex)) return hex; // Perfect format
+    if (/^#[0-9A-Fa-f]{3}$/.test(hex)) {
+      // Expand #fff to #ffffff
+      return '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    }
+    if (/^[0-9A-Fa-f]{6}$/.test(hex)) return '#' + hex; // Add missing hash
+
+    return '#000000'; // Ultimate fallback
+  };
+
   return (
     <div className="page">
       <div className="page__header">
@@ -218,7 +230,12 @@ export function HourTypesPage() {
           <div className="form__row" style={{ marginTop: '16px', alignItems: 'center' }}>
             <label className="form__field form__field--narrow">
               <span>{t('hourTypes.color', 'Color')}</span>
-              <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+
+              <input
+                type="color"
+                value={getValidHex(color)}
+                onChange={(e) => setColor(e.target.value)}
+              />
             </label>
 
             <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -309,7 +326,11 @@ export function HourTypesPage() {
                       <div className="form__row" style={{ marginTop: '16px', alignItems: 'center' }}>
                         <label className="form__field form__field--narrow">
                           <span>{t('hourTypes.color', 'Color')}</span>
-                          <input type="color" value={editColor} onChange={(e) => setEditColor(e.target.value)} />
+                          <input
+                            type="color"
+                            value={getValidHex(color)}
+                            onChange={(e) => setColor(e.target.value)}
+                          />
                         </label>
 
                         <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
