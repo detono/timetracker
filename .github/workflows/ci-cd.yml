@@ -42,6 +42,12 @@ jobs:
             --logger "trx" --results-directory ./TestResults \
             --collect:"XPlat Code Coverage"
 
+      - name: Upload backend coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: backend 
+
       - name: Publish test results
         uses: actions/upload-artifact@v4
         if: always()
