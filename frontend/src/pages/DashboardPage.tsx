@@ -66,7 +66,10 @@ export function DashboardPage() {
       startTime: values.startTime,
       endTime: values.endTime,
       breakMinutes: values.breakMinutes,
-      notes: values.notes || null
+      notes: values.notes || null,
+      location: values.location.trim() || null,
+      latitude: values.latitude,
+      longitude: values.longitude
     });
     setShowForm(false);
     await loadEntries();
@@ -82,7 +85,10 @@ export function DashboardPage() {
       startTime: values.startTime,
       endTime: values.endTime,
       breakMinutes: values.breakMinutes,
-      notes: values.notes || null
+      notes: values.notes || null,
+      location: values.location.trim() || null,
+      latitude: values.latitude,
+      longitude: values.longitude
     });
     setEditing(null);
     await loadEntries();

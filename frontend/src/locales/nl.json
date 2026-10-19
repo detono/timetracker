@@ -48,7 +48,17 @@
     "saveChanges": "Wijzigingen opslaan",
     "logHoursBtn": "Uren registreren",
     "project": "Project",
-    "noProject": "Geen"
+    "noProject": "Geen",
+    "location": "Locatie (optioneel)",
+    "locationPlaceholder": "Waar heb je gewerkt?",
+    "useMyLocation": "📍 Gebruik mijn locatie",
+    "locating": "Locatie bepalen…",
+    "locationError": {
+      "unsupported": "Locatie is niet beschikbaar in deze browser (HTTPS vereist).",
+      "denied": "Toegang tot je locatie werd geweigerd. Je kunt dit toestaan in de site-instellingen van je browser.",
+      "unavailable": "Kon je locatie niet bepalen.",
+      "timeout": "Het bepalen van je locatie duurde te lang. Probeer opnieuw."
+    }
   },
   "planBoard": {
     "emptyState": "Nog geen uren geregistreerd voor deze periode."
@@ -64,7 +74,8 @@
     "duration": "Duur",
     "notes": "Opmerkingen",
     "actions": "Acties",
-    "minutes": "min"
+    "minutes": "min",
+    "location": "Locatie"
   },
   "employees": {
     "title": "Medewerkers beheren",

@@ -48,7 +48,17 @@
     "saveChanges": "Enregistrer les modifications",
     "logHoursBtn": "Enregistrer des heures",
     "project": "Projet",
-    "noProject": "Aucun"
+    "noProject": "Aucun",
+    "location": "Lieu (facultatif)",
+    "locationPlaceholder": "Où avez-vous travaillé ?",
+    "useMyLocation": "📍 Utiliser ma position",
+    "locating": "Localisation…",
+    "locationError": {
+      "unsupported": "La localisation n'est pas disponible dans ce navigateur (HTTPS requis).",
+      "denied": "L'accès à la position a été refusé. Vous pouvez l'autoriser dans les paramètres du site de votre navigateur.",
+      "unavailable": "Impossible de déterminer votre position.",
+      "timeout": "La localisation a pris trop de temps. Veuillez réessayer."
+    }
   },
   "planBoard": {
     "emptyState": "Aucune heure enregistrée pour cette période pour le moment."
@@ -64,7 +74,8 @@
     "duration": "Durée",
     "notes": "Remarques",
     "actions": "Actions",
-    "minutes": "min"
+    "minutes": "min",
+    "location": "Lieu"
   },
   "login": {
     "tagline": "Enregistrez les heures. Voyez toute l'équipe. Plus de devinettes à la paie.",

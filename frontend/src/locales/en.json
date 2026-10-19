@@ -11,7 +11,6 @@
     "saving": "Saving…",
     "signOut": "Sign out"
   },
-
   "planBoard": {
     "emptyState": "No hours logged for this period yet."
   },
@@ -26,7 +25,8 @@
     "duration": "Duration",
     "notes": "Notes",
     "actions": "Actions",
-    "minutes": "min"
+    "minutes": "min",
+    "location": "Location"
   },
   "timeEntryForm": {
     "errorSave": "Could not save this entry.",
@@ -41,7 +41,17 @@
     "saveChanges": "Save changes",
     "logHoursBtn": "Log hours",
     "project": "Project",
-    "noProject": "None"
+    "noProject": "None",
+    "location": "Location (optional)",
+    "locationPlaceholder": "Where did you work?",
+    "useMyLocation": "📍 Use my location",
+    "locating": "Locating…",
+    "locationError": {
+      "unsupported": "Location isn't available in this browser (it requires HTTPS).",
+      "denied": "Location permission was denied. You can allow it in your browser's site settings.",
+      "unavailable": "Could not determine your location.",
+      "timeout": "Getting your location took too long. Please try again."
+    }
   },
   "employees": {
     "title": "Manage employees",

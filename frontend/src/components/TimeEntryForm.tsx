@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { HourType, TimeEntry, Project } from "../types";
+import { formatCoordinates, GeolocationError, getCurrentPosition, reverseGeocode } from "../utils/geolocation";
 
 export interface TimeEntryFormValues {
   hourTypeId: string;
@@ -10,6 +11,9 @@ export interface TimeEntryFormValues {
   endTime: string;
   breakMinutes: number;
   notes: string;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface Props {
@@ -33,10 +37,30 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
     startTime: initial?.startTime.slice(0, 5) ?? "09:00",
     endTime: initial?.endTime.slice(0, 5) ?? "17:00",
     breakMinutes: initial?.breakMinutes ?? 30,
-    notes: initial?.notes ?? ""
+    notes: initial?.notes ?? "",
+    location: initial?.location ?? "",
+    latitude: initial?.latitude ?? null,
+    longitude: initial?.longitude ?? null
   });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  async function handleUseMyLocation() {
+    setLocationError(null);
+    setLocating(true);
+    try {
+      const coords = await getCurrentPosition();
+      const address = await reverseGeocode(coords, currentLang);
+      setValues((v) => ({ ...v, location: address ?? formatCoordinates(coords), ...coords }));
+    } catch (err) {
+      const code = err instanceof GeolocationError ? err.code : "unavailable";
+      setLocationError(t(`timeEntryForm.locationError.${code}`));
+    } finally {
+      setLocating(false);
+    }
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -136,6 +160,24 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
           placeholder={t('timeEntryForm.notesPlaceholder')}
         />
       </label>
+
+      <label className="form__field">
+        <span>{t('timeEntryForm.location')}</span>
+        <div className="form__input-group">
+          <input
+            type="text"
+            maxLength={500}
+            value={values.location}
+            // Typing a different place means the stored GPS coordinates no longer apply.
+            onChange={(e) => setValues({ ...values, location: e.target.value, latitude: null, longitude: null })}
+            placeholder={t('timeEntryForm.locationPlaceholder')}
+          />
+          <button type="button" className="btn btn--ghost" onClick={handleUseMyLocation} disabled={locating}>
+            {locating ? t('timeEntryForm.locating') : t('timeEntryForm.useMyLocation')}
+          </button>
+        </div>
+      </label>
+      {locationError && <p className="form__error">{locationError}</p>}
 
       {error && <p className="form__error">{error}</p>}
 

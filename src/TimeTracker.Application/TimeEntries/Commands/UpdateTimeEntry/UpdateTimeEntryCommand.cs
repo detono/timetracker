@@ -12,5 +12,8 @@ public record UpdateTimeEntryCommand(
     TimeOnly EndTime,
     int BreakMinutes,
     string? Notes,
-    Guid? ProjectId
+    Guid? ProjectId,
+    string? Location = null,
+    double? Latitude = null,
+    double? Longitude = null
 ) : IRequest<Result<TimeEntryDto>>;

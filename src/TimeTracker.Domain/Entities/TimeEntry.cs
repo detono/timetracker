@@ -15,6 +15,11 @@ public class TimeEntry : BaseEntity {
     public TimeOnly EndTime { get; private set; }
     public string? Notes { get; private set; }
 
+    /// <summary>Human-readable place where the work was done (free text or a reverse-geocoded address).</summary>
+    public string? Location { get; private set; }
+    public double? Latitude { get; private set; }
+    public double? Longitude { get; private set; }
+
     /// <summary>Total break time subtracted from the worked duration, in minutes.</summary>
     public int BreakMinutes { get; private set; }
 
@@ -30,7 +35,10 @@ public class TimeEntry : BaseEntity {
         TimeOnly endTime,
         int breakMinutes, 
         string? notes,
-        Guid? projectId
+        Guid? projectId,
+        string? location,
+        double? latitude,
+        double? longitude
     ) {
         UserId = userId;
         SetHourType(hourTypeId);
@@ -38,6 +46,7 @@ public class TimeEntry : BaseEntity {
         SetTimes(startTime, endTime, breakMinutes);
         Notes = notes;
         ProjectId = projectId;
+        SetLocation(location, latitude, longitude);
     }
 
     public static TimeEntry Create(
@@ -48,7 +57,10 @@ public class TimeEntry : BaseEntity {
         TimeOnly endTime,
         int breakMinutes = 0,
         string? notes = null,
-        Guid? projectId = null
+        Guid? projectId = null,
+        string? location = null,
+        double? latitude = null,
+        double? longitude = null
     ) {
         if (userId == Guid.Empty) {
             throw new DomainException("A time entry must belong to a user.");
@@ -62,7 +74,10 @@ public class TimeEntry : BaseEntity {
             endTime, 
             breakMinutes, 
             notes,
-            projectId
+            projectId,
+            location,
+            latitude,
+            longitude
         );
     }
 
@@ -107,6 +122,21 @@ public class TimeEntry : BaseEntity {
 
     public void UpdateProjectId(Guid? projectId) {
         ProjectId = projectId;
+        MarkUpdated();
+    }
+
+    public void SetLocation(string? location, double? latitude, double? longitude) {
+        if (latitude.HasValue != longitude.HasValue) {
+            throw new DomainException("Latitude and longitude must be provided together.");
+        }
+
+        if (latitude is < -90 or > 90 || longitude is < -180 or > 180) {
+            throw new DomainException("Coordinates are out of range.");
+        }
+
+        Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim();
+        Latitude = latitude;
+        Longitude = longitude;
         MarkUpdated();
     }
 

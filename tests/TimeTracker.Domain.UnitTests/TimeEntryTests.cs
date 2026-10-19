@@ -87,4 +87,40 @@ public class TimeEntryTests
 
         act.Should().Throw<DomainException>();
     }
+
+    [Fact]
+    public void SetLocation_WithAddressAndCoordinates_StoresTrimmedValues()
+    {
+        var entry = TimeEntry.Create(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
+
+        entry.SetLocation("  Grote Markt 1, 1000 Brussel  ", 50.8467, 4.3525);
+
+        entry.Location.Should().Be("Grote Markt 1, 1000 Brussel");
+        entry.Latitude.Should().Be(50.8467);
+        entry.Longitude.Should().Be(4.3525);
+    }
+
+    [Fact]
+    public void SetLocation_WithBlankText_ClearsLocation()
+    {
+        var entry = TimeEntry.Create(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0),
+            location: "Office");
+
+        entry.SetLocation("   ", null, null);
+
+        entry.Location.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(50.0, null)]
+    [InlineData(91.0, 4.0)]
+    [InlineData(50.0, 181.0)]
+    public void SetLocation_WithInvalidCoordinates_Throws(double? latitude, double? longitude)
+    {
+        var entry = TimeEntry.Create(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 1, 5), new TimeOnly(9, 0), new TimeOnly(17, 0));
+
+        var act = () => entry.SetLocation("Somewhere", latitude, longitude);
+
+        act.Should().Throw<DomainException>();
+    }
 }

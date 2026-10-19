@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { TimeEntry } from "../types";
 import { formatDayLabel, hoursToHm } from "../utils/dateRange";
 import { HourTypeBadge } from "./HourTypeBadge";
+import { mapUrl } from "../utils/geolocation";
 
 interface Props {
   entries: TimeEntry[];
@@ -30,6 +31,7 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Prop
           <th>{t('listView.duration')}</th>
           <th>{t('listView.notes')}</th>
           <th>{t('timeEntryForm.project')}</th>
+          <th>{t('listView.location')}</th>
           {(onEdit || onDelete) && <th aria-label={t('listView.actions')} />}
         </tr>
       </thead>
@@ -54,6 +56,15 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Prop
                 <span className="badge badge--neutral">{entry.projectName}</span>
               ) : (
                 <span className="list-view__notes">—</span>
+              )}
+            </td>
+            <td className="list-view__notes">
+              {entry.latitude != null && entry.longitude != null ? (
+                <a href={mapUrl({ latitude: entry.latitude, longitude: entry.longitude })} target="_blank" rel="noreferrer">
+                  {entry.location ?? "📍"}
+                </a>
+              ) : (
+                entry.location ?? "—"
               )}
             </td>
             {(onEdit || onDelete) && (

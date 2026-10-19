@@ -10,6 +10,9 @@ export interface CreateTimeEntryPayload {
   endTime: string;
   breakMinutes: number;
   notes?: string | null;
+  location?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export async function getMyTimeEntries(userId?: string, from?: string, to?: string): Promise<TimeEntry[]> {

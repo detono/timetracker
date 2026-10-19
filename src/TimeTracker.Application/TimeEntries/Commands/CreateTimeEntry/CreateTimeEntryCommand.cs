@@ -17,4 +17,7 @@ public record CreateTimeEntryCommand(
     TimeOnly StartTime,
     TimeOnly EndTime,
     int BreakMinutes,
-    string? Notes) : IRequest<Result<TimeEntryDto>>;
+    string? Notes,
+    string? Location = null,
+    double? Latitude = null,
+    double? Longitude = null) : IRequest<Result<TimeEntryDto>>;

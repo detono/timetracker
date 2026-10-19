@@ -67,7 +67,10 @@ public class GetTimeEntriesQueryHandler(
                     Math.Round(e.Duration.TotalHours, 2),
                     e.Notes,
                     e.ProjectId,
-                    project?.Name
+                    project?.Name,
+                    e.Location,
+                    e.Latitude,
+                    e.Longitude
                 );
             })
             .ToList();
