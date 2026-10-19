@@ -359,6 +359,16 @@ button {
   background: var(--paper-raised);
 }
 
+.form__input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.form__input-group input {
+  flex: 1;
+  min-width: 0;
+}
+
 .form__field input:focus,
 .form__field select:focus {
   outline: 2px solid var(--color-primary);

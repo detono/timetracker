@@ -40,6 +40,9 @@ export interface TimeEntry {
   durationHours: number;
   notes: string | null;
   projectName: string | null;
+  location: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface Project {

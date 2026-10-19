@@ -16,6 +16,7 @@ public class TimeEntryConfiguration : IEntityTypeConfiguration<TimeEntry>
         builder.Property(t => t.EndTime).IsRequired();
         builder.Property(t => t.BreakMinutes).IsRequired();
         builder.Property(t => t.Notes).HasMaxLength(1000);
+        builder.Property(t => t.Location).HasMaxLength(500);
 
         builder.HasIndex(t => new { t.UserId, t.WorkDate });
 

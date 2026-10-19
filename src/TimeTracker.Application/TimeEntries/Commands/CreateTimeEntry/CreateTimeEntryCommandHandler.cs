@@ -51,7 +51,10 @@ public class CreateTimeEntryCommandHandler(
             endTime: request.EndTime,
             breakMinutes: request.BreakMinutes,
             notes: request.Notes,
-            projectId: request.ProjectId
+            projectId: request.ProjectId,
+            location: request.Location,
+            latitude: request.Latitude,
+            longitude: request.Longitude
         );
 
         await unitOfWork.TimeEntries.AddAsync(entry, cancellationToken);
@@ -71,7 +74,10 @@ public class CreateTimeEntryCommandHandler(
             Math.Round(entry.Duration.TotalHours, 2),
             entry.Notes,
             entry.ProjectId,
-            projectName
+            projectName,
+            entry.Location,
+            entry.Latitude,
+            entry.Longitude
         );
 
         return Result<TimeEntryDto>.Success(dto);

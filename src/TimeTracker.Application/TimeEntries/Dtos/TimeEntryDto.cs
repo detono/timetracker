@@ -14,5 +14,8 @@ public record TimeEntryDto(
     double DurationHours,
     string? Notes,
     Guid? ProjectId,
-    string? ProjectName
+    string? ProjectName,
+    string? Location,
+    double? Latitude,
+    double? Longitude
 );

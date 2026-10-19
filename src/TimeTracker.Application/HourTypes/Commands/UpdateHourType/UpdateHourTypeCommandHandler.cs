@@ -8,7 +8,7 @@ using TimeTracker.Domain.Interfaces;
 namespace TimeTracker.Application.HourTypes.Commands.UpdateHourType;
 
 public class UpdateHourTypeCommandHandler(
-    IUnitOfWork unitOfWork, 
+    IUnitOfWork unitOfWork,
     ICurrentUserService currentUser
 ) : IRequestHandler<UpdateHourTypeCommand, Result<HourTypeDto>> {
     public async Task<Result<HourTypeDto>> Handle(UpdateHourTypeCommand request, CancellationToken cancellationToken) {
@@ -21,12 +21,15 @@ public class UpdateHourTypeCommandHandler(
             return Result<HourTypeDto>.Failure("Hour type was not found.", ResultErrorType.NotFound);
         }
 
-        var defaultName = request.LocalizedNames.GetValueOrDefault("en") 
-                          ?? request.LocalizedNames.Values.FirstOrDefault();
+        foreach (var localizedName in request.LocalizedNames.Values) {
+            if (string.IsNullOrWhiteSpace(localizedName)) {
+                continue;
+            }
 
-        if (!string.IsNullOrWhiteSpace(defaultName) && 
-            await unitOfWork.HourTypes.NameExistsAsync(defaultName, request.Id, cancellationToken)) {
-            return Result<HourTypeDto>.Failure("An hour type with this name already exists.", ResultErrorType.Conflict);
+            if (await unitOfWork.HourTypes.NameExistsAsync(localizedName, request.Id, cancellationToken)) {
+                return Result<HourTypeDto>.Failure("An hour type with this name already exists.",
+                    ResultErrorType.Conflict);
+            }
         }
 
         // 1. Clear existing default if this one is claiming the crown
@@ -41,13 +44,13 @@ public class UpdateHourTypeCommandHandler(
 
         // Make sure this Update method accepts request.IsDefault!
         hourType.Update(request.LocalizedNames, request.ColorHex, request.IsDefault);
-        
+
         unitOfWork.HourTypes.Update(hourType);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<HourTypeDto>.Success(new HourTypeDto(
-            hourType.Id, 
-            hourType.LocalizedNames, 
+            hourType.Id,
+            hourType.LocalizedNames,
             hourType.ColorHex,
             hourType.IsActive,
             hourType.IsDefault

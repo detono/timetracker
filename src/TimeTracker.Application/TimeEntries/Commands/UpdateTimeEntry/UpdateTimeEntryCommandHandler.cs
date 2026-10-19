@@ -34,6 +34,7 @@ public class UpdateTimeEntryCommandHandler(
         entry.SetHourType(request.HourTypeId);
         entry.UpdateNotes(request.Notes);
         entry.UpdateProjectId(request.ProjectId);
+        entry.SetLocation(request.Location, request.Latitude, request.Longitude);
         
         string? projectName = null;
         if (request.ProjectId.HasValue) { 
@@ -60,7 +61,10 @@ public class UpdateTimeEntryCommandHandler(
             Math.Round(entry.Duration.TotalHours, 2),
             entry.Notes,
             entry.ProjectId,
-            projectName
+            projectName,
+            entry.Location,
+            entry.Latitude,
+            entry.Longitude
         );
 
 
