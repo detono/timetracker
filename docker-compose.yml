@@ -43,10 +43,10 @@ services:
       # Bootstrap employer, created once on first startup if the database is empty.
       # Leave these two unset and the app starts with zero users (nobody can log in
       # until you set them and restart) - see .env.example.
-      Seed__EmployerEmail: "${SEED_EMPLOYER_EMAIL:-}"
-      Seed__EmployerPassword: "${SEED_EMPLOYER_PASSWORD:-}"
-      Seed__EmployerFirstName: "${SEED_EMPLOYER_FIRST_NAME:-}"
-      Seed__EmployerLastName: "${SEED_EMPLOYER_LAST_NAME:-}"
+      Seed__AdminEmail: "${SEED_ADMIN_EMAIL:-}"
+      Seed__AdminPassword: "${SEED_ADMIN_PASSWORD:-}"
+      Seed__AdminFirstName: "${SEED_ADMIN_FIRST_NAME:-}"
+      Seed__AdminLastName: "${SEED_ADMIN_LAST_NAME:-}"
     ports:
       # Exposed for direct API/Swagger access during development (http://localhost:5067/swagger).
       # Host port 5000 collides with macOS AirPlay Receiver on many machines (it answers

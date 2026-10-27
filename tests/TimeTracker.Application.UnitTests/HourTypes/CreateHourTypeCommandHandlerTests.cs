@@ -63,7 +63,7 @@ public class CreateHourTypeCommandHandlerTests {
     [Fact]
     public async Task Handle_WhenSettingNewDefault_ClearsOldDefault() {
         // Arrange
-        var user = User.Create("Kim", "Stevens", "kim@test.com", "hash", UserRole.Employer);
+        var user = User.Create("Kim", "Stevens", "kim@test.com", "hash", UserRole.Employer, Guid.NewGuid());
         var currentUserService = new TestCurrentUserService(user.Id, UserRole.Employer);
     
         // An existing default in the DB

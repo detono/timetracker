@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeTracker.API.Authorization;
 using TimeTracker.Application.Projects.Commands.CreateProject;
 using TimeTracker.Application.Projects.Commands.ToggleProjectStatus;
 using TimeTracker.Application.Projects.Commands.UpdateProject;
@@ -8,7 +9,7 @@ using TimeTracker.Application.Projects.Dtos;
 
 namespace TimeTracker.API.Controllers;
 
-[Authorize]
+[Authorize(Policy = AuthorizationPolicies.TenantMember)]
 public class ProjectsController : ApiControllerBase {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ProjectDto>>> Get([FromQuery] bool includeInactive = false) {

@@ -8,15 +8,14 @@ using TimeTracker.Domain.Enums;
 namespace TimeTracker.Infrastructure.Persistence;
 
 /// <summary>
-/// On an empty database, creates exactly one bootstrap Employer account from configuration
-/// (never hardcoded demo data) - since account creation is Employer-only, something has to
-/// exist to log in with the very first time. Configure via the "Seed" section, e.g. in
-/// docker-compose.yml as Seed__EmployerEmail / Seed__EmployerPassword (see .env.example).
-/// If nothing is configured, the database is left empty and a warning is logged.
+/// When no platform admin exists yet, creates exactly one bootstrap platform admin from
+/// configuration (never hardcoded demo data) - since tenants and their first employer are
+/// created by a platform admin, something has to exist to log in with the very first time.
+/// Configure via the "Seed" section, e.g. in docker-compose.yml as Seed__AdminEmail /
+/// Seed__AdminPassword (see .env.example). If nothing is configured, no account is created
+/// and a warning is logged.
 ///
-/// Also seeds a small set of default hour types (Work, Sick Leave, PTO) if none exist yet,
-/// regardless of whether a bootstrap employer is configured - the employer can rename,
-/// recolor, deactivate, or add more of these later from "Hour types".
+/// Default hour types are not seeded here: each tenant gets its own set when it is created.
 /// </summary>
 public static class DbSeeder {
     public static async Task SeedAsync(
@@ -32,52 +31,42 @@ public static class DbSeeder {
             await context.Database.EnsureCreatedAsync();
         }
 
-        await SeedHourTypesAsync(context, logger);
-        await SeedBootstrapEmployerAsync(context, passwordHasher, configuration, logger);
+        await SeedBootstrapPlatformAdminAsync(context, passwordHasher, configuration, logger);
     }
 
-    private static async Task SeedHourTypesAsync(ApplicationDbContext context, ILogger logger) {
-        if (await context.HourTypes.AnyAsync()) {
-            return;
-        }
-        
-        await context.SaveChangesAsync();
-    }
-
-    private static async Task SeedBootstrapEmployerAsync(
+    private static async Task SeedBootstrapPlatformAdminAsync(
         ApplicationDbContext context,
         IPasswordHasher passwordHasher,
         IConfiguration configuration,
         ILogger logger
     ) {
-        if (await context.Users.AnyAsync()) {
+        if (await context.Users.IgnoreQueryFilters().AnyAsync(u => u.Role == UserRole.PlatformAdmin)) {
             return;
         }
 
-        var email = configuration["Seed:EmployerEmail"];
-        var password = configuration["Seed:EmployerPassword"];
+        var email = configuration["Seed:AdminEmail"];
+        var password = configuration["Seed:AdminPassword"];
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) {
             logger.LogWarning(
-                "No users exist and no bootstrap employer is configured (Seed:EmployerEmail / " +
-                "Seed:EmployerPassword). The database is empty and nobody will be able to log in " +
-                "until you set those values (see .env.example) and restart.");
+                "No platform admin exists and no bootstrap admin is configured (Seed:AdminEmail / " +
+                "Seed:AdminPassword). Nobody will be able to create tenants until you set those values " +
+                "(see .env.example) and restart.");
             return;
         }
 
-        var firstName = configuration["Seed:EmployerFirstName"];
-        var lastName = configuration["Seed:EmployerLastName"];
+        var firstName = configuration["Seed:AdminFirstName"];
+        var lastName = configuration["Seed:AdminLastName"];
 
-        var employer = User.Create(
-            string.IsNullOrWhiteSpace(firstName) ? "Admin" : firstName,
-            string.IsNullOrWhiteSpace(lastName) ? "Employer" : lastName,
+        var admin = User.CreatePlatformAdmin(
+            string.IsNullOrWhiteSpace(firstName) ? "Platform" : firstName,
+            string.IsNullOrWhiteSpace(lastName) ? "Admin" : lastName,
             email,
-            passwordHasher.Hash(password),
-            UserRole.Employer);
+            passwordHasher.Hash(password));
 
-        context.Users.Add(employer);
+        context.Users.Add(admin);
         var seedAmount = await context.SaveChangesAsync();
 
-        logger.LogInformation("Seeded bootstrap employer account {Email}. Success? {Success}", email,  seedAmount == 1);
+        logger.LogInformation("Seeded bootstrap platform admin account {Email}. Success? {Success}", email, seedAmount == 1);
     }
 }

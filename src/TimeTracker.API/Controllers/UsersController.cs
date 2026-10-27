@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeTracker.API.Authorization;
 using TimeTracker.Application.Users.Commands.ActivateUser;
 using TimeTracker.Application.Users.Commands.AssignSupervisor;
 using TimeTracker.Application.Users.Commands.DeactivateUser;
@@ -12,6 +13,7 @@ namespace TimeTracker.API.Controllers;
 
 /// <summary>Account administration. Every endpoint here is Employer-only.</summary>
 [Authorize(Roles = "Employer")]
+[Authorize(Policy = AuthorizationPolicies.TenantMember)]
 public class UsersController : ApiControllerBase
 {
     /// <summary>Lists every user account, active and deactivated.</summary>

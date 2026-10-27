@@ -39,7 +39,7 @@ public class GetTimeEntriesQueryHandlerTests {
 
     [Fact]
     public async Task Handle_SelfRequest_ReturnsEntries() {
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
         _timeEntryRepository
             .Setup(r => r.GetForUserAsync(employee.Id, null, null, It.IsAny<CancellationToken>()))
@@ -61,8 +61,8 @@ public class GetTimeEntriesQueryHandlerTests {
 
     [Fact]
     public async Task Handle_UnrelatedEmployeeRequestingAnothersHours_ReturnsForbidden() {
-        var requester = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
-        var target = User.Create("Charlie", "Other", "charlie@co.com", "hash", UserRole.Employee);
+        var requester = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
+        var target = User.Create("Charlie", "Other", "charlie@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
         _userRepository.Setup(r => r.GetByIdAsync(requester.Id, It.IsAny<CancellationToken>())).ReturnsAsync(requester);
         _userRepository.Setup(r => r.GetByIdAsync(target.Id, It.IsAny<CancellationToken>())).ReturnsAsync(target);
@@ -77,8 +77,8 @@ public class GetTimeEntriesQueryHandlerTests {
 
     [Fact]
     public async Task Handle_SupervisorRequestingSuperviseesHours_Succeeds() {
-        var supervisor = User.Create("Lead", "Person", "lead@co.com", "hash", UserRole.Employee);
-        var employee = User.Create("Charlie", "Worker", "charlie@co.com", "hash", UserRole.Employee);
+        var supervisor = User.Create("Lead", "Person", "lead@co.com", "hash", UserRole.Employee, Guid.NewGuid());
+        var employee = User.Create("Charlie", "Worker", "charlie@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         employee.AssignSupervisor(supervisor.Id);
 
         _userRepository.Setup(r => r.GetByIdAsync(supervisor.Id, It.IsAny<CancellationToken>()))
@@ -97,8 +97,8 @@ public class GetTimeEntriesQueryHandlerTests {
 
     [Fact]
     public async Task Handle_Employer_CanViewAnyEmployee() {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var employee = User.Create("Charlie", "Worker", "charlie@co.com", "hash", UserRole.Employee);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var employee = User.Create("Charlie", "Worker", "charlie@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
         _userRepository.Setup(r => r.GetByIdAsync(employer.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employer);
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);

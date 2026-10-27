@@ -6,7 +6,7 @@ namespace TimeTracker.Domain.Entities;
 /// A single logged block of time for a given user on a given date, categorized by an
 /// employer-managed <see cref="HourType"/> (Work, Sick Leave, PTO, ADV, ...).
 /// </summary>
-public class TimeEntry : BaseEntity {
+public class TimeEntry : TenantOwnedEntity {
     public Guid UserId { get; private set; }
     public Guid HourTypeId { get; private set; }
     public Guid? ProjectId { get; private set; }

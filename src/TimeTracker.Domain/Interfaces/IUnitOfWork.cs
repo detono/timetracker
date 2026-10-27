@@ -9,6 +9,7 @@ public interface IUnitOfWork
     ITimeEntryRepository TimeEntries { get; }
     IHourTypeRepository HourTypes { get; }
     IProjectRepository Projects { get; }
+    ITenantRepository Tenants { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

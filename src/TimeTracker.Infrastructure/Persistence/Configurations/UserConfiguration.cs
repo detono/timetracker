@@ -17,7 +17,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.PasswordHash).IsRequired();
         builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
 
+        // Globally unique (not per tenant): login finds the user, and with it their tenant, by email alone.
         builder.HasIndex(u => u.Email).IsUnique();
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(u => u.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<User>()
             .WithMany()

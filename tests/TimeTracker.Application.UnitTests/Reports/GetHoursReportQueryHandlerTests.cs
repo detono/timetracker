@@ -29,8 +29,8 @@ public class GetHoursReportQueryHandlerTests {
 
     [Fact]
     public async Task Handle_EmployerGroupedByDay_AggregatesHoursPerEmployeePerDayPerType() {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
         _userRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<User> { employer, employee });
@@ -63,8 +63,8 @@ public class GetHoursReportQueryHandlerTests {
 
     [Fact]
     public async Task Handle_MixedHourTypes_ProducesSeparateLinesForSamePeriod() {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
         // FIX 2: Provide the localized names dictionary
         var sickType = HourType.Create(
@@ -101,7 +101,7 @@ public class GetHoursReportQueryHandlerTests {
 
     [Fact]
     public async Task Handle_EmployeeWithoutAuthorityRequestingOthersReport_ReturnsForbidden() {
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         var otherId = Guid.NewGuid();
 
         _userRepository.Setup(r => r.GetSupervisedByAsync(employee.Id, It.IsAny<CancellationToken>()))

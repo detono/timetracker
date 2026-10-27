@@ -17,7 +17,7 @@ public class UserRepository : IUserRepository
         _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
-        _context.Users.FirstOrDefaultAsync(u => u.Email == email.Trim().ToLower(), cancellationToken);
+        _context.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == email.Trim().ToLower(), cancellationToken);
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await _context.Users.AsNoTracking().ToListAsync(cancellationToken);
@@ -31,5 +31,5 @@ public class UserRepository : IUserRepository
     public void Update(User user) => _context.Users.Update(user);
 
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default) =>
-        _context.Users.AnyAsync(u => u.Email == email.Trim().ToLower(), cancellationToken);
+        _context.Users.IgnoreQueryFilters().AnyAsync(u => u.Email == email.Trim().ToLower(), cancellationToken);
 }

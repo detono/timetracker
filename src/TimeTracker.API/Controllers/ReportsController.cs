@@ -2,12 +2,13 @@ using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeTracker.API.Authorization;
 using TimeTracker.Application.Reports.Dtos;
 using TimeTracker.Application.Reports.Queries.GetHoursReport;
 
 namespace TimeTracker.API.Controllers;
 
-[Authorize]
+[Authorize(Policy = AuthorizationPolicies.TenantMember)]
 public class ReportsController : ApiControllerBase
 {
     /// <summary>Aggregated hours extract, grouped by day/week/month, scoped to the caller's authority.</summary>

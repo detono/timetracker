@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeTracker.API.Authorization;
 using TimeTracker.Application.HourTypes.Commands.ActivateHourType;
 using TimeTracker.Application.HourTypes.Commands.CreateHourType;
 using TimeTracker.Application.HourTypes.Commands.DeactivateHourType;
@@ -9,7 +10,7 @@ using TimeTracker.Application.HourTypes.Queries.GetHourTypes;
 
 namespace TimeTracker.API.Controllers;
 
-[Authorize]
+[Authorize(Policy = AuthorizationPolicies.TenantMember)]
 public class HourTypesController : ApiControllerBase
 {
     /// <summary>

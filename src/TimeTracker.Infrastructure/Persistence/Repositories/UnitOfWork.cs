@@ -7,12 +7,14 @@ public class UnitOfWork(
     IUserRepository users,
     ITimeEntryRepository timeEntries,
     IHourTypeRepository hourTypes,
-    IProjectRepository projects
+    IProjectRepository projects,
+    ITenantRepository tenants
 ) : IUnitOfWork {
     public IUserRepository Users { get; } = users;
     public ITimeEntryRepository TimeEntries { get; } = timeEntries;
     public IHourTypeRepository HourTypes { get; } = hourTypes;
     public IProjectRepository Projects { get; } = projects;
+    public ITenantRepository Tenants { get; } = tenants;
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         context.SaveChangesAsync(cancellationToken);

@@ -63,13 +63,26 @@ There are two account types, `Employee` and `Employer`:
 This is enforced in the domain itself (`User.CanViewHoursOf`) and re-checked in every
 relevant Application handler — never left to the UI alone.
 
+### Companies (tenants)
+
+One installation can host several companies. Each company (tenant) has its own employers,
+employees, hour types, projects and time entries, and can never see another company's
+data. This is enforced centrally in `ApplicationDbContext`: every query on company data is
+filtered to the signed-in user's tenant, and every write is checked against it.
+
+A **platform admin** belongs to no company. They create companies (together with each
+company's first employer account, plus default hour types), deactivate or reactivate
+them, and manage other platform admins. They cannot see any company's hours or people.
+The first platform admin is created from `.env` (see "Configuration" below). Email
+addresses are unique across the whole installation, so login needs only email and password.
+
 ### Managing accounts
 
 There's no public sign-up: creating accounts is an Employer-only action, both in the API
 (`POST /api/users` requires the `Employer` role) and in the UI (an Employer sees a **"Manage
 employees"** page to create accounts, deactivate leavers, reactivate them, and assign
-supervisors). Log in with the bootstrap employer account you configure via `.env` (see
-"Configuration" below) to try it. Deactivating a
+supervisors). To try it, log in as the bootstrap platform admin, create a company, then
+log in with that company's employer account. Deactivating a
 user is a soft delete — their historical time entries and report data are kept; they simply
 can no longer log in.
 
@@ -100,7 +113,7 @@ cp .env.example .env
 - `DB_PASSWORD` — Postgres password
 - `JWT_SECRET` — any long random string (`openssl rand -base64 48` works well); compose will
   refuse to start without it
-- `SEED_EMPLOYER_EMAIL` / `SEED_EMPLOYER_PASSWORD` — see below
+- `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` — the bootstrap platform admin, see below
 
 ```yaml
 services:
@@ -134,10 +147,10 @@ services:
       Jwt__Issuer: "TimeTracker.API"
       Jwt__Audience: "TimeTracker.Client"
       Cors__AllowedOrigins__0: "http://localhost:8080"
-      Seed__EmployerEmail: "${SEED_EMPLOYER_EMAIL:-}"
-      Seed__EmployerPassword: "${SEED_EMPLOYER_PASSWORD:-}"
-      Seed__EmployerFirstName: "${SEED_EMPLOYER_FIRST_NAME:-}"
-      Seed__EmployerLastName: "${SEED_EMPLOYER_LAST_NAME:-}"
+      Seed__AdminEmail: "${SEED_ADMIN_EMAIL:-}"
+      Seed__AdminPassword: "${SEED_ADMIN_PASSWORD:-}"
+      Seed__AdminFirstName: "${SEED_ADMIN_FIRST_NAME:-}"
+      Seed__AdminLastName: "${SEED_ADMIN_LAST_NAME:-}"
     ports:
       - "5067:8080"
 

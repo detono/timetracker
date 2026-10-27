@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeTracker.API.Authorization;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.TimeEntries.Commands.CreateTimeEntry;
 using TimeTracker.Application.TimeEntries.Commands.DeleteTimeEntry;
@@ -10,7 +11,7 @@ using TimeTracker.Application.TimeEntries.Queries.GetTimeEntries;
 
 namespace TimeTracker.API.Controllers;
 
-[Authorize]
+[Authorize(Policy = AuthorizationPolicies.TenantMember)]
 public class TimeEntriesController : ApiControllerBase
 {
     private readonly ICurrentUserService _currentUser;

@@ -39,7 +39,11 @@ public class CreateTimeEntryCommandHandler(
         string? projectName = null;
         if (request.ProjectId.HasValue) { 
             var project = await unitOfWork.Projects.GetByIdAsync(request.ProjectId.Value, cancellationToken);
-            projectName = project?.Name; 
+            if (project is null) {
+                return Result<TimeEntryDto>.Failure("Project was not found.", ResultErrorType.Validation);
+            }
+
+            projectName = project.Name;
         }
         
 

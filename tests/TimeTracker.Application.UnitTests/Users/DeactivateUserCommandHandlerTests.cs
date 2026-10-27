@@ -22,8 +22,8 @@ public class DeactivateUserCommandHandlerTests
     [Fact]
     public async Task Handle_NonEmployer_ReturnsForbidden()
     {
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
-        var target = User.Create("Charlie", "Other", "charlie@co.com", "hash", UserRole.Employee);
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
+        var target = User.Create("Charlie", "Other", "charlie@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
         var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employee.Id, UserRole.Employee));
         var result = await handler.Handle(new DeactivateUserCommand(target.Id), CancellationToken.None);
@@ -35,7 +35,7 @@ public class DeactivateUserCommandHandlerTests
     [Fact]
     public async Task Handle_EmployerDeactivatingSelf_ReturnsFailure()
     {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
 
         var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer));
         var result = await handler.Handle(new DeactivateUserCommand(employer.Id), CancellationToken.None);
@@ -47,8 +47,8 @@ public class DeactivateUserCommandHandlerTests
     [Fact]
     public async Task Handle_EmployerDeactivatingEmployee_Succeeds()
     {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
 
         var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer));
