@@ -9,7 +9,7 @@ namespace TimeTracker.Domain.Entities;
 /// retiring one is a <see cref="Deactivate"/> instead: it stops showing up as an option
 /// for new entries, but historical entries that reference it are unaffected.
 /// </summary>
-public class HourType : BaseEntity {
+public class HourType : TenantOwnedEntity {
     public Dictionary<string, string> LocalizedNames { get; private set; } = new();
     
     /// <summary>Hex color (e.g. "#932e4a") used to render this type consistently in the UI.</summary>

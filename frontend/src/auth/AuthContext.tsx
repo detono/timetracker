@@ -6,6 +6,7 @@ interface AuthState {
   userId: string;
   fullName: string;
   role: UserRole;
+  tenantName: string | null;
   token: string;
 }
 
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userId: result.userId,
           fullName: result.fullName,
           role: result.role,
+          tenantName: result.tenantName,
           token: result.token
         };
         setAuthToken(state.token);

@@ -198,7 +198,9 @@
     "allEmployees": "All employees",
     "teamOverview": "Team overview",
     "hourTypes": "Hour types",
-    "projects": "Projects"
+    "projects": "Projects",
+    "tenants": "Companies",
+    "platformAdmins": "Platform admins"
   },
   "time": {
     "logHours": "Log Hours",
@@ -210,7 +212,8 @@
   "roles": {
     "employee": "Employee",
     "employer": "Employer",
-    "supervisor": "Supervisor"
+    "supervisor": "Supervisor",
+    "platformAdmin": "Platform admin"
   },
   "errors": {
     "ERR_DATE_LOCKED": "You cannot log hours for a locked date.",
@@ -219,5 +222,26 @@
   "team": {
     "title": "Team overview",
     "subtitle": "Everyone whose hours you have authority to view."
+  },
+  "tenants": {
+    "title": "Companies",
+    "subtitle": "Each company has its own people, hour types, projects and hours, invisible to other companies.",
+    "addNew": "Add a company",
+    "name": "Company name",
+    "firstEmployerHint": "Its first employer account. They can add everyone else in the company.",
+    "create": "Create company",
+    "emptyState": "No companies yet.",
+    "table": {
+      "name": "Company",
+      "users": "Users",
+      "created": "Created"
+    },
+    "confirmDeactivate": "Deactivate {{name}}? Nobody in this company will be able to log in, but all their data is kept."
+  },
+  "platformAdmins": {
+    "title": "Platform admins",
+    "subtitle": "Admins manage companies and other admins. They can't see any company's hours or people.",
+    "addNew": "Add a platform admin",
+    "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in."
   }
 }

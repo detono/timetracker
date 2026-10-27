@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using TimeTracker.Application.Common.Interfaces;
+using TimeTracker.Application.Common.Security;
 using TimeTracker.Domain.Enums;
 
 namespace TimeTracker.API.Services;
@@ -29,6 +30,15 @@ public class CurrentUserService : ICurrentUserService
         {
             var value = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role);
             return Enum.TryParse<UserRole>(value, out var role) ? role : UserRole.Employee;
+        }
+    }
+
+    public Guid? TenantId
+    {
+        get
+        {
+            var value = _httpContextAccessor.HttpContext?.User.FindFirstValue(TenantClaimTypes.TenantId);
+            return Guid.TryParse(value, out var id) ? id : null;
         }
     }
 

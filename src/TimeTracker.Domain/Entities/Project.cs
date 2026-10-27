@@ -2,7 +2,7 @@ using TimeTracker.Domain.Exceptions;
 
 namespace TimeTracker.Domain.Entities;
 
-public class Project : BaseEntity {
+public class Project : TenantOwnedEntity {
     public string Name { get; private set; }
     public string? ClientName { get; private set; }
     public bool IsActive { get; private set; }

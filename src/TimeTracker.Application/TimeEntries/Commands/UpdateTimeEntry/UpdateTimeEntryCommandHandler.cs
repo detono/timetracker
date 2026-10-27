@@ -29,18 +29,22 @@ public class UpdateTimeEntryCommandHandler(
                 ResultErrorType.Validation);
         }
 
+        string? projectName = null;
+        if (request.ProjectId.HasValue) { 
+            var project = await unitOfWork.Projects.GetByIdAsync(request.ProjectId.Value, cancellationToken);
+            if (project is null) {
+                return Result<TimeEntryDto>.Failure("Project was not found.", ResultErrorType.Validation);
+            }
+
+            projectName = project.Name;
+        }
+
         entry.Reschedule(request.WorkDate);
         entry.SetTimes(request.StartTime, request.EndTime, request.BreakMinutes);
         entry.SetHourType(request.HourTypeId);
         entry.UpdateNotes(request.Notes);
         entry.UpdateProjectId(request.ProjectId);
         entry.SetLocation(request.Location, request.Latitude, request.Longitude);
-        
-        string? projectName = null;
-        if (request.ProjectId.HasValue) { 
-            var project = await unitOfWork.Projects.GetByIdAsync(request.ProjectId.Value, cancellationToken);
-            projectName = project?.Name; 
-        }
         
         unitOfWork.TimeEntries.Update(entry);
         await unitOfWork.SaveChangesAsync(cancellationToken);

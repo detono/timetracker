@@ -8,6 +8,7 @@ namespace TimeTracker.Domain.Entities;
 /// Employers have full visibility. An Employee may optionally be supervised by another
 /// Employee (e.g. a team lead) which grants that supervisor read access to their hours,
 /// modelling the "necessary authority" requirement without introducing a third role.
+/// Every Employee and Employer belongs to a tenant; a PlatformAdmin belongs to none.
 /// </summary>
 public class User : BaseEntity
 {
@@ -16,6 +17,9 @@ public class User : BaseEntity
     public string Email { get; private set; } = default!;
     public string PasswordHash { get; private set; } = default!;
     public UserRole Role { get; private set; }
+
+    /// <summary>The tenant this user belongs to. Null only for a <see cref="UserRole.PlatformAdmin"/>.</summary>
+    public Guid? TenantId { get; private set; }
 
     /// <summary>
     /// The Id of the Employee who is allowed to view this user's logged hours
@@ -33,22 +37,45 @@ public class User : BaseEntity
         // EF Core
     }
 
-    private User(string firstName, string lastName, string email, string passwordHash, UserRole role)
+    private User(string firstName, string lastName, string email, string passwordHash, UserRole role, Guid? tenantId)
     {
         SetName(firstName, lastName);
         SetEmail(email);
         PasswordHash = passwordHash;
         Role = role;
+        TenantId = tenantId;
     }
 
-    public static User Create(string firstName, string lastName, string email, string passwordHash, UserRole role)
+    /// <summary>Creates an Employee or Employer account inside the given tenant.</summary>
+    public static User Create(string firstName, string lastName, string email, string passwordHash, UserRole role, Guid tenantId)
+    {
+        if (role == UserRole.PlatformAdmin)
+        {
+            throw new DomainException("Platform admins do not belong to a tenant; use CreatePlatformAdmin.");
+        }
+
+        if (tenantId == Guid.Empty)
+        {
+            throw new DomainException("A user must belong to a tenant.");
+        }
+
+        EnsurePasswordHash(passwordHash);
+        return new User(firstName, lastName, email, passwordHash, role, tenantId);
+    }
+
+    /// <summary>Creates a platform admin, who manages tenants but belongs to none.</summary>
+    public static User CreatePlatformAdmin(string firstName, string lastName, string email, string passwordHash)
+    {
+        EnsurePasswordHash(passwordHash);
+        return new User(firstName, lastName, email, passwordHash, UserRole.PlatformAdmin, null);
+    }
+
+    private static void EnsurePasswordHash(string passwordHash)
     {
         if (string.IsNullOrWhiteSpace(passwordHash))
         {
             throw new DomainException("A password hash is required to create a user.");
         }
-
-        return new User(firstName, lastName, email, passwordHash, role);
     }
 
     public void SetName(string firstName, string lastName)

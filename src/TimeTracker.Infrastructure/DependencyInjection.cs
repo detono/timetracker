@@ -27,6 +27,7 @@ public static class DependencyInjection {
         services.AddScoped<IHourTypeRepository, HourTypeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<ITenantRepository, TenantRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();

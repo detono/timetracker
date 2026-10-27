@@ -202,7 +202,9 @@
     "allEmployees": "Tous les employés",
     "teamOverview": "Aperçu de l'équipe",
     "hourTypes": "Types d'heures",
-    "projects": "Projets"
+    "projects": "Projets",
+    "tenants": "Entreprises",
+    "platformAdmins": "Administrateurs"
   },
   "time": {
     "logHours": "Enregistrer des Heures",
@@ -214,10 +216,32 @@
   "roles": {
     "employee": "Employé",
     "employer": "Employeur",
-    "supervisor": "Superviseur"
+    "supervisor": "Superviseur",
+    "platformAdmin": "Administrateur de la plateforme"
   },
   "errors": {
     "ERR_DATE_LOCKED": "Vous ne pouvez pas enregistrer d'heures pour une date verrouillée.",
     "ERR_UNAUTHORIZED": "Vous n'avez pas l'autorisation de voir ceci."
+  },
+  "tenants": {
+    "title": "Entreprises",
+    "subtitle": "Chaque entreprise a ses propres personnes, types d'heures, projets et heures, invisibles pour les autres entreprises.",
+    "addNew": "Ajouter une entreprise",
+    "name": "Nom de l'entreprise",
+    "firstEmployerHint": "Son premier compte employeur. Cette personne ajoute ensuite le reste de l'entreprise.",
+    "create": "Créer l'entreprise",
+    "emptyState": "Aucune entreprise pour l'instant.",
+    "table": {
+      "name": "Entreprise",
+      "users": "Utilisateurs",
+      "created": "Créée le"
+    },
+    "confirmDeactivate": "Désactiver {{name}} ? Plus personne de cette entreprise ne pourra se connecter, mais toutes les données sont conservées."
+  },
+  "platformAdmins": {
+    "title": "Administrateurs de la plateforme",
+    "subtitle": "Les administrateurs gèrent les entreprises et les autres administrateurs. Ils ne voient ni les heures ni les personnes des entreprises.",
+    "addNew": "Ajouter un administrateur",
+    "confirmDeactivate": "Désactiver {{name}} ? Cette personne ne pourra plus se connecter."
   }
 }

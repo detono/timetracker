@@ -9,15 +9,28 @@ import { EmployeesPage } from "./pages/EmployeesPage";
 import { AccountPage } from "./pages/AccountPage";
 import { HourTypesPage } from "./pages/HourTypesPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
+import { TenantsPage } from "./pages/TenantsPage";
+import { PlatformAdminsPage } from "./pages/PlatformAdminsPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
+/** Company pages. A platform admin has no company, so they're sent to their own home page. */
+function RequireTenantUser({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  return user?.role === "PlatformAdmin" ? <Navigate to="/tenants" replace /> : children;
+}
+
 function RequireEmployer({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
   return user?.role === "Employer" ? children : <Navigate to="/" replace />;
+}
+
+function RequirePlatformAdmin({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  return user?.role === "PlatformAdmin" ? children : <Navigate to="/" replace />;
 }
 
 export default function App() {
@@ -34,9 +47,30 @@ export default function App() {
           </RequireAuth>
         }
       >
-        <Route index element={<DashboardPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="team" element={<TeamPage />} />
+        <Route
+          index
+          element={
+            <RequireTenantUser>
+              <DashboardPage />
+            </RequireTenantUser>
+          }
+        />
+        <Route
+          path="reports"
+          element={
+            <RequireTenantUser>
+              <ReportsPage />
+            </RequireTenantUser>
+          }
+        />
+        <Route
+          path="team"
+          element={
+            <RequireTenantUser>
+              <TeamPage />
+            </RequireTenantUser>
+          }
+        />
         <Route path="account" element={<AccountPage />} />
         <Route
           path="employees"
@@ -55,8 +89,28 @@ export default function App() {
           }
         />
         <Route
-          path="/projects"
-          element={<ProjectsPage />}
+          path="projects"
+          element={
+            <RequireEmployer>
+              <ProjectsPage />
+            </RequireEmployer>
+          }
+        />
+        <Route
+          path="tenants"
+          element={
+            <RequirePlatformAdmin>
+              <TenantsPage />
+            </RequirePlatformAdmin>
+          }
+        />
+        <Route
+          path="platform-admins"
+          element={
+            <RequirePlatformAdmin>
+              <PlatformAdminsPage />
+            </RequirePlatformAdmin>
+          }
         />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

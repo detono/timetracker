@@ -22,9 +22,9 @@ public class AssignSupervisorCommandHandlerTests
     [Fact]
     public async Task Handle_EmployerAssigningEmployeeSupervisor_Succeeds()
     {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
-        var lead = User.Create("Cara", "Lead", "cara@co.com", "hash", UserRole.Employee);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
+        var lead = User.Create("Cara", "Lead", "cara@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
         _userRepository.Setup(r => r.GetByIdAsync(lead.Id, It.IsAny<CancellationToken>())).ReturnsAsync(lead);
@@ -39,9 +39,9 @@ public class AssignSupervisorCommandHandlerTests
     [Fact]
     public async Task Handle_SupervisorIsEmployer_ReturnsFailure()
     {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
-        var otherEmployer = User.Create("Zoe", "Boss2", "zoe@co.com", "hash", UserRole.Employer);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
+        var otherEmployer = User.Create("Zoe", "Boss2", "zoe@co.com", "hash", UserRole.Employer, Guid.NewGuid());
 
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
         _userRepository.Setup(r => r.GetByIdAsync(otherEmployer.Id, It.IsAny<CancellationToken>())).ReturnsAsync(otherEmployer);
@@ -55,8 +55,8 @@ public class AssignSupervisorCommandHandlerTests
     [Fact]
     public async Task Handle_TargetIsEmployer_ReturnsFailure()
     {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var otherEmployer = User.Create("Zoe", "Boss2", "zoe@co.com", "hash", UserRole.Employer);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var otherEmployer = User.Create("Zoe", "Boss2", "zoe@co.com", "hash", UserRole.Employer, Guid.NewGuid());
 
         _userRepository.Setup(r => r.GetByIdAsync(otherEmployer.Id, It.IsAny<CancellationToken>())).ReturnsAsync(otherEmployer);
 
@@ -69,7 +69,7 @@ public class AssignSupervisorCommandHandlerTests
     [Fact]
     public async Task Handle_NonEmployerCaller_ReturnsForbidden()
     {
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
         var handler = new AssignSupervisorCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employee.Id, UserRole.Employee));
         var result = await handler.Handle(new AssignSupervisorCommand(Guid.NewGuid(), null), CancellationToken.None);

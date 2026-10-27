@@ -43,10 +43,10 @@ services:
       Jwt__Secret: "${JWT_SECRET:?Set JWT_SECRET in a .env file - see .env.example}"
       Jwt__Issuer: "TimeTracker.API"
       Jwt__Audience: "TimeTracker.Client"
-      Seed__EmployerEmail: "${SEED_EMPLOYER_EMAIL:-}"
-      Seed__EmployerPassword: "${SEED_EMPLOYER_PASSWORD:-}"
-      Seed__EmployerFirstName: "${SEED_EMPLOYER_FIRST_NAME:-}"
-      Seed__EmployerLastName: "${SEED_EMPLOYER_LAST_NAME:-}"
+      Seed__AdminEmail: "${SEED_ADMIN_EMAIL:-}"
+      Seed__AdminPassword: "${SEED_ADMIN_PASSWORD:-}"
+      Seed__AdminFirstName: "${SEED_ADMIN_FIRST_NAME:-}"
+      Seed__AdminLastName: "${SEED_ADMIN_LAST_NAME:-}"
     # ports:
     #   - "127.0.0.1:5067:8080"   # uncomment for local Swagger access at http://localhost:5067/swagger
 

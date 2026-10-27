@@ -13,18 +13,21 @@ namespace TimeTracker.API.IntegrationTests;
 /// EF Core database so integration tests don't require a running Postgres instance.
 /// </summary>
 public class CustomWebApplicationFactory : WebApplicationFactory<Program> {
+    public const string AdminEmail = "admin@demo.local";
+    public const string AdminPassword = "Password123!";
+
     private readonly string _dbName = $"TimeTrackerTests-{Guid.NewGuid()}";
     protected override void ConfigureWebHost(IWebHostBuilder builder) {
         builder.UseEnvironment("Testing");
 
-        // Provide a bootstrap employer for tests, the same way a real deployment would
+        // Provide a bootstrap platform admin for tests, the same way a real deployment would
         // via environment variables - nothing here is hardcoded into the app itself.
         builder.ConfigureAppConfiguration((_, config) => {
             config.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["Seed:EmployerEmail"] = "employer@demo.local",
-                ["Seed:EmployerPassword"] = "Password123!",
-                ["Seed:EmployerFirstName"] = "Test",
-                ["Seed:EmployerLastName"] = "Employer"
+                ["Seed:AdminEmail"] = AdminEmail,
+                ["Seed:AdminPassword"] = AdminPassword,
+                ["Seed:AdminFirstName"] = "Test",
+                ["Seed:AdminLastName"] = "Admin"
             });
         });
 

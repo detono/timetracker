@@ -29,8 +29,22 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResu
             return Result<AuthResultDto>.Failure("Invalid email or password.", ResultErrorType.Validation);
         }
 
+        string? tenantName = null;
+        if (user.TenantId.HasValue)
+        {
+            var tenant = await _unitOfWork.Tenants.GetByIdAsync(user.TenantId.Value, cancellationToken);
+            if (tenant is null || !tenant.IsActive)
+            {
+                return Result<AuthResultDto>.Failure(
+                    "Your organisation's account has been deactivated. Please contact your administrator.",
+                    ResultErrorType.Forbidden);
+            }
+
+            tenantName = tenant.Name;
+        }
+
         var token = _tokenService.GenerateToken(user);
-        var dto = new AuthResultDto(token, user.Id, $"{user.FirstName} {user.LastName}", user.Role.ToString());
+        var dto = new AuthResultDto(token, user.Id, $"{user.FirstName} {user.LastName}", user.Role.ToString(), tenantName);
 
         return Result<AuthResultDto>.Success(dto);
     }

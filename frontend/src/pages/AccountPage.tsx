@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { changePassword } from "../api/authApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { roleLabel } from "../utils/roles";
 
 export function AccountPage() {
   const { t } = useTranslation();
@@ -38,8 +39,7 @@ export function AccountPage() {
     }
   }
 
-  // Safely translate the role if it exists
-  const translatedRole = user?.role === "Employer" ? t('roles.employer') : t('roles.employee');
+  const translatedRole = user ? roleLabel(t, user.role) : "";
 
   return (
     <div className="page">

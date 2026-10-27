@@ -34,7 +34,7 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_LoggingForSelf_Succeeds() {
-        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
         var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
@@ -54,7 +54,7 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_EmployeeLoggingForSomeoneElse_ReturnsForbidden() {
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         var otherUserId = Guid.NewGuid();
 
         var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
@@ -71,8 +71,8 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_EmployerLoggingForSomeoneElse_Succeeds() {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
-        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
+        var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
 
         var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
@@ -87,7 +87,7 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_TargetUserNotFound_ReturnsNotFound() {
-        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer);
+        var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
         var missingUserId = Guid.NewGuid();
         _userRepository.Setup(r => r.GetByIdAsync(missingUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
@@ -105,7 +105,7 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_UnknownHourType_ReturnsValidationFailure() {
-        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         var unknownTypeId = Guid.NewGuid();
 
@@ -122,7 +122,7 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_DeactivatedHourType_ReturnsValidationFailure() {
-        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         
         // FIX: Provide the dictionary instead of a single string
@@ -144,7 +144,7 @@ public class CreateTimeEntryCommandHandlerTests {
 
     [Fact]
     public async Task Handle_WithValidProject_ReturnsDtoWithProjectDetails() {
-        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
         var project = Project.Create("Internal Migration", "Tradecom NV");
@@ -163,8 +163,8 @@ public class CreateTimeEntryCommandHandlerTests {
     }
 
     [Fact]
-    public async Task Handle_WithNonExistentProject_ReturnsDtoWithNullProjectName() {
-        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+    public async Task Handle_WithNonExistentProject_ReturnsValidationFailure() {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
         var missingProjectId = Guid.NewGuid();
@@ -178,14 +178,15 @@ public class CreateTimeEntryCommandHandlerTests {
 
         var result = await handler.Handle(command, CancellationToken.None);
 
-        result.Succeeded.Should().BeTrue();
-        result.Value!.ProjectId.Should().Be(missingProjectId);
-        result.Value.ProjectName.Should().BeNull();
+        // A project from another tenant is invisible too, so this also blocks cross-tenant references.
+        result.Succeeded.Should().BeFalse();
+        result.ErrorType.Should().Be(ResultErrorType.Validation);
+        _timeEntryRepository.Verify(r => r.AddAsync(It.IsAny<TimeEntry>(), It.IsAny<CancellationToken>()), Times.Never);
     }
     
     [Fact]
     public async Task Handle_HourTypeMissingEnglishTranslation_ReturnsUnknownForName() {
-        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee);
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         
         // Create an HourType that deliberately lacks an "en" key

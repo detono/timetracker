@@ -1,10 +1,20 @@
-export type UserRole = "Employee" | "Employer";
+export type UserRole = "Employee" | "Employer" | "PlatformAdmin";
 
 export interface AuthResult {
   token: string;
   userId: string;
   fullName: string;
   role: UserRole;
+  /** The user's company; null for platform admins. */
+  tenantName: string | null;
+}
+
+export interface Tenant {
+  id: string;
+  name: string;
+  isActive: boolean;
+  userCount: number;
+  createdAtUtc: string;
 }
 
 export interface UserAccount {

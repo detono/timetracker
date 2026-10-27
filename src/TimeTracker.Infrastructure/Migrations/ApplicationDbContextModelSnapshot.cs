@@ -48,10 +48,15 @@ namespace TimeTracker.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("HourTypes", (string)null);
                 });
@@ -75,12 +80,42 @@ namespace TimeTracker.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("TimeTracker.Domain.Entities.Tenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tenants", (string)null);
                 });
 
             modelBuilder.Entity("TimeTracker.Domain.Entities.TimeEntry", b =>
@@ -121,6 +156,9 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -133,6 +171,8 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("HourTypeId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserId", "WorkDate");
 
@@ -178,6 +218,9 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.Property<Guid?>("SupervisorId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -188,7 +231,27 @@ namespace TimeTracker.Infrastructure.Migrations
 
                     b.HasIndex("SupervisorId");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("TimeTracker.Domain.Entities.HourType", b =>
+                {
+                    b.HasOne("TimeTracker.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TimeTracker.Domain.Entities.Project", b =>
+                {
+                    b.HasOne("TimeTracker.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TimeTracker.Domain.Entities.TimeEntry", b =>
@@ -196,6 +259,12 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.HasOne("TimeTracker.Domain.Entities.HourType", null)
                         .WithMany()
                         .HasForeignKey("HourTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TimeTracker.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -212,6 +281,11 @@ namespace TimeTracker.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("SupervisorId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TimeTracker.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TimeTracker.Domain.Entities.User", b =>

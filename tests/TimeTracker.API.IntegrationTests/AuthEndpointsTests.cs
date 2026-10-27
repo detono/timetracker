@@ -17,14 +17,8 @@ public class AuthEndpointsTests : IClassFixture<CustomWebApplicationFactory> {
     }
 
     private async Task<string> LoginAsSeededEmployerAsync() {
-        var response = await _client.PostAsJsonAsync(
-            "/api/auth/login",
-            new { Email = "employer@demo.local", Password = "Password123!" }
-        );
-        
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var body = await response.Content.ReadFromJsonAsync<AuthResultDto>();
-        return body!.Token;
+        var tenant = await TestApi.CreateTenantAsync(_client);
+        return await TestApi.LoginAsync(_client, tenant.EmployerEmail, TestApi.Password);
     }
 
     [Fact]

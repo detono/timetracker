@@ -1,4 +1,5 @@
 using FluentValidation;
+using TimeTracker.Domain.Enums;
 
 namespace TimeTracker.Application.Users.Commands.RegisterUser;
 
@@ -11,6 +12,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(256);
         RuleFor(x => x.Password).NotEmpty().MinimumLength(8)
             .WithMessage("Password must be at least 8 characters long.");
-        RuleFor(x => x.Role).IsInEnum();
+        RuleFor(x => x.Role).Must(role => role is UserRole.Employee or UserRole.Employer)
+            .WithMessage("Role must be Employee or Employer.");
     }
 }

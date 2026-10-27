@@ -202,7 +202,9 @@
     "allEmployees": "Alle medewerkers",
     "teamOverview": "Teamoverzicht",
     "hourTypes": "Uurtypes",
-    "projects": "Projecten"
+    "projects": "Projecten",
+    "tenants": "Bedrijven",
+    "platformAdmins": "Platformbeheerders"
   },
   "time": {
     "logHours": "Uren Registreren",
@@ -214,10 +216,32 @@
   "roles": {
     "employee": "Werknemer",
     "employer": "Werkgever",
-    "supervisor": "Leidinggevende"
+    "supervisor": "Leidinggevende",
+    "platformAdmin": "Platformbeheerder"
   },
   "errors": {
     "ERR_DATE_LOCKED": "Je kunt geen uren registreren voor een geblokkeerde datum.",
     "ERR_UNAUTHORIZED": "Je hebt geen toestemming om dit te bekijken."
+  },
+  "tenants": {
+    "title": "Bedrijven",
+    "subtitle": "Elk bedrijf heeft eigen mensen, uurtypes, projecten en uren, onzichtbaar voor andere bedrijven.",
+    "addNew": "Bedrijf toevoegen",
+    "name": "Bedrijfsnaam",
+    "firstEmployerHint": "Het eerste werkgeversaccount. Deze persoon voegt de rest van het bedrijf toe.",
+    "create": "Bedrijf aanmaken",
+    "emptyState": "Nog geen bedrijven.",
+    "table": {
+      "name": "Bedrijf",
+      "users": "Gebruikers",
+      "created": "Aangemaakt"
+    },
+    "confirmDeactivate": "{{name}} deactiveren? Niemand van dit bedrijf kan nog inloggen, maar alle gegevens blijven bewaard."
+  },
+  "platformAdmins": {
+    "title": "Platformbeheerders",
+    "subtitle": "Beheerders beheren bedrijven en andere beheerders. Ze zien geen uren of mensen van bedrijven.",
+    "addNew": "Platformbeheerder toevoegen",
+    "confirmDeactivate": "{{name}} deactiveren? Deze persoon kan dan niet meer inloggen."
   }
 }
