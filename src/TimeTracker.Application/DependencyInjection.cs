@@ -3,6 +3,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TimeTracker.Application.Common.Behaviours;
+using TimeTracker.Application.Leave;
 
 namespace TimeTracker.Application;
 
@@ -18,6 +19,9 @@ public static class DependencyInjection {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+        services.AddScoped<LeaveService>();
+        services.AddScoped<LeaveNotifications>();
+        services.AddScoped<LeaveRequests.LeaveRequestMapper>();
 
         return services;
     }

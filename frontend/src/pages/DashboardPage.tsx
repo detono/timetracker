@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link, useOutletContext } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import {
   createTimeEntry,
@@ -17,6 +18,7 @@ import { TimeEntryForm, type TimeEntryFormValues } from "../components/TimeEntry
 import { WeekNavigator } from "../components/WeekNavigator";
 import { getWeekRange, hoursToHm } from "../utils/dateRange";
 import type { HourType, Project, TimeEntry } from "../types";
+import type { ShellContext } from "../utils/leave";
 
 export function DashboardPage() {
   const { t } = useTranslation();
@@ -30,6 +32,7 @@ export function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<TimeEntry | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const { pendingLeaveCount } = useOutletContext<ShellContext>();
 
   const { from, to, days } = getWeekRange(anchorDate);
 
@@ -118,6 +121,15 @@ export function DashboardPage() {
           </button>
         </div>
       </div>
+
+      {pendingLeaveCount > 0 && (
+        <div className="notice" role="status">
+          <span>{t('leave.pendingBanner', { count: pendingLeaveCount })}</span>
+          <Link to="/leave" className="btn btn--primary btn--sm">
+            {t('leave.reviewNow')}
+          </Link>
+        </div>
+      )}
 
       <WeekNavigator anchorDate={anchorDate} onChange={setAnchorDate} from={from} to={to} />
 

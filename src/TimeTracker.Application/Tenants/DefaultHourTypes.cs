@@ -20,6 +20,9 @@ public static class DefaultHourTypes
                 "#2a7ab0", isDefault: false)
         };
 
+        types[1].SetLeaveOptions(isLeave: true, deductsFromBalance: false);
+        types[2].SetLeaveOptions(isLeave: true, deductsFromBalance: true);
+
         foreach (var type in types)
         {
             type.AssignToTenant(tenantId);

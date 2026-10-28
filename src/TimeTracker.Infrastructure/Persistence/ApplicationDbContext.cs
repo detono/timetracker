@@ -22,6 +22,9 @@ public class ApplicationDbContext(
     public DbSet<HourType> HourTypes => Set<HourType>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<TenantMailSettings> MailSettings => Set<TenantMailSettings>();
+    public DbSet<WorkSchedule> WorkSchedules => Set<WorkSchedule>();
+    public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
+    public DbSet<LeaveBalance> LeaveBalances => Set<LeaveBalance>();
 
     /// <summary>
     /// The ASP.NET Core Data Protection key ring (used to encrypt mail secrets), kept in the
@@ -39,6 +42,9 @@ public class ApplicationDbContext(
         ConfigureTenantOwned<Project>(modelBuilder);
         ConfigureTenantOwned<TimeEntry>(modelBuilder);
         ConfigureTenantOwned<TenantMailSettings>(modelBuilder);
+        ConfigureTenantOwned<WorkSchedule>(modelBuilder);
+        ConfigureTenantOwned<LeaveRequest>(modelBuilder);
+        ConfigureTenantOwned<LeaveBalance>(modelBuilder);
 
         // Platform admins (TenantId null) only match each other here, never tenant users.
         modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == CurrentTenantId);

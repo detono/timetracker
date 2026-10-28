@@ -161,7 +161,11 @@
       "color": "Kleur",
       "status": "Status",
       "actions": "Acties"
-    }
+    },
+    "isLeave": "Kan als verlof aangevraagd worden",
+    "deductsFromBalance": "Gaat af van het verlofsaldo",
+    "leaveBadge": "Verlof",
+    "leaveBadgeBalance": "Verlof · saldo"
   },
   "reports": {
     "title": "Rapportages",
@@ -205,7 +209,8 @@
     "projects": "Projecten",
     "tenants": "Bedrijven",
     "platformAdmins": "Platformbeheerders",
-    "email": "E-mail"
+    "email": "E-mail",
+    "leave": "Verlof"
   },
   "time": {
     "logHours": "Uren Registreren",
@@ -276,5 +281,94 @@
     "testSending": "Versturen…",
     "testSent": "Testmail verstuurd naar je eigen adres. Kijk in je inbox (en spammap).",
     "saveFirst": "Sla eerst de instellingen op."
+  },
+  "weekdays": {
+    "Monday": "Maandag",
+    "Tuesday": "Dinsdag",
+    "Wednesday": "Woensdag",
+    "Thursday": "Donderdag",
+    "Friday": "Vrijdag",
+    "Saturday": "Zaterdag",
+    "Sunday": "Zondag"
+  },
+  "workSchedule": {
+    "button": "Uurrooster",
+    "titleFor": "Uurrooster van {{name}}",
+    "hint": "De uren die deze persoon normaal werkt. Goedgekeurd verlof wordt met deze uren op elke werkdag ingeboekt.",
+    "usingDefault": "Nog geen uurrooster opgeslagen: maandag tot vrijdag, 9:00 tot 17:00 met 30 minuten pauze wordt gebruikt.",
+    "start": "Begin",
+    "end": "Einde",
+    "breakMinutes": "Pauze (min)",
+    "dayOff": "Vrije dag",
+    "weeklyTotal": "Per week:",
+    "saved": "Uurrooster opgeslagen.",
+    "close": "Sluiten"
+  },
+  "leave": {
+    "title": "Verlof",
+    "subtitle": "Vraag verlof aan en volg je aanvragen op.",
+    "myBalance": "Jouw verlof in {{year}}:",
+    "hoursLeftOf": "nog {{left}} van {{total}}",
+    "pendingHours": "{{hours}} wacht op goedkeuring",
+    "pendingBadge_one": "{{count}} verlofaanvraag te beoordelen",
+    "pendingBadge_other": "{{count}} verlofaanvragen te beoordelen",
+    "pendingBanner_one": "{{count}} verlofaanvraag wacht op jouw goedkeuring.",
+    "pendingBanner_other": "{{count}} verlofaanvragen wachten op jouw goedkeuring.",
+    "reviewNow": "Bekijken",
+    "requestTitle": "Verlof aanvragen",
+    "noLeaveTypes": "Er zijn nog geen verloftypes. Een werkgever kan uurtypes als verlof markeren onder Uurtypes.",
+    "type": "Type",
+    "from": "Van",
+    "to": "Tot en met",
+    "comment": "Opmerking (optioneel)",
+    "submit": "Aanvraag versturen",
+    "previewDays_one": "{{count}} werkdag",
+    "previewDays_other": "{{count}} werkdagen",
+    "leftBefore": "nog {{hours}}",
+    "previewOverBalance": "Dit is meer dan je resterende verlof. Je kunt de aanvraag toch versturen; wie ze goedkeurt, krijgt een waarschuwing.",
+    "overlaps": "Je hebt in deze periode al een openstaande of goedgekeurde aanvraag.",
+    "noWorkingDays": "Je hebt geen werkdagen in deze periode.",
+    "toReviewTitle": "Te beoordelen",
+    "showDecided": "Ook beoordeelde aanvragen tonen",
+    "nothingToReview": "Niets te beoordelen.",
+    "myRequestsTitle": "Mijn aanvragen",
+    "noRequests": "Je hebt nog geen verlof aangevraagd.",
+    "approve": "Goedkeuren",
+    "reject": "Afwijzen",
+    "revoke": "Intrekken",
+    "withdraw": "Annuleren",
+    "overBalance": "boven saldo",
+    "usedUp": "opgebruikt",
+    "confirmOverBalance": "{{name}} heeft nog {{remaining}} verlof, en deze aanvraag is {{hours}}. Toch goedkeuren?",
+    "rejectReason": "De aanvraag van {{name}} afwijzen? Je kunt een reden opgeven (optioneel).",
+    "revokeReason": "Het goedgekeurde verlof van {{name}} intrekken? De ingeboekte uren worden verwijderd. Je kunt een reden opgeven (optioneel).",
+    "confirmWithdraw": "Deze verlofaanvraag annuleren?",
+    "balancesTitle": "Verlofsaldo {{year}}",
+    "balancesHint": "Stel per persoon het verlof voor het jaar in, in uren. Opgenomen uren zijn uren onder types die van het saldo afgaan.",
+    "prevYear": "Vorig jaar",
+    "nextYear": "Volgend jaar",
+    "allowanceFor": "Verlof voor {{name}}",
+    "notSet": "Niet ingesteld",
+    "status": {
+      "Pending": "Openstaand",
+      "Approved": "Goedgekeurd",
+      "Rejected": "Afgewezen",
+      "Cancelled": "Geannuleerd"
+    },
+    "table": {
+      "employee": "Medewerker",
+      "type": "Type",
+      "period": "Periode",
+      "hours": "Uren",
+      "balance": "Saldo",
+      "comment": "Opmerking",
+      "status": "Status",
+      "actions": "Acties",
+      "reviewedBy": "Beoordeeld door",
+      "allowance": "Verlof",
+      "used": "Opgenomen",
+      "pending": "Openstaand",
+      "remaining": "Resterend"
+    }
   }
 }

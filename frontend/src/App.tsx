@@ -12,6 +12,7 @@ import { ProjectsPage } from "./pages/ProjectsPage";
 import { TenantsPage } from "./pages/TenantsPage";
 import { PlatformAdminsPage } from "./pages/PlatformAdminsPage";
 import { EmailSettingsPage } from "./pages/EmailSettingsPage";
+import { LeavePage } from "./pages/LeavePage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -69,6 +70,14 @@ export default function App() {
           element={
             <RequireTenantUser>
               <TeamPage />
+            </RequireTenantUser>
+          }
+        />
+        <Route
+          path="leave"
+          element={
+            <RequireTenantUser>
+              <LeavePage />
             </RequireTenantUser>
           }
         />

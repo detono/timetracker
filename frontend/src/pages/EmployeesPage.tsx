@@ -10,6 +10,7 @@ import {
 } from "../api/usersApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { WorkScheduleEditor } from "../components/WorkScheduleEditor";
 import type { UserAccount, UserRole } from "../types";
 
 const emptyForm = {
@@ -32,6 +33,7 @@ export function EmployeesPage() {
   const [resettingUser, setResettingUser] = useState<UserAccount | null>(null);
   const [resetPasswordValue, setResetPasswordValue] = useState("");
   const [resetSubmitting, setResetSubmitting] = useState(false);
+  const [scheduleUser, setScheduleUser] = useState<UserAccount | null>(null);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -217,6 +219,14 @@ export function EmployeesPage() {
         </div>
       )}
 
+      {scheduleUser && (
+        <WorkScheduleEditor
+          userId={scheduleUser.id}
+          userName={`${scheduleUser.firstName} ${scheduleUser.lastName}`}
+          onClose={() => setScheduleUser(null)}
+        />
+      )}
+
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>
       ) : (
@@ -266,6 +276,9 @@ export function EmployeesPage() {
                   </span>
                 </td>
                 <td className="list-view__actions">
+                  <button className="btn btn--ghost btn--sm" onClick={() => setScheduleUser(u)}>
+                    {t('workSchedule.button')}
+                  </button>
                   <button
                     className="btn btn--ghost btn--sm"
                     onClick={() => {

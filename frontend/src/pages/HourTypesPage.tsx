@@ -12,6 +12,41 @@ import type { HourType } from "../types";
 
 const DEFAULT_COLOR = "#932e4a";
 
+interface LeaveOptions {
+  isLeave: boolean;
+  deductsFromLeaveBalance: boolean;
+}
+
+const noLeave: LeaveOptions = { isLeave: false, deductsFromLeaveBalance: false };
+
+/** The two leave checkboxes; "uses up the balance" only applies to leave types. */
+function LeaveOptionsFields({ value, onChange }: { value: LeaveOptions; onChange: (value: LeaveOptions) => void }) {
+  const { t } = useTranslation();
+  return (
+    <div className="form__row" style={{ marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+        <input
+          type="checkbox"
+          checked={value.isLeave}
+          onChange={(e) => onChange({ isLeave: e.target.checked, deductsFromLeaveBalance: e.target.checked && value.deductsFromLeaveBalance })}
+          style={{ width: 'auto' }}
+        />
+        <span>{t('hourTypes.isLeave')}</span>
+      </label>
+      <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+        <input
+          type="checkbox"
+          checked={value.deductsFromLeaveBalance}
+          disabled={!value.isLeave}
+          onChange={(e) => onChange({ ...value, deductsFromLeaveBalance: e.target.checked })}
+          style={{ width: 'auto' }}
+        />
+        <span>{t('hourTypes.deductsFromBalance')}</span>
+      </label>
+    </div>
+  );
+}
+
 interface LocalizedInput {
   lang: string;
   value: string;
@@ -33,6 +68,7 @@ export function HourTypesPage() {
   ]);
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [isDefault, setIsDefault] = useState(false);
+  const [leaveOptions, setLeaveOptions] = useState(noLeave);
   const [creating, setCreating] = useState(false);
 
   // Edit state
@@ -40,6 +76,7 @@ export function HourTypesPage() {
   const [editNames, setEditNames] = useState<LocalizedInput[]>([]);
   const [editColor, setEditColor] = useState(DEFAULT_COLOR);
   const [editIsDefault, setEditIsDefault] = useState(false);
+  const [editLeaveOptions, setEditLeaveOptions] = useState(noLeave);
   const [savingEdit, setSavingEdit] = useState(false);
 
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -83,11 +120,12 @@ export function HourTypesPage() {
         throw new Error("Please provide at least one valid language code and name.");
       }
 
-      await createHourType(dictionary, color, isDefault);
+      await createHourType({ localizedNames: dictionary, colorHex: color, isDefault, ...leaveOptions });
 
       setNames([{ lang: "en", value: "" }, { lang: "nl", value: "" }, { lang: "fr", value: "" }]);
       setColor(DEFAULT_COLOR);
       setIsDefault(false);
+      setLeaveOptions(noLeave);
       await load();
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -107,6 +145,7 @@ export function HourTypesPage() {
     setEditNames(mappedNames);
     setEditColor(type.colorHex);
     setEditIsDefault(type.isDefault);
+    setEditLeaveOptions({ isLeave: type.isLeave, deductsFromLeaveBalance: type.deductsFromLeaveBalance });
   }
 
   async function handleSaveEdit(e: FormEvent) {
@@ -120,7 +159,12 @@ export function HourTypesPage() {
         throw new Error("Please provide at least one valid language code and name.");
       }
 
-      await updateHourType(editingId, dictionary, editColor, editIsDefault);
+      await updateHourType(editingId, {
+        localizedNames: dictionary,
+        colorHex: editColor,
+        isDefault: editIsDefault,
+        ...editLeaveOptions
+      });
       setEditingId(null);
       await load();
     } catch (err) {
@@ -249,6 +293,8 @@ export function HourTypesPage() {
             </label>
           </div>
 
+          <LeaveOptionsFields value={leaveOptions} onChange={setLeaveOptions} />
+
           <div className="form__actions" style={{ marginTop: '16px' }}>
             <button className="btn btn--primary" type="submit" disabled={creating}>
               {creating ? t('hourTypes.adding', 'Adding...') : t('hourTypes.addType', 'Add Type')}
@@ -328,8 +374,8 @@ export function HourTypesPage() {
                           <span>{t('hourTypes.color', 'Color')}</span>
                           <input
                             type="color"
-                            value={getValidHex(color)}
-                            onChange={(e) => setColor(e.target.value)}
+                            value={getValidHex(editColor)}
+                            onChange={(e) => setEditColor(e.target.value)}
                           />
                         </label>
 
@@ -343,6 +389,8 @@ export function HourTypesPage() {
                           <span>Set as Default</span>
                         </label>
                       </div>
+
+                      <LeaveOptionsFields value={editLeaveOptions} onChange={setEditLeaveOptions} />
 
                       <div className="form__actions" style={{ marginTop: '16px' }}>
                         <button className="btn btn--primary" type="submit" disabled={savingEdit}>
@@ -359,6 +407,11 @@ export function HourTypesPage() {
                     <td>
                       {getDisplayName(type.localizedNames)}
                       {type.isDefault && <span style={{ marginLeft: '8px', fontSize: '0.85em' }}>⭐</span>}
+                      {type.isLeave && (
+                        <span className="badge" title={type.deductsFromLeaveBalance ? t('hourTypes.deductsFromBalance') : undefined}>
+                          {type.deductsFromLeaveBalance ? t('hourTypes.leaveBadgeBalance') : t('hourTypes.leaveBadge')}
+                        </span>
+                      )}
                     </td>
                     <td>
                       <span className="color-swatch" style={{ backgroundColor: type.colorHex }} />

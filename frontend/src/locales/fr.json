@@ -161,7 +161,11 @@
       "color": "Couleur",
       "status": "Statut",
       "actions": "Actions"
-    }
+    },
+    "isLeave": "Peut être demandé comme congé",
+    "deductsFromBalance": "Est déduit du solde de congés",
+    "leaveBadge": "Congé",
+    "leaveBadgeBalance": "Congé · solde"
   },
   "reports": {
     "title": "Rapports",
@@ -205,7 +209,8 @@
     "projects": "Projets",
     "tenants": "Entreprises",
     "platformAdmins": "Administrateurs",
-    "email": "E-mail"
+    "email": "E-mail",
+    "leave": "Congés"
   },
   "time": {
     "logHours": "Enregistrer des Heures",
@@ -276,5 +281,94 @@
     "testSending": "Envoi…",
     "testSent": "E-mail de test envoyé à votre adresse. Vérifiez votre boîte de réception (et les spams).",
     "saveFirst": "Enregistrez d'abord les paramètres."
+  },
+  "weekdays": {
+    "Monday": "Lundi",
+    "Tuesday": "Mardi",
+    "Wednesday": "Mercredi",
+    "Thursday": "Jeudi",
+    "Friday": "Vendredi",
+    "Saturday": "Samedi",
+    "Sunday": "Dimanche"
+  },
+  "workSchedule": {
+    "button": "Horaire",
+    "titleFor": "Horaire de travail de {{name}}",
+    "hint": "Les heures que cette personne preste normalement. Les congés approuvés sont encodés avec ces heures chaque jour ouvré.",
+    "usingDefault": "Aucun horaire enregistré : du lundi au vendredi, de 9:00 à 17:00 avec 30 minutes de pause, est utilisé.",
+    "start": "Début",
+    "end": "Fin",
+    "breakMinutes": "Pause (min)",
+    "dayOff": "Jour libre",
+    "weeklyTotal": "Par semaine :",
+    "saved": "Horaire enregistré.",
+    "close": "Fermer"
+  },
+  "leave": {
+    "title": "Congés",
+    "subtitle": "Demandez des congés et suivez vos demandes.",
+    "myBalance": "Vos congés en {{year}} :",
+    "hoursLeftOf": "{{left}} restant sur {{total}}",
+    "pendingHours": "{{hours}} en attente d'approbation",
+    "pendingBadge_one": "{{count}} demande de congé à traiter",
+    "pendingBadge_other": "{{count}} demandes de congé à traiter",
+    "pendingBanner_one": "{{count}} demande de congé attend votre approbation.",
+    "pendingBanner_other": "{{count}} demandes de congé attendent votre approbation.",
+    "reviewNow": "Voir",
+    "requestTitle": "Demander un congé",
+    "noLeaveTypes": "Il n'y a pas encore de types de congé. Un employeur peut marquer des types d'heures comme congé sous Types d'heures.",
+    "type": "Type",
+    "from": "Du",
+    "to": "Au (inclus)",
+    "comment": "Commentaire (facultatif)",
+    "submit": "Envoyer la demande",
+    "previewDays_one": "{{count}} jour ouvré",
+    "previewDays_other": "{{count}} jours ouvrés",
+    "leftBefore": "{{hours}} restant",
+    "previewOverBalance": "C'est plus que votre solde restant. Vous pouvez quand même envoyer la demande ; la personne qui l'approuve verra un avertissement.",
+    "overlaps": "Vous avez déjà une demande en attente ou approuvée sur cette période.",
+    "noWorkingDays": "Vous n'avez aucun jour ouvré sur cette période.",
+    "toReviewTitle": "À traiter",
+    "showDecided": "Afficher aussi les demandes traitées",
+    "nothingToReview": "Rien à traiter.",
+    "myRequestsTitle": "Mes demandes",
+    "noRequests": "Vous n'avez encore demandé aucun congé.",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "revoke": "Révoquer",
+    "withdraw": "Annuler",
+    "overBalance": "solde dépassé",
+    "usedUp": "épuisé",
+    "confirmOverBalance": "Il reste {{remaining}} de congé à {{name}}, et cette demande fait {{hours}}. Approuver quand même ?",
+    "rejectReason": "Refuser la demande de {{name}} ? Vous pouvez indiquer une raison (facultatif).",
+    "revokeReason": "Révoquer le congé approuvé de {{name}} ? Les heures encodées sont supprimées. Vous pouvez indiquer une raison (facultatif).",
+    "confirmWithdraw": "Annuler cette demande de congé ?",
+    "balancesTitle": "Soldes de congés {{year}}",
+    "balancesHint": "Définissez le nombre d'heures de congé de chaque personne pour l'année. Les heures prises sont celles encodées sous des types déduits du solde.",
+    "prevYear": "Année précédente",
+    "nextYear": "Année suivante",
+    "allowanceFor": "Congés de {{name}}",
+    "notSet": "Non défini",
+    "status": {
+      "Pending": "En attente",
+      "Approved": "Approuvé",
+      "Rejected": "Refusé",
+      "Cancelled": "Annulé"
+    },
+    "table": {
+      "employee": "Employé",
+      "type": "Type",
+      "period": "Période",
+      "hours": "Heures",
+      "balance": "Solde",
+      "comment": "Commentaire",
+      "status": "Statut",
+      "actions": "Actions",
+      "reviewedBy": "Traité par",
+      "allowance": "Congés",
+      "used": "Pris",
+      "pending": "En attente",
+      "remaining": "Restant"
+    }
   }
 }

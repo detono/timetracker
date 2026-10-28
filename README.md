@@ -86,6 +86,26 @@ log in with that company's employer account. Deactivating a
 user is a soft delete — their historical time entries and report data are kept; they simply
 can no longer log in.
 
+### Leave
+
+- **Work schedules.** Each person has weekly working hours (start, end and break per
+  weekday). An employer sets them under *Manage employees → Schedule*; until then Monday to
+  Friday, 9:00–17:00 with a 30-minute break applies.
+- **Requests.** Anyone can request leave for a date range under an hour type marked *can be
+  requested as leave*. The form shows how many working days and hours that is, and what's
+  left of their balance.
+- **Approval.** The requester's supervisor, or any employer, approves or rejects it. Approving
+  books one time entry per working day with that person's scheduled hours, so the leave
+  shows up in the planning. Revoking approved leave removes those entries again.
+- **Balances.** Employers set a yearly allowance in hours per person (*Leave → Leave
+  balances*). Hours logged under types marked *uses up the leave balance* count as used.
+  Going over the balance shows a warning to the requester and the approver but doesn't block
+  approval.
+- **Notifications.** Approvers see a count next to *Leave* and a banner on their dashboard.
+  If the company's email is set up, the supervisor (or every employer, when there's no
+  supervisor) gets an email about new requests, and the requester gets one when it's
+  decided. Emails are in English for now.
+
 ### Key design choices
 
 - **CQRS with MediatR**: every use case is its own Command/Query + Handler, each easy to

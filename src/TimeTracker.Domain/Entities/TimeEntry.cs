@@ -23,6 +23,9 @@ public class TimeEntry : TenantOwnedEntity {
     /// <summary>Total break time subtracted from the worked duration, in minutes.</summary>
     public int BreakMinutes { get; private set; }
 
+    /// <summary>The approved leave request that booked this entry, if any.</summary>
+    public Guid? LeaveRequestId { get; private set; }
+
     private TimeEntry() {
         // EF Core
     }
@@ -138,6 +141,14 @@ public class TimeEntry : TenantOwnedEntity {
         Latitude = latitude;
         Longitude = longitude;
         MarkUpdated();
+    }
+
+    public void LinkToLeaveRequest(Guid leaveRequestId) {
+        if (leaveRequestId == Guid.Empty) {
+            throw new DomainException("A leave request id is required.");
+        }
+
+        LeaveRequestId = leaveRequestId;
     }
 
     public void Reschedule(DateOnly workDate) {

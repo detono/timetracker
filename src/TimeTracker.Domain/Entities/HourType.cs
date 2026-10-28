@@ -19,6 +19,12 @@ public class HourType : TenantOwnedEntity {
     
     // 1. Renamed to IsDefault for consistency
     public bool IsDefault { get; private set; } = false;
+
+    /// <summary>Whether people can pick this type when requesting leave (e.g. paid time off).</summary>
+    public bool IsLeave { get; private set; }
+
+    /// <summary>Whether hours of this type use up the yearly leave balance. Only applies to leave types.</summary>
+    public bool DeductsFromLeaveBalance { get; private set; }
     
     private HourType() {
         // EF Core
@@ -59,6 +65,14 @@ public class HourType : TenantOwnedEntity {
         MarkUpdated();
     }
     
+    /// <param name="isLeave">Can be requested as leave.</param>
+    /// <param name="deductsFromBalance">Uses up the leave balance; ignored unless <paramref name="isLeave"/>.</param>
+    public void SetLeaveOptions(bool isLeave, bool deductsFromBalance) {
+        IsLeave = isLeave;
+        DeductsFromLeaveBalance = isLeave && deductsFromBalance;
+        MarkUpdated();
+    }
+
     public void SetAsDefault() {
         IsDefault = true;
         MarkUpdated();

@@ -42,6 +42,7 @@ public class CreateHourTypeCommandHandler(
 
         // Make sure your HourType.Create method in the domain accepts request.IsDefault!
         var hourType = HourType.Create(request.LocalizedNames, request.ColorHex, request.IsDefault);
+        hourType.SetLeaveOptions(request.IsLeave, request.DeductsFromLeaveBalance);
 
         await unitOfWork.HourTypes.AddAsync(hourType, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -51,7 +52,9 @@ public class CreateHourTypeCommandHandler(
             hourType.LocalizedNames,
             hourType.ColorHex,
             hourType.IsActive,
-            hourType.IsDefault
+            hourType.IsDefault,
+            hourType.IsLeave,
+            hourType.DeductsFromLeaveBalance
         ));
     }
 }

@@ -10,6 +10,8 @@ public record UpdateHourTypeCommand(
     Guid Id,
     Dictionary<string, string> LocalizedNames,
     string ColorHex,
-    bool IsDefault
+    bool IsDefault,
+    bool IsLeave = false,
+    bool DeductsFromLeaveBalance = false
 ) : IRequest<Result<HourTypeDto>>;
 

@@ -29,6 +29,8 @@ public interface ITimeEntryRepository
         CancellationToken cancellationToken = default
     );
 
+    Task<IReadOnlyList<TimeEntry>> GetByLeaveRequestIdAsync(Guid leaveRequestId, CancellationToken cancellationToken = default);
+
     Task AddAsync(TimeEntry timeEntry, CancellationToken cancellationToken = default);
     void Update(TimeEntry timeEntry);
     void Remove(TimeEntry timeEntry);

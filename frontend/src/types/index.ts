@@ -33,6 +33,10 @@ export interface HourType {
   colorHex: string;
   isActive: boolean;
   isDefault: boolean;
+  /** Can be requested as leave. */
+  isLeave: boolean;
+  /** Uses up the yearly leave balance. */
+  deductsFromLeaveBalance: boolean;
 }
 
 export interface TimeEntry {
@@ -129,4 +133,66 @@ export interface UpdateMailSettingsPayload {
   graphClientId: string | null;
   graphClientSecret: string | null;
   graphMailbox: string | null;
+}
+
+export type Weekday = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+
+export interface WorkScheduleDay {
+  dayOfWeek: Weekday;
+  startTime: string; // HH:mm[:ss]
+  endTime: string;
+  breakMinutes: number;
+}
+
+export interface WorkSchedule {
+  userId: string;
+  /** True when nothing was saved yet and the default schedule applies. */
+  isDefault: boolean;
+  days: WorkScheduleDay[];
+  weeklyHours: number;
+}
+
+export type LeaveRequestStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
+
+export interface LeaveRequest {
+  id: string;
+  userId: string;
+  userFullName: string;
+  hourTypeId: string;
+  localizedHourTypeNames: Record<string, string>;
+  hourTypeColor: string;
+  startDate: string; // yyyy-MM-dd
+  endDate: string;
+  hours: number;
+  comment: string | null;
+  status: LeaveRequestStatus;
+  reviewedByName: string | null;
+  reviewedAtUtc: string | null;
+  reviewComment: string | null;
+  createdAtUtc: string;
+  canReview: boolean;
+  canCancel: boolean;
+  /** For pending requests that use up the balance: what the requester has left before it's booked. */
+  remainingBalanceHours: number | null;
+  exceedsBalance: boolean;
+}
+
+export interface LeavePreview {
+  workingDays: number;
+  hours: number;
+  deductsFromBalance: boolean;
+  remainingBalanceHours: number | null;
+  exceedsBalance: boolean;
+  overlapsExistingRequest: boolean;
+}
+
+export interface LeaveBalance {
+  userId: string;
+  userFullName: string;
+  year: number;
+  /** Null when no allowance was set for this year. */
+  allowanceHours: number | null;
+  usedHours: number;
+  pendingHours: number;
+  remainingHours: number | null;
 }

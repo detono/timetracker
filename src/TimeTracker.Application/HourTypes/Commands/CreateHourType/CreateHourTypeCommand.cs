@@ -8,5 +8,7 @@ namespace TimeTracker.Application.HourTypes.Commands.CreateHourType;
 public record CreateHourTypeCommand(
     Dictionary<string, string> LocalizedNames, 
     string ColorHex,
-    bool IsDefault
+    bool IsDefault,
+    bool IsLeave = false,
+    bool DeductsFromLeaveBalance = false
 ) : IRequest<Result<HourTypeDto>>;

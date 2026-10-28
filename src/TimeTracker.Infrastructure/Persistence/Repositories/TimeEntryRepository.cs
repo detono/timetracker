@@ -47,6 +47,10 @@ public class TimeEntryRepository(ApplicationDbContext context) : ITimeEntryRepos
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<TimeEntry>> GetByLeaveRequestIdAsync(Guid leaveRequestId,
+        CancellationToken cancellationToken = default) =>
+        await context.TimeEntries.Where(e => e.LeaveRequestId == leaveRequestId).ToListAsync(cancellationToken);
+
     public void Update(TimeEntry timeEntry) => context.TimeEntries.Update(timeEntry);
 
     public void Remove(TimeEntry timeEntry) => context.TimeEntries.Remove(timeEntry);

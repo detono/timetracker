@@ -611,3 +611,101 @@ button {
     flex-direction: column;
   }
 }
+
+/* ---------- Leave ---------- */
+
+.nav-badge {
+  display: inline-block;
+  min-width: 1.2rem;
+  margin-left: 0.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--color-secondary);
+  color: var(--color-primary-dark);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-secondary-dark);
+  border-radius: 10px;
+  background: var(--color-secondary);
+  color: var(--color-on-secondary);
+  font-weight: 500;
+}
+
+.form__warning {
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.form__hint {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.leave-status {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.leave-status--pending {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary-dark);
+  color: var(--color-primary-dark);
+}
+
+.leave-status--approved {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.leave-status--rejected {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.balance-negative {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) repeat(3, minmax(6rem, 9rem)) auto;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.schedule-grid input[type="time"],
+.schedule-grid input[type="number"] {
+  width: 100%;
+}
+
+.schedule-grid__day {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}

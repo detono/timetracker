@@ -44,6 +44,7 @@ public class UpdateHourTypeCommandHandler(
 
         // Make sure this Update method accepts request.IsDefault!
         hourType.Update(request.LocalizedNames, request.ColorHex, request.IsDefault);
+        hourType.SetLeaveOptions(request.IsLeave, request.DeductsFromLeaveBalance);
 
         unitOfWork.HourTypes.Update(hourType);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -53,7 +54,9 @@ public class UpdateHourTypeCommandHandler(
             hourType.LocalizedNames,
             hourType.ColorHex,
             hourType.IsActive,
-            hourType.IsDefault
+            hourType.IsDefault,
+            hourType.IsLeave,
+            hourType.DeductsFromLeaveBalance
         ));
     }
 }

@@ -11,6 +11,9 @@ public interface IUnitOfWork
     IProjectRepository Projects { get; }
     ITenantRepository Tenants { get; }
     ITenantMailSettingsRepository MailSettings { get; }
+    IWorkScheduleRepository WorkSchedules { get; }
+    ILeaveRequestRepository LeaveRequests { get; }
+    ILeaveBalanceRepository LeaveBalances { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

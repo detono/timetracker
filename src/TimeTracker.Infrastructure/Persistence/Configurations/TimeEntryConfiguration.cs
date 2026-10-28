@@ -25,6 +25,13 @@ public class TimeEntryConfiguration : IEntityTypeConfiguration<TimeEntry>
             .HasForeignKey(t => t.HourTypeId)
             .OnDelete(DeleteBehavior.Restrict); // hour types are deactivated, never deleted, once in use
 
+        // Removing a leave request never deletes its entries implicitly; the handler does that explicitly.
+        builder.HasOne<LeaveRequest>()
+            .WithMany()
+            .HasForeignKey(t => t.LeaveRequestId)
+            .OnDelete(DeleteBehavior.SetNull);
+        builder.HasIndex(t => t.LeaveRequestId);
+
         builder.Ignore(t => t.Duration);
     }
 }

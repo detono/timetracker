@@ -5,5 +5,7 @@ public record HourTypeDto(
     Dictionary<string, string> LocalizedNames,
     string ColorHex,
     bool IsActive,
-    bool IsDefault
+    bool IsDefault,
+    bool IsLeave,
+    bool DeductsFromLeaveBalance
 );

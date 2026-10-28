@@ -131,7 +131,11 @@
       "color": "Color",
       "status": "Status",
       "actions": "Actions"
-    }
+    },
+    "isLeave": "Can be requested as leave",
+    "deductsFromBalance": "Uses up the leave balance",
+    "leaveBadge": "Leave",
+    "leaveBadgeBalance": "Leave · balance"
   },
   "login": {
     "tagline": "Log hours. See the whole team. No guesswork at payroll time.",
@@ -201,7 +205,8 @@
     "projects": "Projects",
     "tenants": "Companies",
     "platformAdmins": "Platform admins",
-    "email": "Email"
+    "email": "Email",
+    "leave": "Leave"
   },
   "time": {
     "logHours": "Log Hours",
@@ -276,5 +281,94 @@
     "testSending": "Sending…",
     "testSent": "Test email sent to your address. Check your inbox (and spam folder).",
     "saveFirst": "Save the settings first."
+  },
+  "weekdays": {
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday",
+    "Saturday": "Saturday",
+    "Sunday": "Sunday"
+  },
+  "workSchedule": {
+    "button": "Schedule",
+    "titleFor": "Work schedule for {{name}}",
+    "hint": "The hours this person normally works. Approved leave is booked with these hours on each working day.",
+    "usingDefault": "No schedule saved yet: Monday to Friday, 9:00 to 17:00 with a 30-minute break is used.",
+    "start": "Start",
+    "end": "End",
+    "breakMinutes": "Break (min)",
+    "dayOff": "Day off",
+    "weeklyTotal": "Per week:",
+    "saved": "Work schedule saved.",
+    "close": "Close"
+  },
+  "leave": {
+    "title": "Leave",
+    "subtitle": "Request time off and follow up on your requests.",
+    "myBalance": "Your leave in {{year}}:",
+    "hoursLeftOf": "{{left}} left of {{total}}",
+    "pendingHours": "{{hours}} waiting for approval",
+    "pendingBadge_one": "{{count}} leave request to review",
+    "pendingBadge_other": "{{count}} leave requests to review",
+    "pendingBanner_one": "{{count}} leave request is waiting for your approval.",
+    "pendingBanner_other": "{{count}} leave requests are waiting for your approval.",
+    "reviewNow": "Review",
+    "requestTitle": "Request leave",
+    "noLeaveTypes": "There are no leave types yet. An employer can mark hour types as leave under Hour types.",
+    "type": "Type",
+    "from": "From",
+    "to": "To (inclusive)",
+    "comment": "Comment (optional)",
+    "submit": "Send request",
+    "previewDays_one": "{{count}} working day",
+    "previewDays_other": "{{count}} working days",
+    "leftBefore": "{{hours}} left",
+    "previewOverBalance": "This is more than your remaining leave. You can still send the request; your approver will see a warning.",
+    "overlaps": "You already have a pending or approved request in this period.",
+    "noWorkingDays": "You have no working days in this period.",
+    "toReviewTitle": "To review",
+    "showDecided": "Also show decided requests",
+    "nothingToReview": "Nothing to review.",
+    "myRequestsTitle": "My requests",
+    "noRequests": "You haven't requested any leave yet.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "revoke": "Revoke",
+    "withdraw": "Withdraw",
+    "overBalance": "over balance",
+    "usedUp": "used up",
+    "confirmOverBalance": "{{name}} has {{remaining}} of leave left, and this request is {{hours}}. Approve anyway?",
+    "rejectReason": "Reject the request of {{name}}? You can add a reason (optional).",
+    "revokeReason": "Revoke the approved leave of {{name}}? The booked hours are removed. You can add a reason (optional).",
+    "confirmWithdraw": "Withdraw this leave request?",
+    "balancesTitle": "Leave balances {{year}}",
+    "balancesHint": "Set each person's leave allowance for the year in hours. Used hours are hours logged under types that use up the balance.",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "allowanceFor": "Leave allowance for {{name}}",
+    "notSet": "Not set",
+    "status": {
+      "Pending": "Pending",
+      "Approved": "Approved",
+      "Rejected": "Rejected",
+      "Cancelled": "Cancelled"
+    },
+    "table": {
+      "employee": "Employee",
+      "type": "Type",
+      "period": "Period",
+      "hours": "Hours",
+      "balance": "Balance",
+      "comment": "Comment",
+      "status": "Status",
+      "actions": "Actions",
+      "reviewedBy": "Reviewed by",
+      "allowance": "Allowance",
+      "used": "Used",
+      "pending": "Pending",
+      "remaining": "Remaining"
+    }
   }
 }

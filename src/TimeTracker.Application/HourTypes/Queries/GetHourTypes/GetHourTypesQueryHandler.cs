@@ -23,7 +23,9 @@ public class GetHourTypesQueryHandler(
             t.LocalizedNames,
             t.ColorHex,
             t.IsActive,
-            t.IsDefault
+            t.IsDefault,
+            t.IsLeave,
+            t.DeductsFromLeaveBalance
         )).ToList();
 
         return Result<IReadOnlyList<HourTypeDto>>.Success(dtos);

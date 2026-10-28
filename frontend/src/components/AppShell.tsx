@@ -1,8 +1,11 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
+import { getPendingLeaveCount } from "../api/leaveApi";
 import { appConfig } from "../config";
 import { roleLabel } from "../utils/roles";
+import type { ShellContext } from "../utils/leave";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "shell__nav-link is-active" : "shell__nav-link");
 
@@ -12,6 +15,23 @@ export function AppShell() {
 
   const translatedRole = user ? roleLabel(t, user.role) : "";
   const isEmployer = user?.role === "Employer";
+  const isTenantUser = !!user && user.role !== "PlatformAdmin";
+  const location = useLocation();
+
+  // Leave requests waiting for this user's review, refreshed on every page change.
+  const [pendingLeaveCount, setPendingLeaveCount] = useState(0);
+  const refreshPendingLeaveCount = useCallback(() => {
+    if (!isTenantUser) return;
+    getPendingLeaveCount()
+      .then(setPendingLeaveCount)
+      .catch(() => setPendingLeaveCount(0));
+  }, [isTenantUser]);
+
+  useEffect(() => {
+    refreshPendingLeaveCount();
+  }, [refreshPendingLeaveCount, location.pathname]);
+
+  const shellContext: ShellContext = { pendingLeaveCount, refreshPendingLeaveCount };
 
   return (
     <div className="shell">
@@ -36,6 +56,14 @@ export function AppShell() {
               </NavLink>
               <NavLink to="/team" className={navLinkClass}>
                 {isEmployer ? t('nav.allEmployees') : t('nav.teamOverview')}
+              </NavLink>
+              <NavLink to="/leave" className={navLinkClass}>
+                {t('nav.leave')}
+                {pendingLeaveCount > 0 && (
+                  <span className="nav-badge" aria-label={t('leave.pendingBadge', { count: pendingLeaveCount })}>
+                    {pendingLeaveCount}
+                  </span>
+                )}
               </NavLink>
               <NavLink to="/reports" className={navLinkClass}>
                 {t('nav.reports')}
@@ -72,7 +100,7 @@ export function AppShell() {
         </div>
       </header>
       <main className="shell__content">
-        <Outlet />
+        <Outlet context={shellContext} />
       </main>
     </div>
   );
