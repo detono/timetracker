@@ -91,4 +91,23 @@ public class AuthEndpointsTests : IClassFixture<CustomWebApplicationFactory> {
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task UsersSaveTheirLanguage_AndGetItBackOnLogin() {
+        var tenant = await TestApi.CreateTenantAsync(_client);
+        var token = await TestApi.LoginAsync(_client, tenant.EmployerEmail, TestApi.Password);
+
+        async Task<HttpStatusCode> SetAsync(string? language) {
+            using var request = TestApi.Authorized(HttpMethod.Put, "/api/auth/language", token);
+            request.Content = JsonContent.Create(new { Language = language });
+            return (await _client.SendAsync(request)).StatusCode;
+        }
+
+        (await SetAsync("german")).Should().Be(HttpStatusCode.BadRequest);
+        (await SetAsync("DE")).Should().Be(HttpStatusCode.NoContent);
+
+        var login = await _client.PostAsJsonAsync("/api/auth/login",
+            new { Email = tenant.EmployerEmail, Password = TestApi.Password });
+        (await login.Content.ReadFromJsonAsync<AuthResultDto>())!.Language.Should().Be("de");
+    }
 }

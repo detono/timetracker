@@ -10,7 +10,8 @@ namespace TimeTracker.Application.HoursOverview;
 /// <item>Expected hours count up to yesterday, plus today once anything is logged for today, so
 /// you don't look "behind" every morning before you've logged the day.</item>
 /// <item>All logged hours count as worked, including leave and sick days.</item>
-/// <item>Expected hours start on the day the account was created, so new people don't start in the minus.</item>
+/// <item>Expected hours start when someone started: the day their account was created, or the first
+/// day hours were logged for them if that's earlier (e.g. an employer backfilling hours).</item>
 /// <item>The current schedule is used for the whole period; past schedule changes aren't remembered.</item>
 /// <item>Public holidays and company days off aren't expected work.</item>
 /// </list>
@@ -82,8 +83,15 @@ public static class HoursOverviewCalculator {
         }).ToList();
     }
 
-    /// <summary>The first day expected hours count for someone: when their account was created.</summary>
-    public static DateOnly CountFrom(User user) => DateOnly.FromDateTime(user.CreatedAtUtc);
+    /// <summary>
+    /// The first day expected hours count for someone: when their account was created, or the
+    /// first day hours were logged for them if that's earlier.
+    /// </summary>
+    public static DateOnly CountFrom(User user, IEnumerable<TimeEntry> entries) {
+        var created = DateOnly.FromDateTime(user.CreatedAtUtc);
+        var firstLogged = entries.Select(e => (DateOnly?)e.WorkDate).Min();
+        return firstLogged is { } first && first < created ? first : created;
+    }
 
     private static decimal Worked(IEnumerable<TimeEntry> entries, DateOnly from, DateOnly to) =>
         Hours(entries.Where(e => e.WorkDate >= from && e.WorkDate <= to)

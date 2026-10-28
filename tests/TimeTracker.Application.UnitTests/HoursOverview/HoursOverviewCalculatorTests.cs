@@ -114,4 +114,14 @@ public class HoursOverviewCalculatorTests {
         tuesday.ExpectedHours.Should().Be(0);
         tuesday.HolidayName.Should().Be("Company day off");
     }
+
+    [Fact]
+    public void CountFrom_StartsAtTheFirstLoggedDayWhenThatsBeforeTheAccount() {
+        var user = User.Create("New", "Hire", "new@co.com", "hash", Domain.Enums.UserRole.Employee, Guid.NewGuid());
+        var created = DateOnly.FromDateTime(user.CreatedAtUtc);
+        var backfilled = Entry(created.AddDays(-3), 9, 17);
+
+        CountFrom(user, new[] { backfilled }).Should().Be(created.AddDays(-3));
+        CountFrom(user, Array.Empty<TimeEntry>()).Should().Be(created);
+    }
 }

@@ -44,7 +44,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResu
         }
 
         var token = _tokenService.GenerateToken(user);
-        var dto = new AuthResultDto(token, user.Id, $"{user.FirstName} {user.LastName}", user.Role.ToString(), tenantName);
+        var dto = new AuthResultDto(token, user.Id, $"{user.FirstName} {user.LastName}", user.Role.ToString(), tenantName, user.Language);
 
         return Result<AuthResultDto>.Success(dto);
     }

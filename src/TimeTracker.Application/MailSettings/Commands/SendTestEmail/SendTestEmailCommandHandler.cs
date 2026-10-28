@@ -2,6 +2,7 @@ using System.Net;
 using MediatR;
 using TimeTracker.Application.Common.Exceptions;
 using TimeTracker.Application.Common.Interfaces;
+using TimeTracker.Application.Common.Localization;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
@@ -29,14 +30,14 @@ public class SendTestEmailCommandHandler(
         }
 
         var provider = settings.Provider == MailProvider.MicrosoftGraph ? "Microsoft Graph" : "SMTP";
-        var name = WebUtility.HtmlEncode(employer.FirstName);
+        var texts = EmailTexts.For(employer.Language);
+        var greeting = texts.Get("greeting", ("firstName", employer.FirstName));
+        var body = texts.Get("testEmail.body", ("provider", provider));
         var message = new EmailMessage(
             new[] { employer.Email },
-            "TimeTracker test email",
-            $"<p>Hi {name},</p><p>This is a test email from TimeTracker, sent with your company's {provider} settings. " +
-            "If you can read this, outgoing email works.</p>",
-            $"Hi {employer.FirstName},\n\nThis is a test email from TimeTracker, sent with your company's {provider} settings. " +
-            "If you can read this, outgoing email works.");
+            texts.Get("testEmail.subject"),
+            $"<p>{WebUtility.HtmlEncode(greeting)}</p><p>{WebUtility.HtmlEncode(body)}</p>",
+            $"{greeting}\n\n{body}");
 
         try {
             await mailDispatcher.DispatchAsync(settings, message, cancellationToken);

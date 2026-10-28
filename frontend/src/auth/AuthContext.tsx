@@ -1,5 +1,7 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { setAuthToken } from "../api/client";
+import { setLanguage } from "../api/authApi";
+import i18n from "../i18n";
 import type { AuthResult, UserRole } from "../types";
 
 interface AuthState {
@@ -46,6 +48,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthToken(state.token);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         setUser(state);
+
+        // Use the language saved on the account; the first time, save the one the browser picked
+        // so emails arrive in it too.
+        if (result.language) {
+          i18n.changeLanguage(result.language);
+        } else if (i18n.resolvedLanguage) {
+          setLanguage(i18n.resolvedLanguage).catch(() => undefined);
+        }
       },
       logout: () => {
         setAuthToken(null);

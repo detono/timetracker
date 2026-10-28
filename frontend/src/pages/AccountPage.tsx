@@ -1,13 +1,26 @@
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { changePassword } from "../api/authApi";
+import { changePassword, setLanguage } from "../api/authApi";
+import { availableLanguages } from "../i18n";
+import { nativeLanguageName } from "../utils/languages";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { roleLabel } from "../utils/roles";
 
 export function AccountPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const [languageError, setLanguageError] = useState<string | null>(null);
+
+  async function handleLanguageChange(language: string) {
+    setLanguageError(null);
+    await i18n.changeLanguage(language);
+    try {
+      await setLanguage(language);
+    } catch (err) {
+      setLanguageError(extractErrorMessage(err));
+    }
+  }
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -50,6 +63,22 @@ export function AccountPage() {
             {t('account.signedInAs')} <strong>{user?.fullName}</strong> ({translatedRole})
           </p>
         </div>
+      </div>
+
+      <div className="panel" style={{ maxWidth: 420 }}>
+        <h2>{t('account.languageTitle')}</h2>
+        <label className="form__field">
+          <span>{t('account.languageLabel')}</span>
+          <select value={i18n.resolvedLanguage ?? "en"} onChange={(e) => handleLanguageChange(e.target.value)}>
+            {availableLanguages.map((code) => (
+              <option key={code} value={code}>
+                {nativeLanguageName(code)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="form__hint">{t('account.languageHint')}</p>
+        {languageError && <p className="form__error">{languageError}</p>}
       </div>
 
       <div className="panel" style={{ maxWidth: 420 }}>

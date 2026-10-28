@@ -53,7 +53,7 @@ public class CancelLeaveRequestCommandHandler(
         var hourType = await unitOfWork.HourTypes.GetByIdAsync(leaveRequest.HourTypeId, cancellationToken);
         if (canceller is not null && hourType is not null) {
             await notifications.RequestReviewedAsync(
-                leaveRequest, requester, canceller, LeaveRequestMapper.NameOf(hourType), cancellationToken);
+                leaveRequest, requester, canceller, hourType, cancellationToken);
         }
 
         return Result<LeaveRequestDto>.Success(await mapper.ToDtoAsync(leaveRequest, cancellationToken));

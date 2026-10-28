@@ -48,6 +48,14 @@ public class GetHoursReportQueryHandler(
         var hourTypes = (await unitOfWork.HourTypes.GetAllAsync(includeInactive: true, cancellationToken))
             .ToDictionary(t => t.Id);
 
+        // Hour type names in the caller's language (e.g. in the CSV), else English, else any.
+        var language = (await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken))?.Language ?? "en";
+        string TypeName(HourType? type) =>
+            type is null ? "Unknown"
+            : type.LocalizedNames.TryGetValue(language, out var name) ? name
+            : type.LocalizedNames.TryGetValue("en", out var en) ? en
+            : type.LocalizedNames.Values.FirstOrDefault() ?? "Unknown";
+
         var entries = userIds.Count == 0
             ? Array.Empty<TimeEntry>()
             : await unitOfWork.TimeEntries.GetForUsersAsync(userIds, request.From, request.To, cancellationToken);
@@ -61,7 +69,7 @@ public class GetHoursReportQueryHandler(
                     g.Key.UserId,
                     userLookup.TryGetValue(g.Key.UserId, out var name) ? name : "Unknown",
                     g.Key.HourTypeId,
-                    hourType?.LocalizedNames.GetValueOrDefault("en") ?? "Unknown",
+                    TypeName(hourType),
                     hourType?.ColorHex ?? "#999999",
                     label,
                     start,

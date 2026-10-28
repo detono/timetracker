@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getWeekRange, hoursToHm } from "../dateRange";
+import { formatDayLabel, getWeekRange, hoursToHm } from "../dateRange";
 
 describe("hoursToHm", () => {
   it("formats whole hours", () => {
@@ -23,5 +23,13 @@ describe("getWeekRange", () => {
     expect(from).toBe("2026-01-05");
     expect(to).toBe("2026-01-11");
     expect(days).toHaveLength(7);
+  });
+});
+
+describe("formatDayLabel", () => {
+  it("follows the language", () => {
+    expect(formatDayLabel("2026-11-04", "en")).toBe("Wed 4 Nov");
+    expect(formatDayLabel("2026-11-04", "nl")).toMatch(/^wo 4 nov/);
+    expect(formatDayLabel("2026-11-04", "de")).toMatch(/4\. Nov/);
   });
 });

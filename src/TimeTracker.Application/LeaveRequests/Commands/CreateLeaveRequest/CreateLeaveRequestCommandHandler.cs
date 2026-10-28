@@ -54,7 +54,7 @@ public class CreateLeaveRequestCommandHandler(
         await unitOfWork.LeaveRequests.AddAsync(leaveRequest, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await notifications.RequestSubmittedAsync(leaveRequest, requester, LeaveRequestMapper.NameOf(hourType), cancellationToken);
+        await notifications.RequestSubmittedAsync(leaveRequest, requester, hourType, cancellationToken);
 
         return Result<LeaveRequestDto>.Success(await mapper.ToDtoAsync(leaveRequest, cancellationToken));
     }

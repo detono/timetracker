@@ -7,6 +7,8 @@ export interface AuthResult {
   role: UserRole;
   /** The user's company; null for platform admins. */
   tenantName: string | null;
+  /** The language the user picked; null if they haven't yet. */
+  language: string | null;
 }
 
 export interface Tenant {

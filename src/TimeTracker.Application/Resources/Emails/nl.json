@@ -1,0 +1,18 @@
+{
+  "greeting": "Hallo {firstName},",
+  "comment": "Opmerking: {comment}",
+  "period.range": "{start} tot {end}",
+  "part.morning": "voormiddag",
+  "part.afternoon": "namiddag",
+  "leaveSubmitted.subject": "Verlofaanvraag van {name}: {period}",
+  "leaveSubmitted.body": "{name} vroeg {type} aan voor {period} ({hours} uur).",
+  "leaveSubmitted.action": "Open TimeTracker en ga naar Verlof om de aanvraag goed te keuren of af te wijzen.",
+  "leaveApproved.subject": "Je verlofaanvraag is goedgekeurd: {period}",
+  "leaveApproved.body": "{reviewer} keurde je aanvraag voor {type} voor {period} goed.",
+  "leaveRejected.subject": "Je verlofaanvraag is afgewezen: {period}",
+  "leaveRejected.body": "{reviewer} wees je aanvraag voor {type} voor {period} af.",
+  "leaveCancelled.subject": "Je verlof is geannuleerd: {period}",
+  "leaveCancelled.body": "{reviewer} annuleerde je verlof ({type}) voor {period}.",
+  "testEmail.subject": "Testmail van TimeTracker",
+  "testEmail.body": "Dit is een testmail van TimeTracker, verstuurd met de {provider}-instellingen van je bedrijf. Kun je dit lezen, dan werkt uitgaande e-mail."
+}

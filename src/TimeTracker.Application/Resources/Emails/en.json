@@ -1,0 +1,18 @@
+{
+  "greeting": "Hi {firstName},",
+  "comment": "Comment: {comment}",
+  "period.range": "{start} to {end}",
+  "part.morning": "morning",
+  "part.afternoon": "afternoon",
+  "leaveSubmitted.subject": "Leave request from {name}: {period}",
+  "leaveSubmitted.body": "{name} requested {type} for {period} ({hours} hours).",
+  "leaveSubmitted.action": "Open TimeTracker and go to Leave to approve or reject it.",
+  "leaveApproved.subject": "Your leave request was approved: {period}",
+  "leaveApproved.body": "{reviewer} approved your request for {type} for {period}.",
+  "leaveRejected.subject": "Your leave request was rejected: {period}",
+  "leaveRejected.body": "{reviewer} rejected your request for {type} for {period}.",
+  "leaveCancelled.subject": "Your leave was cancelled: {period}",
+  "leaveCancelled.body": "{reviewer} cancelled your leave ({type}) for {period}.",
+  "testEmail.subject": "TimeTracker test email",
+  "testEmail.body": "This is a test email from TimeTracker, sent with your company's {provider} settings. If you can read this, outgoing email works."
+}

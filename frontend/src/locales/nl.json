@@ -132,7 +132,10 @@
     "updateBtn": "Wachtwoord bijwerken",
     "updating": "Bijwerken…",
     "successMessage": "Wachtwoord is bijgewerkt.",
-    "errorMismatch": "Het nieuwe wachtwoord en de bevestiging komen niet overeen."
+    "errorMismatch": "Het nieuwe wachtwoord en de bevestiging komen niet overeen.",
+    "languageTitle": "Taal",
+    "languageLabel": "Taal",
+    "languageHint": "Voor de app en voor de e-mails die je krijgt."
   },
   "weekNavigator": {
     "prevWeek": "Vorige week",

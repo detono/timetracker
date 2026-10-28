@@ -86,6 +86,4 @@ public class LeaveRequestMapper(IUnitOfWork unitOfWork, ICurrentUserService curr
         _ => false
     };
 
-    public static string NameOf(HourType hourType) =>
-        hourType.LocalizedNames.TryGetValue("en", out var en) ? en : hourType.LocalizedNames.Values.FirstOrDefault() ?? "Leave";
 }

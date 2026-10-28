@@ -1,0 +1,18 @@
+{
+  "greeting": "Bonjour {firstName},",
+  "comment": "Commentaire : {comment}",
+  "period.range": "du {start} au {end}",
+  "part.morning": "matin",
+  "part.afternoon": "après-midi",
+  "leaveSubmitted.subject": "Demande de congé de {name} : {period}",
+  "leaveSubmitted.body": "{name} a demandé {type} pour {period} ({hours} heures).",
+  "leaveSubmitted.action": "Ouvrez TimeTracker et allez dans Congés pour l'approuver ou la refuser.",
+  "leaveApproved.subject": "Votre demande de congé a été approuvée : {period}",
+  "leaveApproved.body": "{reviewer} a approuvé votre demande de {type} pour {period}.",
+  "leaveRejected.subject": "Votre demande de congé a été refusée : {period}",
+  "leaveRejected.body": "{reviewer} a refusé votre demande de {type} pour {period}.",
+  "leaveCancelled.subject": "Votre congé a été annulé : {period}",
+  "leaveCancelled.body": "{reviewer} a annulé votre congé ({type}) pour {period}.",
+  "testEmail.subject": "E-mail de test TimeTracker",
+  "testEmail.body": "Ceci est un e-mail de test de TimeTracker, envoyé avec les paramètres {provider} de votre entreprise. Si vous pouvez lire ceci, l'envoi d'e-mails fonctionne."
+}

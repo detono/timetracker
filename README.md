@@ -135,7 +135,8 @@ and schedules every time, so there's no balance to manage or correct.
 - Expected hours count up to yesterday, plus today once something is logged for it, so you
   don't look behind every morning before you've logged the day.
 - Every logged hour counts as worked, including leave and sick days.
-- Expected hours start on the day someone's account was created.
+- Expected hours start on the day someone's account was created, or on the first day hours
+  were logged for them if that's earlier.
 - Public holidays and company days off aren't expected work.
 - The current schedule applies to the whole period; earlier schedule changes aren't remembered.
 - People who don't log hours (e.g. an owner) can be switched off under *Manage employees →
@@ -311,6 +312,28 @@ usually has password-based SMTP turned off — use Microsoft Graph for it instea
 A 401/403 from the test email almost always means the permission is missing, is
 Delegated instead of Application, lacks admin consent, or the access policy doesn't
 include the mailbox. Policy changes can take up to an hour to apply.
+
+## Languages
+
+The app ships in English, Dutch and French. Everyone picks their own language under *My
+account*; it's saved with their account and also used for the emails they get. Until they
+pick one, the browser's language is used. Dates follow the chosen language too.
+
+### Adding a language
+
+A language is one file for the app and, optionally, one for the emails. Nothing else needs
+changing: new files are picked up automatically and show up in the language picker.
+
+1. Copy `frontend/src/locales/en.json` to `frontend/src/locales/<code>.json`, using the
+   two-letter language code (e.g. `de.json` for German), and translate the texts.
+2. Optionally copy `src/TimeTracker.Application/Resources/Emails/en.json` to the same name
+   there and translate the email texts.
+3. Keep placeholders such as `{{name}}` (app) and `{name}` (emails) as they are.
+4. Run `npm run i18n:missing` in `frontend/` to see what's still untranslated, and `npm test`
+   to check the files.
+
+You don't have to translate everything at once: any text that's missing falls back to
+English. Hour type names are translated per company on the *Hour types* page.
 
 ## License
 

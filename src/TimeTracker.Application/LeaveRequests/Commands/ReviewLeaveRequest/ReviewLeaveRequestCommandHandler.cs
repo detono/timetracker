@@ -68,7 +68,7 @@ public class ReviewLeaveRequestCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await notifications.RequestReviewedAsync(
-            leaveRequest, requester, reviewer, LeaveRequestMapper.NameOf(hourType), cancellationToken);
+            leaveRequest, requester, reviewer, hourType, cancellationToken);
 
         return Result<LeaveRequestDto>.Success(await mapper.ToDtoAsync(leaveRequest, cancellationToken));
     }

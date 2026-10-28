@@ -138,7 +138,10 @@
     "updateBtn": "Mettre à jour le mot de passe",
     "updating": "Mise à jour…",
     "successMessage": "Mot de passe mis à jour.",
-    "errorMismatch": "Le nouveau mot de passe et la confirmation ne correspondent pas."
+    "errorMismatch": "Le nouveau mot de passe et la confirmation ne correspondent pas.",
+    "languageTitle": "Langue",
+    "languageLabel": "Langue",
+    "languageHint": "Pour l'application et les e-mails que vous recevez."
   },
   "weekNavigator": {
     "prevWeek": "Semaine précédente",

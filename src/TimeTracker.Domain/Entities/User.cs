@@ -35,6 +35,12 @@ public class User : BaseEntity
     /// </summary>
     public bool TracksHours { get; private set; } = true;
 
+    /// <summary>
+    /// The two-letter language the user picked (e.g. "de"), used for the app and for emails.
+    /// Null until they pick one; emails then fall back to English.
+    /// </summary>
+    public string? Language { get; private set; }
+
     private readonly List<TimeEntry> _timeEntries = new();
     public IReadOnlyCollection<TimeEntry> TimeEntries => _timeEntries.AsReadOnly();
 
@@ -131,6 +137,18 @@ public class User : BaseEntity
         }
 
         SupervisorId = supervisorId;
+        MarkUpdated();
+    }
+
+    public void SetLanguage(string? language)
+    {
+        var code = string.IsNullOrWhiteSpace(language) ? null : language.Trim().ToLowerInvariant();
+        if (code is not null && (code.Length != 2 || !code.All(char.IsAsciiLetterLower)))
+        {
+            throw new DomainException("The language must be a two-letter code, e.g. de.");
+        }
+
+        Language = code;
         MarkUpdated();
     }
 

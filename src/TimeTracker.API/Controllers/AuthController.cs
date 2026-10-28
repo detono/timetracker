@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TimeTracker.Application.Auth.Commands.ChangePassword;
 using TimeTracker.Application.Auth.Commands.Login;
+using TimeTracker.Application.Auth.Commands.SetLanguage;
 using TimeTracker.Application.Auth.Dtos;
 
 namespace TimeTracker.API.Controllers;
@@ -14,6 +15,15 @@ public class AuthController : ApiControllerBase
     [ProducesResponseType(typeof(AuthResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AuthResultDto>> Login(LoginCommand command, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>Saves the signed-in user's language, used for the app and for the emails they get.</summary>
+    [HttpPut("language")]
+    [Authorize]
+    public async Task<ActionResult> SetLanguage(SetLanguageCommand command, CancellationToken cancellationToken)
     {
         var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);

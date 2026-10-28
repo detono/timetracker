@@ -28,7 +28,7 @@ public class GetTeamHoursOverviewQueryHandler(
         var holidays = await loader.HolidaysAsync(asOf, cancellationToken);
 
         IReadOnlyList<TeamMemberHoursDto> rows = people.Select(p => {
-            var countFrom = CountFrom(p.User);
+            var countFrom = CountFrom(p.User, p.Entries);
             return new TeamMemberHoursDto(
                 p.User.Id,
                 $"{p.User.FirstName} {p.User.LastName}",

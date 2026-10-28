@@ -21,7 +21,7 @@ public class GetMyHoursOverviewQueryHandler(
 
         var asOf = request.AsOf ?? clock.TodayUtc;
         var person = (await loader.LoadAsync(new[] { user }, asOf, cancellationToken))[0];
-        var countFrom = CountFrom(user);
+        var countFrom = CountFrom(user, person.Entries);
         var leaveTypes = await loader.LeaveHourTypeIdsAsync(cancellationToken);
         var holidays = await loader.HolidaysAsync(asOf, cancellationToken);
 

@@ -108,7 +108,10 @@
     "updateBtn": "Update password",
     "updating": "Updating…",
     "successMessage": "Password updated.",
-    "errorMismatch": "New password and confirmation don't match."
+    "errorMismatch": "New password and confirmation don't match.",
+    "languageTitle": "Language",
+    "languageLabel": "Language",
+    "languageHint": "Used for the app and for the emails you get."
   },
   "weekNavigator": {
     "prevWeek": "Previous week",

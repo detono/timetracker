@@ -476,6 +476,10 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
