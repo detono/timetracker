@@ -6,6 +6,7 @@ import { ViewToggle, type ViewMode } from "../components/ViewToggle";
 import { ListView } from "../components/ListView";
 import { PlanBoard } from "../components/PlanBoard";
 import { WeekNavigator } from "../components/WeekNavigator";
+import { TeamHoursTable } from "../components/TeamHoursTable";
 import { getWeekRange } from "../utils/dateRange";
 import type { TimeEntry } from "../types";
 
@@ -49,6 +50,8 @@ export function TeamPage() {
         </div>
         <ViewToggle value={view} onChange={setView} />
       </div>
+
+      <TeamHoursTable />
 
       <WeekNavigator anchorDate={anchorDate} onChange={setAnchorDate} from={from} to={to} />
 

@@ -6,6 +6,7 @@ using TimeTracker.Application.Users.Commands.AssignSupervisor;
 using TimeTracker.Application.Users.Commands.DeactivateUser;
 using TimeTracker.Application.Users.Commands.RegisterUser;
 using TimeTracker.Application.Users.Commands.ResetPassword;
+using TimeTracker.Application.Users.Commands.SetTracksHours;
 using TimeTracker.Application.Users.Dtos;
 using TimeTracker.Application.Users.Queries.GetUsers;
 
@@ -61,6 +62,17 @@ public class UsersController : ApiControllerBase
         return HandleResult(result);
     }
 
+    /// <summary>
+    /// Sets whether someone's logged hours are compared with their work schedule. Switch it off
+    /// for people who don't log hours, so they don't show up as behind.
+    /// </summary>
+    [HttpPut("{id:guid}/tracks-hours")]
+    public async Task<ActionResult> SetTracksHours(Guid id, [FromBody] SetTracksHoursBody body, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(new SetTracksHoursCommand(id, body.TracksHours), cancellationToken);
+        return HandleResult(result);
+    }
+
     /// <summary>Sets a new password for another user, without needing their current one.</summary>
     [HttpPost("{id:guid}/reset-password")]
     public async Task<ActionResult> ResetPassword(Guid id, [FromBody] ResetPasswordRequestBody body, CancellationToken cancellationToken)
@@ -71,3 +83,5 @@ public class UsersController : ApiControllerBase
 }
 
 public record ResetPasswordRequestBody(string NewPassword);
+
+public record SetTracksHoursBody(bool TracksHours);

@@ -213,13 +213,13 @@ export function ProjectsPage() {
 
                                 {/* The Expandable Drill-down Row */}
                                 {expandedId === p.id && (
-                                    <tr style={{ backgroundColor: "#f9fafb" }}>
+                                    <tr style={{ backgroundColor: "var(--paper)" }}>
                                         <td colSpan={6} style={{ padding: "1.5rem" }}>
                                             <h4 style={{ marginTop: 0, marginBottom: "1rem" }}>Time Breakdown</h4>
                                             {loadingBreakdown ? (
-                                                <p style={{ fontStyle: "italic", color: "#666" }}>Loading data...</p>
+                                                <p style={{ fontStyle: "italic", color: "var(--ink-soft)" }}>Loading data...</p>
                                             ) : (
-                                                <table className="list-view" style={{ background: "white", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+                                                <table className="list-view" style={{ background: "var(--paper-raised)", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
                                                     <thead>
                                                         <tr>
                                                             <th>Employee</th>

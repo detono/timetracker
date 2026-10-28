@@ -29,6 +29,12 @@ public class User : BaseEntity
 
     public bool IsActive { get; private set; } = true;
 
+    /// <summary>
+    /// Whether this person's logged hours are compared with their work schedule. Off for
+    /// people who don't log their hours, e.g. an owner, so they don't show up as "behind".
+    /// </summary>
+    public bool TracksHours { get; private set; } = true;
+
     private readonly List<TimeEntry> _timeEntries = new();
     public IReadOnlyCollection<TimeEntry> TimeEntries => _timeEntries.AsReadOnly();
 
@@ -125,6 +131,12 @@ public class User : BaseEntity
         }
 
         SupervisorId = supervisorId;
+        MarkUpdated();
+    }
+
+    public void SetTracksHours(bool tracksHours)
+    {
+        TracksHours = tracksHours;
         MarkUpdated();
     }
 

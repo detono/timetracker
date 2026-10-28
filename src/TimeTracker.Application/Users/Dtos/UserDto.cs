@@ -7,4 +7,5 @@ public record UserDto(
     string Email,
     string Role,
     Guid? SupervisorId,
-    bool IsActive);
+    bool IsActive,
+    bool TracksHours = true);

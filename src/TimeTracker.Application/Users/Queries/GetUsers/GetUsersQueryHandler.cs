@@ -22,7 +22,7 @@ public class GetUsersQueryHandler(
 
         var dtos = users
             .Select(u =>
-                new UserDto(u.Id, u.FirstName, u.LastName, u.Email, u.Role.ToString(), u.SupervisorId, u.IsActive))
+                new UserDto(u.Id, u.FirstName, u.LastName, u.Email, u.Role.ToString(), u.SupervisorId, u.IsActive, u.TracksHours))
             .OrderBy(u => u.LastName)
             .ToList();
 

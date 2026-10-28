@@ -11,8 +11,41 @@
   --color-secondary-dark: #cbb0bd;
   --color-on-secondary: #000000;
   --danger: #b3452f;
+  --ok: #2f7d4f;
+  --ok-soft: #e3f1e8;
+  --warn: #8a5a00;
+  --warn-soft: #f8ecd2;
+  --danger-soft: #f6e1dc;
+  /* Brand color as text, and the soft brand surfaces (banners, chips). Separate tokens so dark mode can lighten them. */
+  --accent-ink: var(--color-primary-dark);
+  --tint: var(--color-secondary);
+  --tint-ink: var(--color-on-secondary);
+  --tint-line: var(--color-secondary-dark);
+  color-scheme: light dark;
   --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Follows the operating system's light/dark setting. Brand colors come from config and stay
+   the same; only the neutrals and the brand-derived text and tints change. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e4e9e2;
+    --ink-soft: #a3ada4;
+    --paper: #111512;
+    --paper-raised: #1a1f1b;
+    --line: #313932;
+    --danger: #ec8a72;
+    --danger-soft: #3b211b;
+    --ok: #74c895;
+    --ok-soft: #1a3224;
+    --warn: #e6b65c;
+    --warn-soft: #382c14;
+    --accent-ink: color-mix(in srgb, var(--color-primary) 45%, #ffffff);
+    --tint: color-mix(in srgb, var(--color-primary) 24%, var(--paper-raised));
+    --tint-ink: var(--ink);
+    --tint-line: color-mix(in srgb, var(--color-primary) 50%, var(--paper-raised));
+  }
 }
 
 * {
@@ -52,8 +85,8 @@ h2 {
 }
 
 code {
-  background: var(--color-secondary);
-  color: var(--color-on-secondary);
+  background: var(--tint);
+  color: var(--tint-ink);
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
   font-size: 0.85em;
@@ -92,7 +125,7 @@ button {
 
 .btn--ghost:hover {
   border-color: var(--color-primary);
-  color: var(--color-primary-dark);
+  color: var(--accent-ink);
 }
 
 .btn--sm {
@@ -135,7 +168,7 @@ button {
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: var(--accent-ink);
 }
 
 .auth-card__tagline {
@@ -392,7 +425,7 @@ button {
 }
 
 .form__success {
-  color: var(--color-primary-dark);
+  color: var(--accent-ink);
   font-size: 0.85rem;
   margin: 0;
   font-weight: 600;
@@ -432,7 +465,7 @@ button {
 
 .list-view__duration {
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: var(--accent-ink);
 }
 
 .list-view__notes {
@@ -547,7 +580,7 @@ button {
 .planboard__shift {
   border: none;
   border-left: 3px solid var(--color-primary);
-  background: var(--color-secondary);
+  background: var(--tint);
   border-radius: 4px;
   padding: 0.3rem 0.5rem;
   text-align: left;
@@ -555,7 +588,7 @@ button {
   display: flex;
   flex-direction: column;
   font-size: 0.75rem;
-  color: var(--color-on-secondary);
+  color: var(--tint-ink);
 }
 
 .planboard__shift-time {
@@ -570,7 +603,7 @@ button {
 }
 
 .planboard__shift-duration {
-  color: var(--color-primary-dark);
+  color: var(--accent-ink);
   font-size: 0.7rem;
 }
 
@@ -620,8 +653,8 @@ button {
   margin-left: 0.35rem;
   padding: 0 0.35rem;
   border-radius: 999px;
-  background: var(--color-secondary);
-  color: var(--color-primary-dark);
+  background: var(--tint);
+  color: var(--accent-ink);
   font-size: 0.7rem;
   font-weight: 700;
   line-height: 1.2rem;
@@ -637,10 +670,10 @@ button {
   flex-wrap: wrap;
   margin-bottom: 1.25rem;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--color-secondary-dark);
+  border: 1px solid var(--tint-line);
   border-radius: 10px;
-  background: var(--color-secondary);
-  color: var(--color-on-secondary);
+  background: var(--tint);
+  color: var(--tint-ink);
   font-weight: 500;
 }
 
@@ -669,9 +702,9 @@ button {
 }
 
 .leave-status--pending {
-  background: var(--color-secondary);
-  border-color: var(--color-secondary-dark);
-  color: var(--color-primary-dark);
+  background: var(--tint);
+  border-color: var(--tint-line);
+  color: var(--accent-ink);
 }
 
 .leave-status--approved {
@@ -708,4 +741,106 @@ button {
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
+}
+
+/* ---------- Hours overview (worked vs. expected) ---------- */
+
+.hours-overview {
+  margin-bottom: 1.25rem;
+}
+
+.hours-overview__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.hours-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.hours-card__label {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.hours-card__value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.hours-card__of {
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.diff {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+
+.diff--plus { background: var(--ok-soft); color: var(--ok); }
+.diff--short { background: var(--warn-soft); color: var(--warn); }
+.diff--behind { background: var(--danger-soft); color: var(--danger); }
+
+.diff-text--plus { color: var(--ok); font-weight: 600; }
+.diff-text--even { color: var(--ink-soft); }
+.diff-text--short { color: var(--warn); font-weight: 600; }
+.diff-text--behind { color: var(--danger); font-weight: 600; }
+
+.hours-overview__days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 0.5rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.hours-day {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.hours-day--pending .hours-day__name,
+.hours-day--pending .hours-day__value {
+  color: var(--ink-soft);
+}
+
+.hours-day__name {
+  color: var(--ink-soft);
+  text-transform: capitalize;
+}
+
+.hours-day__value {
+  font-weight: 600;
+}
+
+.hours-day__note {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.hours-day__note--leave {
+  color: var(--accent-ink);
+  font-weight: 600;
 }

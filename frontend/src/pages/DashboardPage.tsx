@@ -14,6 +14,7 @@ import { extractErrorMessage } from "../api/client";
 import { ViewToggle, type ViewMode } from "../components/ViewToggle";
 import { ListView } from "../components/ListView";
 import { PlanBoard } from "../components/PlanBoard";
+import { HoursOverviewCards } from "../components/HoursOverviewCards";
 import { TimeEntryForm, type TimeEntryFormValues } from "../components/TimeEntryForm";
 import { WeekNavigator } from "../components/WeekNavigator";
 import { getWeekRange, hoursToHm } from "../utils/dateRange";
@@ -33,6 +34,8 @@ export function DashboardPage() {
   const [editing, setEditing] = useState<TimeEntry | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const { pendingLeaveCount } = useOutletContext<ShellContext>();
+  // Bumped after every reload of the entries, so the overview reflects new hours.
+  const [overviewKey, setOverviewKey] = useState(0);
 
   const { from, to, days } = getWeekRange(anchorDate);
 
@@ -49,6 +52,7 @@ export function DashboardPage() {
       setEntries(entriesData);
       setHourTypes(hourTypesData);
       setProjects(projectsData);
+      setOverviewKey((k) => k + 1);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -130,6 +134,8 @@ export function DashboardPage() {
           </Link>
         </div>
       )}
+
+      <HoursOverviewCards reloadKey={overviewKey} />
 
       <WeekNavigator anchorDate={anchorDate} onChange={setAnchorDate} from={from} to={to} />
 

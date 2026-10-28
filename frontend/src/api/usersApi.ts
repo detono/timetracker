@@ -31,6 +31,11 @@ export async function assignSupervisor(employeeId: string, supervisorId: string 
   await apiClient.post(`/users/${employeeId}/supervisor`, supervisorId);
 }
 
+/** Whether someone's logged hours are compared with their work schedule. */
+export async function setTracksHours(userId: string, tracksHours: boolean): Promise<void> {
+  await apiClient.put(`/users/${userId}/tracks-hours`, { tracksHours });
+}
+
 export async function resetPassword(userId: string, newPassword: string): Promise<void> {
   await apiClient.post(`/users/${userId}/reset-password`, { newPassword });
 }

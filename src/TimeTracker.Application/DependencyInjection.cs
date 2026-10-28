@@ -22,6 +22,7 @@ public static class DependencyInjection {
         services.AddScoped<LeaveService>();
         services.AddScoped<LeaveNotifications>();
         services.AddScoped<LeaveRequests.LeaveRequestMapper>();
+        services.AddScoped<HoursOverview.HoursOverviewLoader>();
 
         return services;
     }
