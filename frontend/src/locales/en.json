@@ -200,7 +200,8 @@
     "hourTypes": "Hour types",
     "projects": "Projects",
     "tenants": "Companies",
-    "platformAdmins": "Platform admins"
+    "platformAdmins": "Platform admins",
+    "email": "Email"
   },
   "time": {
     "logHours": "Log Hours",
@@ -243,5 +244,37 @@
     "subtitle": "Admins manage companies and other admins. They can't see any company's hours or people.",
     "addNew": "Add a platform admin",
     "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in."
+  },
+  "emailSettings": {
+    "title": "Email",
+    "subtitle": "How the app sends email for your company, e.g. notifications about leave requests. Nothing is sent until this is set up and switched on.",
+    "enabled": "Send email",
+    "provider": "Send with",
+    "providerSmtp": "SMTP server (e.g. Brevo, Mailgun, your own mail server)",
+    "providerGraph": "Microsoft 365 (Microsoft Graph)",
+    "fromAddress": "Sender address",
+    "fromName": "Sender name (optional)",
+    "smtpTitle": "SMTP server",
+    "smtpHost": "Host",
+    "smtpPort": "Port",
+    "smtpSecurity": "Security",
+    "securityStartTls": "STARTTLS (usually port 587)",
+    "securitySsl": "SSL/TLS (usually port 465)",
+    "securityNone": "None (trusted network only)",
+    "smtpUsername": "Username (optional)",
+    "smtpPassword": "Password",
+    "smtpHint": "Leave the username empty if your server doesn't need a login. Microsoft 365 usually blocks password login over SMTP: choose Microsoft 365 instead.",
+    "graphTitle": "Microsoft 365",
+    "graphTenantId": "Directory (tenant) ID",
+    "graphClientId": "Application (client) ID",
+    "graphClientSecret": "Client secret",
+    "graphMailbox": "Send from mailbox",
+    "graphHint": "Register an app in Microsoft Entra ID with the Mail.Send application permission and admin consent. Restrict it to this mailbox, see the README.",
+    "secretKept": "Saved, leave empty to keep it",
+    "saved": "Email settings saved.",
+    "sendTest": "Send test email",
+    "testSending": "Sending…",
+    "testSent": "Test email sent to your address. Check your inbox (and spam folder).",
+    "saveFirst": "Save the settings first."
   }
 }

@@ -204,7 +204,8 @@
     "hourTypes": "Uurtypes",
     "projects": "Projecten",
     "tenants": "Bedrijven",
-    "platformAdmins": "Platformbeheerders"
+    "platformAdmins": "Platformbeheerders",
+    "email": "E-mail"
   },
   "time": {
     "logHours": "Uren Registreren",
@@ -243,5 +244,37 @@
     "subtitle": "Beheerders beheren bedrijven en andere beheerders. Ze zien geen uren of mensen van bedrijven.",
     "addNew": "Platformbeheerder toevoegen",
     "confirmDeactivate": "{{name}} deactiveren? Deze persoon kan dan niet meer inloggen."
+  },
+  "emailSettings": {
+    "title": "E-mail",
+    "subtitle": "Hoe de app e-mail verstuurt voor je bedrijf, bv. meldingen over verlofaanvragen. Er wordt niets verstuurd zolang dit niet is ingesteld en aangezet.",
+    "enabled": "E-mail versturen",
+    "provider": "Versturen via",
+    "providerSmtp": "SMTP-server (bv. Brevo, Mailgun, je eigen mailserver)",
+    "providerGraph": "Microsoft 365 (Microsoft Graph)",
+    "fromAddress": "Afzenderadres",
+    "fromName": "Afzendernaam (optioneel)",
+    "smtpTitle": "SMTP-server",
+    "smtpHost": "Host",
+    "smtpPort": "Poort",
+    "smtpSecurity": "Beveiliging",
+    "securityStartTls": "STARTTLS (meestal poort 587)",
+    "securitySsl": "SSL/TLS (meestal poort 465)",
+    "securityNone": "Geen (enkel vertrouwd netwerk)",
+    "smtpUsername": "Gebruikersnaam (optioneel)",
+    "smtpPassword": "Wachtwoord",
+    "smtpHint": "Laat de gebruikersnaam leeg als je server geen login nodig heeft. Microsoft 365 blokkeert meestal inloggen met wachtwoord via SMTP: kies dan Microsoft 365.",
+    "graphTitle": "Microsoft 365",
+    "graphTenantId": "Directory-ID (tenant)",
+    "graphClientId": "Applicatie-ID (client)",
+    "graphClientSecret": "Clientgeheim",
+    "graphMailbox": "Versturen vanuit mailbox",
+    "graphHint": "Registreer een app in Microsoft Entra ID met de toepassingsmachtiging Mail.Send en toestemming van een beheerder. Beperk ze tot deze mailbox, zie de README.",
+    "secretKept": "Opgeslagen, laat leeg om te behouden",
+    "saved": "E-mailinstellingen opgeslagen.",
+    "sendTest": "Testmail versturen",
+    "testSending": "Versturen…",
+    "testSent": "Testmail verstuurd naar je eigen adres. Kijk in je inbox (en spammap).",
+    "saveFirst": "Sla eerst de instellingen op."
   }
 }

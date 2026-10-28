@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Domain.Interfaces;
+using TimeTracker.Infrastructure.Email;
 using TimeTracker.Infrastructure.Identity;
 using TimeTracker.Infrastructure.Persistence;
 using TimeTracker.Infrastructure.Persistence.Repositories;
@@ -28,10 +30,23 @@ public static class DependencyInjection {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<ITenantMailSettingsRepository, TenantMailSettingsRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        // Keys live in the database so encrypted mail secrets stay readable across container restarts.
+        services.AddDataProtection()
+            .SetApplicationName("TimeTracker")
+            .PersistKeysToDbContext<ApplicationDbContext>();
+        services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
+
+        services.AddSingleton<IGraphTokenProvider, ClientSecretGraphTokenProvider>();
+        services.AddHttpClient<GraphMailTransport>(client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.AddScoped<SmtpMailTransport>();
+        services.AddScoped<IMailDispatcher, MailDispatcher>();
+        services.AddScoped<IEmailSender, EmailSender>();
 
         return services;
     }

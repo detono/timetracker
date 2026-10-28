@@ -24,14 +24,22 @@
     <!-- ASP.NET Core shared-framework packages - keep in lockstep with the SDK (net8.0) -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.10" />
+    <!-- Pulled in by DataProtection; 8.0.2 has CVE-2026-33116 (GHSA-37gx-xxp4-5rgx), so pinned to a patched 8.x -->
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="8.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.1" />
 
     <!-- Application layer -->
     <PackageVersion Include="MediatR" Version="12.4.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.2" />
+
+    <!-- Outgoing email (Infrastructure) -->
+    <PackageVersion Include="MailKit" Version="4.18.2" />
+    <PackageVersion Include="Azure.Identity" Version="1.17.2" />
 
     <!-- API layer -->
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.7.3" />

@@ -16,6 +16,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTracker.Application.Uni
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTracker.API.IntegrationTests", "tests\TimeTracker.API.IntegrationTests\TimeTracker.API.IntegrationTests.csproj", "{3EB1E0EF-01C3-4991-9B37-81EB3E7E0D9E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTracker.Infrastructure.UnitTests", "tests\TimeTracker.Infrastructure.UnitTests\TimeTracker.Infrastructure.UnitTests.csproj", "{5D2B0C61-7E4A-4B8F-9C3D-2A1E6F8B4C70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,5 +52,9 @@ Global
 		{3EB1E0EF-01C3-4991-9B37-81EB3E7E0D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EB1E0EF-01C3-4991-9B37-81EB3E7E0D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EB1E0EF-01C3-4991-9B37-81EB3E7E0D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D2B0C61-7E4A-4B8F-9C3D-2A1E6F8B4C70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D2B0C61-7E4A-4B8F-9C3D-2A1E6F8B4C70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D2B0C61-7E4A-4B8F-9C3D-2A1E6F8B4C70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D2B0C61-7E4A-4B8F-9C3D-2A1E6F8B4C70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

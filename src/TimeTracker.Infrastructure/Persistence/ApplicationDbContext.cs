@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Domain.Entities;
@@ -14,12 +15,19 @@ namespace TimeTracker.Infrastructure.Persistence;
 public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
     ICurrentUserService currentUser
-) : DbContext(options) {
+) : DbContext(options), IDataProtectionKeyContext {
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<User> Users => Set<User>();
     public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
     public DbSet<HourType> HourTypes => Set<HourType>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<TenantMailSettings> MailSettings => Set<TenantMailSettings>();
+
+    /// <summary>
+    /// The ASP.NET Core Data Protection key ring (used to encrypt mail secrets), kept in the
+    /// database so it survives container restarts. Not tenant data.
+    /// </summary>
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     // Read per query by the filters below; EF re-evaluates it for every query on this instance.
     private Guid? CurrentTenantId => currentUser.TenantId;
@@ -30,6 +38,7 @@ public class ApplicationDbContext(
         ConfigureTenantOwned<HourType>(modelBuilder);
         ConfigureTenantOwned<Project>(modelBuilder);
         ConfigureTenantOwned<TimeEntry>(modelBuilder);
+        ConfigureTenantOwned<TenantMailSettings>(modelBuilder);
 
         // Platform admins (TenantId null) only match each other here, never tenant users.
         modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == CurrentTenantId);

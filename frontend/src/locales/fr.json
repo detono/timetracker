@@ -204,7 +204,8 @@
     "hourTypes": "Types d'heures",
     "projects": "Projets",
     "tenants": "Entreprises",
-    "platformAdmins": "Administrateurs"
+    "platformAdmins": "Administrateurs",
+    "email": "E-mail"
   },
   "time": {
     "logHours": "Enregistrer des Heures",
@@ -243,5 +244,37 @@
     "subtitle": "Les administrateurs gèrent les entreprises et les autres administrateurs. Ils ne voient ni les heures ni les personnes des entreprises.",
     "addNew": "Ajouter un administrateur",
     "confirmDeactivate": "Désactiver {{name}} ? Cette personne ne pourra plus se connecter."
+  },
+  "emailSettings": {
+    "title": "E-mail",
+    "subtitle": "Comment l'application envoie des e-mails pour votre entreprise, p. ex. les notifications de demandes de congé. Rien n'est envoyé tant que ce n'est pas configuré et activé.",
+    "enabled": "Envoyer des e-mails",
+    "provider": "Envoyer via",
+    "providerSmtp": "Serveur SMTP (p. ex. Brevo, Mailgun, votre propre serveur)",
+    "providerGraph": "Microsoft 365 (Microsoft Graph)",
+    "fromAddress": "Adresse de l'expéditeur",
+    "fromName": "Nom de l'expéditeur (facultatif)",
+    "smtpTitle": "Serveur SMTP",
+    "smtpHost": "Hôte",
+    "smtpPort": "Port",
+    "smtpSecurity": "Sécurité",
+    "securityStartTls": "STARTTLS (généralement port 587)",
+    "securitySsl": "SSL/TLS (généralement port 465)",
+    "securityNone": "Aucune (réseau de confiance uniquement)",
+    "smtpUsername": "Nom d'utilisateur (facultatif)",
+    "smtpPassword": "Mot de passe",
+    "smtpHint": "Laissez le nom d'utilisateur vide si votre serveur ne demande pas de connexion. Microsoft 365 bloque généralement la connexion SMTP par mot de passe : choisissez alors Microsoft 365.",
+    "graphTitle": "Microsoft 365",
+    "graphTenantId": "ID de l'annuaire (locataire)",
+    "graphClientId": "ID d'application (client)",
+    "graphClientSecret": "Secret client",
+    "graphMailbox": "Envoyer depuis la boîte aux lettres",
+    "graphHint": "Inscrivez une application dans Microsoft Entra ID avec l'autorisation d'application Mail.Send et le consentement d'un administrateur. Limitez-la à cette boîte aux lettres, voir le README.",
+    "secretKept": "Enregistré, laissez vide pour le conserver",
+    "saved": "Paramètres e-mail enregistrés.",
+    "sendTest": "Envoyer un e-mail de test",
+    "testSending": "Envoi…",
+    "testSent": "E-mail de test envoyé à votre adresse. Vérifiez votre boîte de réception (et les spams).",
+    "saveFirst": "Enregistrez d'abord les paramètres."
   }
 }

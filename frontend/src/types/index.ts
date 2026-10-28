@@ -92,3 +92,41 @@ export interface HoursReport {
   lines: HoursReportLine[];
   grandTotalHours: number;
 }
+
+export type MailProvider = "Smtp" | "MicrosoftGraph";
+export type SmtpSecurity = "StartTls" | "SslOnConnect" | "None";
+
+/** A company's mail settings as the API returns them: secrets are never included, only whether one is set. */
+export interface MailSettings {
+  isConfigured: boolean;
+  isEnabled: boolean;
+  provider: MailProvider;
+  fromAddress: string;
+  fromName: string | null;
+  smtpHost: string | null;
+  smtpPort: number;
+  smtpSecurity: SmtpSecurity;
+  smtpUsername: string | null;
+  hasSmtpPassword: boolean;
+  graphTenantId: string | null;
+  graphClientId: string | null;
+  graphMailbox: string | null;
+  hasGraphClientSecret: boolean;
+}
+
+/** Body for saving mail settings. An empty or null secret keeps the stored one. */
+export interface UpdateMailSettingsPayload {
+  provider: MailProvider;
+  isEnabled: boolean;
+  fromAddress: string;
+  fromName: string | null;
+  smtpHost: string | null;
+  smtpPort: number;
+  smtpSecurity: SmtpSecurity;
+  smtpUsername: string | null;
+  smtpPassword: string | null;
+  graphTenantId: string | null;
+  graphClientId: string | null;
+  graphClientSecret: string | null;
+  graphMailbox: string | null;
+}

@@ -195,6 +195,66 @@ docker compose up -d frontend
 Quote hex values in `.env` (e.g. `COLOR_PRIMARY="#932e4a"`) — an unquoted `#` can be
 misread as a comment by some `.env` parsers.
 
+### Outgoing email (per company)
+
+Each company sends email with its own settings, which an employer manages on the
+**Email** page (`GET`/`PUT /api/mail-settings`, `POST /api/mail-settings/test`). Nothing
+goes in `.env`. If a company has no settings, or has "Send email" switched off, the app
+just skips sending and logs it — it's never an error. **Send test email** mails the
+signed-in employer with the saved settings (also while sending is switched off) and shows
+why it failed if it did.
+
+The SMTP password and Graph client secret are encrypted with ASP.NET Core Data Protection
+before they're stored, and the API never returns them (only whether one is set; leave the
+field empty to keep it). The Data Protection key ring is stored in the same database
+(`DataProtectionKeys` table), so it survives container restarts. Keep in mind that a full
+database backup therefore contains both the keys and the encrypted secrets: protect
+backups like you'd protect the secrets themselves. If the keys are ever lost, the app asks
+to re-enter the secret.
+
+For code: inject `IEmailSender` and call `SendAsync(new EmailMessage(to, subject, html, text))`.
+It uses the current user's company settings and returns `Sent`, `NotConfigured` or
+`Failed` (with the reason, also logged) instead of throwing.
+
+**SMTP (e.g. Brevo)**
+
+1. In Brevo, add and verify your sending domain, then add the SPF, DKIM (and ideally
+   DMARC) DNS records Brevo shows you. Without them, mail from your domain is likely to
+   land in spam or be rejected.
+2. Under *SMTP & API → SMTP*, copy the SMTP login and generate an SMTP key.
+3. On the Email page choose *SMTP server*: host `smtp-relay.brevo.com`, port `587`,
+   security *STARTTLS*, username = the SMTP login, password = the SMTP key, sender
+   address = an address on the verified domain.
+
+Any other SMTP provider works the same way. Use *SSL/TLS* for port 465. Microsoft 365
+usually has password-based SMTP turned off — use Microsoft Graph for it instead.
+
+**Microsoft 365 (Microsoft Graph)**
+
+1. In the Microsoft Entra admin center, *App registrations → New registration* (single
+   tenant, no redirect URI). Note the *Application (client) ID* and *Directory (tenant) ID*.
+2. *Certificates & secrets → New client secret*. Copy the value now; note when it expires
+   and renew it before then.
+3. *API permissions → Add → Microsoft Graph → Application permissions → `Mail.Send`*, then
+   *Grant admin consent*. It must be the **Application** permission, not Delegated.
+4. Restrict the app to the one mailbox it should send from. Without this, `Mail.Send`
+   lets the app send as **any** mailbox in the organization. In Exchange Online
+   PowerShell, either use RBAC for Applications (recommended), or the older application
+   access policy:
+
+   ```powershell
+   New-ApplicationAccessPolicy -AppId <client-id> -PolicyScopeGroupId noreply@company.com `
+     -AccessRight RestrictAccess -Description "TimeTracker may only send as noreply"
+   ```
+
+5. On the Email page choose *Microsoft 365*, fill in the tenant id, client id, secret and
+   the mailbox (e.g. `noreply@company.com`, a shared mailbox works too), and use the same
+   address as sender address. A different sender address needs *Send As* rights on it.
+
+A 401/403 from the test email almost always means the permission is missing, is
+Delegated instead of Application, lacks admin consent, or the access policy doesn't
+include the mailbox. Policy changes can take up to an hour to apply.
+
 ## License
 
 [Mozilla Public License 2.0](LICENSE) (MPL-2.0) — a file-level copyleft license: you're free

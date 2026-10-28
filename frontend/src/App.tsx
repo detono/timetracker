@@ -11,6 +11,7 @@ import { HourTypesPage } from "./pages/HourTypesPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { TenantsPage } from "./pages/TenantsPage";
 import { PlatformAdminsPage } from "./pages/PlatformAdminsPage";
+import { EmailSettingsPage } from "./pages/EmailSettingsPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -93,6 +94,14 @@ export default function App() {
           element={
             <RequireEmployer>
               <ProjectsPage />
+            </RequireEmployer>
+          }
+        />
+        <Route
+          path="email"
+          element={
+            <RequireEmployer>
+              <EmailSettingsPage />
             </RequireEmployer>
           }
         />
