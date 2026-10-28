@@ -381,7 +381,19 @@
       "pending": "Openstaand",
       "remaining": "Resterend"
     },
-    "subtitleEmployer": "Beoordeel de verlofaanvragen van je team en beheer de verlofsaldi."
+    "subtitleEmployer": "Beoordeel de verlofaanvragen van je team en beheer de verlofsaldi.",
+    "dayPart": "Deel van de dag",
+    "wholeDay": "Hele dag",
+    "morningOnly": "Voormiddag",
+    "afternoonOnly": "Namiddag",
+    "firstDay": "Eerste dag",
+    "lastDay": "Laatste dag",
+    "fromAfternoon": "Vanaf de namiddag",
+    "untilNoon": "Tot de middag",
+    "part": {
+      "Morning": "voormiddag",
+      "Afternoon": "namiddag"
+    }
   },
   "hoursOverview": {
     "title": "Gewerkt vs. verwacht",

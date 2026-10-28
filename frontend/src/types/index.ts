@@ -159,6 +159,9 @@ export interface WorkSchedule {
 
 export type LeaveRequestStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
 
+/** Which part of a day leave covers. Over several days, only the first day can be "Afternoon" and the last "Morning". */
+export type DayPart = "Full" | "Morning" | "Afternoon";
+
 export interface LeaveRequest {
   id: string;
   userId: string;
@@ -168,6 +171,8 @@ export interface LeaveRequest {
   hourTypeColor: string;
   startDate: string; // yyyy-MM-dd
   endDate: string;
+  firstDayPart: DayPart;
+  lastDayPart: DayPart;
   hours: number;
   comment: string | null;
   status: LeaveRequestStatus;
@@ -183,6 +188,7 @@ export interface LeaveRequest {
 }
 
 export interface LeavePreview {
+  /** A half day counts as 0.5. */
   workingDays: number;
   hours: number;
   deductsFromBalance: boolean;

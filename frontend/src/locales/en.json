@@ -381,7 +381,19 @@
       "pending": "Pending",
       "remaining": "Remaining"
     },
-    "subtitleEmployer": "Review your team's leave requests and manage leave balances."
+    "subtitleEmployer": "Review your team's leave requests and manage leave balances.",
+    "dayPart": "Part of the day",
+    "wholeDay": "Whole day",
+    "morningOnly": "Morning",
+    "afternoonOnly": "Afternoon",
+    "firstDay": "First day",
+    "lastDay": "Last day",
+    "fromAfternoon": "From the afternoon",
+    "untilNoon": "Until noon",
+    "part": {
+      "Morning": "morning",
+      "Afternoon": "afternoon"
+    }
   },
   "hoursOverview": {
     "title": "Worked vs. expected",

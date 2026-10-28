@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { LeaveBalance, LeavePreview, LeaveRequest, LeaveRequestStatus, WorkSchedule, WorkScheduleDay } from "../types";
+import type { DayPart, LeaveBalance, LeavePreview, LeaveRequest, LeaveRequestStatus, WorkSchedule, WorkScheduleDay } from "../types";
 
 export type LeaveRequestScope = "Mine" | "ToReview";
 
@@ -14,9 +14,15 @@ export async function getPendingLeaveCount(): Promise<number> {
   return data;
 }
 
-export async function previewLeaveRequest(hourTypeId: string, startDate: string, endDate: string): Promise<LeavePreview> {
+export async function previewLeaveRequest(
+  hourTypeId: string,
+  startDate: string,
+  endDate: string,
+  firstDayPart: DayPart,
+  lastDayPart: DayPart
+): Promise<LeavePreview> {
   const { data } = await apiClient.get<LeavePreview>("/leave-requests/preview", {
-    params: { hourTypeId, startDate, endDate }
+    params: { hourTypeId, startDate, endDate, firstDayPart, lastDayPart }
   });
   return data;
 }
@@ -26,6 +32,8 @@ export interface CreateLeaveRequestPayload {
   startDate: string;
   endDate: string;
   comment: string | null;
+  firstDayPart: DayPart;
+  lastDayPart: DayPart;
 }
 
 export async function createLeaveRequest(payload: CreateLeaveRequestPayload): Promise<LeaveRequest> {

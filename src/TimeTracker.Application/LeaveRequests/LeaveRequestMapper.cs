@@ -64,6 +64,8 @@ public class LeaveRequestMapper(IUnitOfWork unitOfWork, ICurrentUserService curr
             hourType?.ColorHex ?? "#999999",
             request.StartDate,
             request.EndDate,
+            request.FirstDayPart.ToString(),
+            request.LastDayPart.ToString(),
             request.Hours,
             request.Comment,
             request.Status.ToString(),

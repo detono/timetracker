@@ -381,7 +381,19 @@
       "pending": "En attente",
       "remaining": "Restant"
     },
-    "subtitleEmployer": "Traitez les demandes de congé de votre équipe et gérez les soldes de congés."
+    "subtitleEmployer": "Traitez les demandes de congé de votre équipe et gérez les soldes de congés.",
+    "dayPart": "Partie de la journée",
+    "wholeDay": "Journée entière",
+    "morningOnly": "Matin",
+    "afternoonOnly": "Après-midi",
+    "firstDay": "Premier jour",
+    "lastDay": "Dernier jour",
+    "fromAfternoon": "À partir de l'après-midi",
+    "untilNoon": "Jusqu'à midi",
+    "part": {
+      "Morning": "matin",
+      "Afternoon": "après-midi"
+    }
   },
   "hoursOverview": {
     "title": "Prestées vs. prévues",

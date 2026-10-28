@@ -141,12 +141,26 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.Property<DateOnly>("EndDate")
                         .HasColumnType("date");
 
+                    b.Property<string>("FirstDayPart")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("Full");
+
                     b.Property<Guid>("HourTypeId")
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("Hours")
                         .HasPrecision(8, 2)
                         .HasColumnType("numeric(8,2)");
+
+                    b.Property<string>("LastDayPart")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("Full");
 
                     b.Property<string>("ReviewComment")
                         .HasMaxLength(1000)

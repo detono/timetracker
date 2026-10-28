@@ -16,7 +16,8 @@ import {
 } from "../api/leaveApi";
 import { formatDayLabel, hoursToHm } from "../utils/dateRange";
 import { localizedName, type ShellContext } from "../utils/leave";
-import type { HourType, LeaveBalance, LeavePreview, LeaveRequest } from "../types";
+import type { DayPart, HourType, LeaveBalance, LeavePreview, LeaveRequest } from "../types";
+import type { TFunction } from "i18next";
 
 function todayIso(): string {
   const now = new Date();
@@ -24,10 +25,15 @@ function todayIso(): string {
   return new Date(now.getTime() - offset).toISOString().slice(0, 10);
 }
 
-function period(request: Pick<LeaveRequest, "startDate" | "endDate">): string {
+/** "Wed 4 Nov (afternoon) – Fri 6 Nov", with the day parts only when they're half days. */
+function period(
+  request: Pick<LeaveRequest, "startDate" | "endDate" | "firstDayPart" | "lastDayPart">,
+  t: TFunction
+): string {
+  const part = (p: DayPart) => (p === "Full" ? "" : ` (${t(`leave.part.${p}`)})`);
   return request.startDate === request.endDate
-    ? formatDayLabel(request.startDate)
-    : `${formatDayLabel(request.startDate)} – ${formatDayLabel(request.endDate)}`;
+    ? formatDayLabel(request.startDate) + part(request.firstDayPart)
+    : `${formatDayLabel(request.startDate)}${part(request.firstDayPart)} – ${formatDayLabel(request.endDate)}${part(request.lastDayPart)}`;
 }
 
 /** Hours that may be negative, e.g. a balance that ran out. */
@@ -212,7 +218,7 @@ export function LeavePage() {
                         <td>
                           <HourTypeLabel request={r} />
                         </td>
-                        <td>{period(r)}</td>
+                        <td>{period(r, t)}</td>
                         <td>{hoursToHm(r.hours)}</td>
                         <td>
                           {r.remainingBalanceHours != null ? (
@@ -289,7 +295,7 @@ export function LeavePage() {
                         <HourTypeLabel request={r} />
                       </td>
                       <td>
-                        {period(r)}
+                        {period(r, t)}
                         {r.comment && <div className="list-view__notes">{r.comment}</div>}
                       </td>
                       <td>{hoursToHm(r.hours)}</td>
@@ -342,6 +348,11 @@ function RequestLeaveForm({ leaveTypes, onCreated }: { leaveTypes: HourType[]; o
   const [startDate, setStartDate] = useState(todayIso());
   const [endDate, setEndDate] = useState(todayIso());
   const [comment, setComment] = useState("");
+  // For a single day, firstDayPart is the part of that day.
+  const [firstDayPart, setFirstDayPart] = useState<DayPart>("Full");
+  const [lastDayPart, setLastDayPart] = useState<DayPart>("Full");
+  const singleDay = startDate === endDate;
+  const effectiveLastPart = singleDay ? firstDayPart : lastDayPart;
   const [preview, setPreview] = useState<LeavePreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -355,6 +366,13 @@ function RequestLeaveForm({ leaveTypes, onCreated }: { leaveTypes: HourType[]; o
     }
   }, [leaveTypes, hourTypeId]);
 
+  // Over several days only the first day can be an afternoon and the last a morning.
+  useEffect(() => {
+    if (singleDay) return;
+    if (firstDayPart === "Morning") setFirstDayPart("Full");
+    if (lastDayPart === "Afternoon") setLastDayPart("Full");
+  }, [singleDay, firstDayPart, lastDayPart]);
+
   // Live preview of hours and balance, debounced while the user is picking dates.
   useEffect(() => {
     setPreview(null);
@@ -363,7 +381,7 @@ function RequestLeaveForm({ leaveTypes, onCreated }: { leaveTypes: HourType[]; o
 
     let cancelled = false;
     const timer = setTimeout(() => {
-      previewLeaveRequest(hourTypeId, startDate, endDate)
+      previewLeaveRequest(hourTypeId, startDate, endDate, firstDayPart, effectiveLastPart)
         .then((p) => !cancelled && setPreview(p))
         .catch((err) => !cancelled && setPreviewError(extractErrorMessage(err)));
     }, 250);
@@ -371,14 +389,21 @@ function RequestLeaveForm({ leaveTypes, onCreated }: { leaveTypes: HourType[]; o
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [hourTypeId, startDate, endDate, previewVersion]);
+  }, [hourTypeId, startDate, endDate, firstDayPart, effectiveLastPart, previewVersion]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
     try {
-      await createLeaveRequest({ hourTypeId, startDate, endDate, comment: comment.trim() || null });
+      await createLeaveRequest({
+        hourTypeId,
+        startDate,
+        endDate,
+        comment: comment.trim() || null,
+        firstDayPart,
+        lastDayPart: effectiveLastPart
+      });
       setComment("");
       setPreviewVersion((v) => v + 1);
       await onCreated();
@@ -431,6 +456,35 @@ function RequestLeaveForm({ leaveTypes, onCreated }: { leaveTypes: HourType[]; o
             <span>{t('leave.to')}</span>
             <input type="date" value={endDate} min={startDate} onChange={(e) => setEndDate(e.target.value)} required />
           </label>
+        </div>
+        <div className="form__row">
+          {singleDay ? (
+            <label className="form__field">
+              <span>{t('leave.dayPart')}</span>
+              <select value={firstDayPart} onChange={(e) => setFirstDayPart(e.target.value as DayPart)}>
+                <option value="Full">{t('leave.wholeDay')}</option>
+                <option value="Morning">{t('leave.morningOnly')}</option>
+                <option value="Afternoon">{t('leave.afternoonOnly')}</option>
+              </select>
+            </label>
+          ) : (
+            <>
+              <label className="form__field">
+                <span>{t('leave.firstDay')}</span>
+                <select value={firstDayPart} onChange={(e) => setFirstDayPart(e.target.value as DayPart)}>
+                  <option value="Full">{t('leave.wholeDay')}</option>
+                  <option value="Afternoon">{t('leave.fromAfternoon')}</option>
+                </select>
+              </label>
+              <label className="form__field">
+                <span>{t('leave.lastDay')}</span>
+                <select value={lastDayPart} onChange={(e) => setLastDayPart(e.target.value as DayPart)}>
+                  <option value="Full">{t('leave.wholeDay')}</option>
+                  <option value="Morning">{t('leave.untilNoon')}</option>
+                </select>
+              </label>
+            </>
+          )}
         </div>
         <label className="form__field">
           <span>{t('leave.comment')}</span>

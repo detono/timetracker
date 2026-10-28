@@ -16,6 +16,8 @@ public record LeaveRequestDto(
     string HourTypeColor,
     DateOnly StartDate,
     DateOnly EndDate,
+    string FirstDayPart,
+    string LastDayPart,
     decimal Hours,
     string? Comment,
     string Status,
@@ -29,8 +31,9 @@ public record LeaveRequestDto(
     bool ExceedsBalance);
 
 /// <summary>What a leave request for a date range would amount to, before submitting it.</summary>
+/// <param name="WorkingDays">Working days covered; a half day counts as 0.5.</param>
 public record LeavePreviewDto(
-    int WorkingDays,
+    decimal WorkingDays,
     decimal Hours,
     bool DeductsFromBalance,
     decimal? RemainingBalanceHours,

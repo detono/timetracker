@@ -32,8 +32,17 @@ public class PreviewLeaveRequestQueryHandler(
 
         var schedule = await leave.GetScheduleAsync(currentUser.UserId, cancellationToken);
         var holidays = await leave.GetHolidaysAsync(request.StartDate, request.EndDate, cancellationToken);
-        var days = schedule.WorkingDaysBetween(request.StartDate, request.EndDate, holidays);
+        var firstDayPart = request.FirstDayPart;
+        var lastDayPart = request.StartDate == request.EndDate ? firstDayPart : request.LastDayPart;
+        if (request.StartDate != request.EndDate &&
+            (firstDayPart == DayPart.Morning || lastDayPart == DayPart.Afternoon)) {
+            return Result<LeavePreviewDto>.Failure(
+                "Over several days, the first day can only start in the afternoon and the last day only end at noon.");
+        }
+
+        var days = LeavePlan.Plan(schedule, request.StartDate, request.EndDate, firstDayPart, lastDayPart, holidays);
         var hours = LeaveService.HoursOf(days);
+        var workingDays = days.Sum(d => d.Fraction);
         var overlaps = (await unitOfWork.LeaveRequests.GetActiveOverlappingAsync(
             currentUser.UserId, request.StartDate, request.EndDate, cancellationToken)).Count > 0;
 
@@ -43,10 +52,11 @@ public class PreviewLeaveRequestQueryHandler(
         }
 
         // An unsaved request, only used to check the balance.
-        var draft = LeaveRequest.Create(currentUser.UserId, hourType.Id, request.StartDate, request.EndDate, hours, null);
+        var draft = LeaveRequest.Create(currentUser.UserId, hourType.Id, request.StartDate, request.EndDate, hours, null,
+            firstDayPart, lastDayPart);
         var (balance, exceeds) = await leave.CheckBalanceAsync(draft, hourType, schedule, cancellationToken);
 
         return Result<LeavePreviewDto>.Success(new LeavePreviewDto(
-            days.Count, hours, hourType.DeductsFromLeaveBalance, balance?.RemainingHours, exceeds, overlaps));
+            workingDays, hours, hourType.DeductsFromLeaveBalance, balance?.RemainingHours, exceeds, overlaps));
     }
 }

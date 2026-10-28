@@ -97,6 +97,10 @@ can no longer log in.
 - **Requests.** Employees request leave for a date range under an hour type marked *can be
   requested as leave*. The form shows how many working days and hours that is, and what's
   left of their balance.
+- **Half days.** A single day can be the whole day, the morning or the afternoon; over
+  several days, the first day can start in the afternoon and the last day end at noon. A
+  half day is half of that day's scheduled hours, without a break (on 9:00–17:00 with 30
+  minutes' break: 9:00–12:45 or 13:15–17:00).
 - **Approval.** The requester's supervisor, or any employer, approves or rejects it. Approving
   books one time entry per working day with that person's scheduled hours, so the leave
   shows up in the planning. Revoking approved leave removes those entries again.

@@ -62,8 +62,8 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
             ? (company, WorkScheduleSource.Company)
             : (WorkSchedule.BuiltInDefault(), WorkScheduleSource.BuiltIn);
 
-    public static decimal HoursOf(IEnumerable<(DateOnly Date, WorkScheduleDay Hours)> days) =>
-        Math.Round((decimal)days.Sum(d => d.Hours.Duration.TotalHours), 2);
+    public static decimal HoursOf(IEnumerable<LeaveDay> days) =>
+        Math.Round((decimal)days.Sum(d => d.Duration.TotalHours), 2);
 
     /// <summary>The scheduled hours of <paramref name="request"/> that fall in <paramref name="year"/>.</summary>
     public static decimal HoursInYear(
@@ -73,9 +73,9 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
             return request.Hours;
         }
 
-        var start = Max(request.StartDate, new DateOnly(year, 1, 1));
-        var end = Min(request.EndDate, new DateOnly(year, 12, 31));
-        return start > end ? 0 : HoursOf(schedule.WorkingDaysBetween(start, end, holidays));
+        return HoursOf(LeavePlan.Plan(schedule, request.StartDate, request.EndDate,
+                request.FirstDayPart, request.LastDayPart, holidays)
+            .Where(d => d.Date.Year == year));
     }
 
     /// <summary>The company's public holidays and days off between the two dates, inclusive.</summary>
@@ -136,7 +136,4 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
 
     public static decimal UsedHours(IEnumerable<TimeEntry> entries, IReadOnlySet<Guid> deductingTypeIds) =>
         Math.Round((decimal)entries.Where(e => deductingTypeIds.Contains(e.HourTypeId)).Sum(e => e.Duration.TotalHours), 2);
-
-    private static DateOnly Max(DateOnly a, DateOnly b) => a > b ? a : b;
-    private static DateOnly Min(DateOnly a, DateOnly b) => a < b ? a : b;
 }

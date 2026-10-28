@@ -246,4 +246,36 @@ public class LeaveFlowTests : IClassFixture<CustomWebApplicationFactory> {
         mine.Should().ContainSingle().Which.ReviewComment.Should().Be("Release week");
         (await GetAsync<List<TimeEntryDto>>($"/api/timeentries?from={Monday}&to={Monday}", memberToken)).Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task HalfDaysBookHalfTheScheduledHours() {
+        var tenant = await CreateTenantAsync(_client);
+        var employerToken = await LoginAsync(_client, tenant.EmployerEmail, Password);
+        var (_, employeeToken) = await CreateEmployeeAsync(employerToken);
+        var paidLeave = await PaidLeaveAsync(employeeToken);
+
+        // A single morning on the default 7.5-hour day.
+        var morning = await SendOkAsync<LeaveRequestDto>(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = Monday, EndDate = Monday, FirstDayPart = "Morning"
+        });
+        morning.Hours.Should().Be(3.75m);
+        morning.FirstDayPart.Should().Be("Morning");
+        morning.LastDayPart.Should().Be("Morning");
+        await SendOkAsync<LeaveRequestDto>(HttpMethod.Post, $"/api/leave-requests/{morning.Id}/approve", employerToken);
+
+        var entry = (await GetAsync<List<TimeEntryDto>>($"/api/timeentries?from={Monday}&to={Monday}", employeeToken)).Single();
+        entry.Should().BeEquivalentTo(new { StartTime = new TimeOnly(9, 0), EndTime = new TimeOnly(12, 45), BreakMinutes = 0 });
+
+        // Wednesday afternoon to Friday at noon: 2 working days.
+        var preview = await GetAsync<LeavePreviewDto>(
+            $"/api/leave-requests/preview?hourTypeId={paidLeave.Id}&startDate=2026-11-04&endDate=2026-11-06" +
+            "&firstDayPart=Afternoon&lastDayPart=Morning", employeeToken);
+        preview.WorkingDays.Should().Be(2);
+        preview.Hours.Should().Be(15);
+
+        // A range can't end with only an afternoon.
+        (await SendAsync(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = "2026-11-04", EndDate = "2026-11-06", LastDayPart = "Afternoon"
+        })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }

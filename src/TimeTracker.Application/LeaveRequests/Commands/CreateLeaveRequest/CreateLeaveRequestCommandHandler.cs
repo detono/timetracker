@@ -42,13 +42,15 @@ public class CreateLeaveRequestCommandHandler(
 
         var schedule = await leave.GetScheduleAsync(requester.Id, cancellationToken);
         var holidays = await leave.GetHolidaysAsync(request.StartDate, request.EndDate, cancellationToken);
-        var hours = LeaveService.HoursOf(schedule.WorkingDaysBetween(request.StartDate, request.EndDate, holidays));
+        var hours = LeaveService.HoursOf(LeavePlan.Plan(
+            schedule, request.StartDate, request.EndDate, request.FirstDayPart, request.LastDayPart, holidays));
         if (hours == 0) {
             return Result<LeaveRequestDto>.Failure("You have no working days in this period.");
         }
 
         var leaveRequest = LeaveRequest.Create(
-            requester.Id, hourType.Id, request.StartDate, request.EndDate, hours, request.Comment);
+            requester.Id, hourType.Id, request.StartDate, request.EndDate, hours, request.Comment,
+            request.FirstDayPart, request.LastDayPart);
         await unitOfWork.LeaveRequests.AddAsync(leaveRequest, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

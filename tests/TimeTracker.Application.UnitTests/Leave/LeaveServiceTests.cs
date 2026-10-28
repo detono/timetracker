@@ -1,6 +1,7 @@
 using FluentAssertions;
 using TimeTracker.Application.Leave;
 using TimeTracker.Domain.Entities;
+using TimeTracker.Domain.Enums;
 using Xunit;
 
 namespace TimeTracker.Application.UnitTests.Leave;
@@ -14,7 +15,7 @@ public class LeaveServiceTests {
         // Mon 28 Dec 2026 to Fri 8 Jan 2027: Mon-Thu in 2026, then Fri 1 Jan and the next full week in 2027.
         var start = new DateOnly(2026, 12, 28);
         var end = new DateOnly(2027, 1, 8);
-        var total = LeaveService.HoursOf(schedule.WorkingDaysBetween(start, end));
+        var total = LeaveService.HoursOf(LeavePlan.Plan(schedule, start, end, DayPart.Full, DayPart.Full));
         var request = LeaveRequest.Create(userId, Guid.NewGuid(), start, end, total, null);
 
         var in2026 = LeaveService.HoursInYear(request, schedule, 2026);
@@ -38,5 +39,21 @@ public class LeaveServiceTests {
         };
 
         LeaveService.UsedHours(entries, new HashSet<Guid> { paidLeave }).Should().Be(11.5m);
+    }
+
+    [Fact]
+    public void HoursInYear_CountsHalfDaysAcrossTheNewYear() {
+        var userId = Guid.NewGuid();
+        var schedule = WorkSchedule.BuiltInDefault();
+
+        // Thu 31 Dec 2026 afternoon to Fri 1 Jan 2027 at noon: half a day in each year.
+        var start = new DateOnly(2026, 12, 31);
+        var end = new DateOnly(2027, 1, 1);
+        var total = LeaveService.HoursOf(LeavePlan.Plan(schedule, start, end, DayPart.Afternoon, DayPart.Morning));
+        var request = LeaveRequest.Create(userId, Guid.NewGuid(), start, end, total, null, DayPart.Afternoon, DayPart.Morning);
+
+        total.Should().Be(7.5m);
+        LeaveService.HoursInYear(request, schedule, 2026).Should().Be(3.75m);
+        LeaveService.HoursInYear(request, schedule, 2027).Should().Be(3.75m);
     }
 }

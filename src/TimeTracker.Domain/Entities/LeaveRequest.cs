@@ -17,6 +17,12 @@ public class LeaveRequest : TenantOwnedEntity {
     public DateOnly EndDate { get; private set; }
     public string? Comment { get; private set; }
 
+    /// <summary>The part of the first day that's taken off; for a single day, the part of that day.</summary>
+    public DayPart FirstDayPart { get; private set; }
+
+    /// <summary>The part of the last day that's taken off. Equals <see cref="FirstDayPart"/> for a single day.</summary>
+    public DayPart LastDayPart { get; private set; }
+
     /// <summary>The scheduled hours this leave covers. Recalculated on approval.</summary>
     public decimal Hours { get; private set; }
 
@@ -30,7 +36,8 @@ public class LeaveRequest : TenantOwnedEntity {
     }
 
     public static LeaveRequest Create(
-        Guid userId, Guid hourTypeId, DateOnly startDate, DateOnly endDate, decimal hours, string? comment
+        Guid userId, Guid hourTypeId, DateOnly startDate, DateOnly endDate, decimal hours, string? comment,
+        DayPart firstDayPart = DayPart.Full, DayPart lastDayPart = DayPart.Full
     ) {
         if (userId == Guid.Empty) {
             throw new DomainException("A leave request must belong to a user.");
@@ -48,6 +55,12 @@ public class LeaveRequest : TenantOwnedEntity {
             throw new DomainException("A leave request can span at most one year.");
         }
 
+        if (startDate == endDate) {
+            lastDayPart = firstDayPart;
+        }
+
+        LeavePlan.EnsureValidParts(startDate, endDate, firstDayPart, lastDayPart);
+
         if (hours <= 0) {
             throw new DomainException("This period has no working days in the work schedule.");
         }
@@ -59,6 +72,8 @@ public class LeaveRequest : TenantOwnedEntity {
             EndDate = endDate,
             Hours = hours,
             Comment = Normalize(comment),
+            FirstDayPart = firstDayPart,
+            LastDayPart = lastDayPart,
             Status = LeaveRequestStatus.Pending
         };
     }

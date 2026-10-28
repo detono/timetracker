@@ -80,8 +80,14 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
 
     private static string Period(LeaveRequest request) =>
         request.StartDate == request.EndDate
-            ? request.StartDate.ToString("ddd d MMM yyyy")
-            : $"{request.StartDate:ddd d MMM yyyy} to {request.EndDate:ddd d MMM yyyy}";
+            ? request.StartDate.ToString("ddd d MMM yyyy") + Part(request.FirstDayPart)
+            : $"{request.StartDate:ddd d MMM yyyy}{Part(request.FirstDayPart)} to {request.EndDate:ddd d MMM yyyy}{Part(request.LastDayPart)}";
+
+    private static string Part(DayPart part) => part switch {
+        DayPart.Morning => " (morning)",
+        DayPart.Afternoon => " (afternoon)",
+        _ => ""
+    };
 
     private static string Encode(string text) => WebUtility.HtmlEncode(text);
 }

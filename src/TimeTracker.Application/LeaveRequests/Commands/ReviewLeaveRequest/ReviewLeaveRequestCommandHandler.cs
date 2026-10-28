@@ -46,15 +46,16 @@ public class ReviewLeaveRequestCommandHandler(
             // Book what the schedule says now: it may have changed since the request was made.
             var schedule = await leave.GetScheduleAsync(requester.Id, cancellationToken);
             var holidays = await leave.GetHolidaysAsync(leaveRequest.StartDate, leaveRequest.EndDate, cancellationToken);
-            var days = schedule.WorkingDaysBetween(leaveRequest.StartDate, leaveRequest.EndDate, holidays);
+            var days = LeavePlan.Plan(schedule, leaveRequest.StartDate, leaveRequest.EndDate,
+                leaveRequest.FirstDayPart, leaveRequest.LastDayPart, holidays);
             if (days.Count == 0) {
                 return Result<LeaveRequestDto>.Failure(
                     "This period no longer has any working days in the work schedule. Reject the request instead.");
             }
 
-            foreach (var (date, hours) in days) {
+            foreach (var day in days) {
                 var entry = TimeEntry.Create(
-                    requester.Id, hourType.Id, date, hours.StartTime, hours.EndTime, hours.BreakMinutes,
+                    requester.Id, hourType.Id, day.Date, day.StartTime, day.EndTime, day.BreakMinutes,
                     notes: leaveRequest.Comment);
                 entry.LinkToLeaveRequest(leaveRequest.Id);
                 await unitOfWork.TimeEntries.AddAsync(entry, cancellationToken);
