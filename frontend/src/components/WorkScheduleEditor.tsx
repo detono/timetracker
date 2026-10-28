@@ -1,10 +1,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getWorkSchedule, updateWorkSchedule } from "../api/leaveApi";
+import { getWorkSchedule, resetWorkSchedule, updateWorkSchedule } from "../api/leaveApi";
 import { extractErrorMessage } from "../api/client";
 import { hoursToHm } from "../utils/dateRange";
 import { scheduleDayHours, toHm, WEEKDAYS } from "../utils/leave";
-import type { Weekday, WorkScheduleDay } from "../types";
+import type { Weekday, WorkSchedule, WorkScheduleDay, WorkScheduleSource } from "../types";
 
 interface DayRow {
   dayOfWeek: Weekday;
@@ -15,16 +15,29 @@ interface DayRow {
 }
 
 interface Props {
-  userId: string;
-  userName: string;
+  /** The person to edit, or null for the company schedule. */
+  userId: string | null;
+  userName?: string;
   onClose: () => void;
 }
 
-/** Lets an employer set someone's working hours per weekday. Unchecked days are days off. */
+function toRows(schedule: WorkSchedule): DayRow[] {
+  return WEEKDAYS.map((day) => {
+    const saved = schedule.days.find((d) => d.dayOfWeek === day);
+    return saved
+      ? { dayOfWeek: day, works: true, startTime: toHm(saved.startTime), endTime: toHm(saved.endTime), breakMinutes: saved.breakMinutes }
+      : { dayOfWeek: day, works: false, startTime: "09:00", endTime: "17:00", breakMinutes: 30 };
+  });
+}
+
+/**
+ * Lets an employer set working hours per weekday, for the company or for one person.
+ * Unchecked days are days off. People without their own schedule follow the company's.
+ */
 export function WorkScheduleEditor({ userId, userName, onClose }: Props) {
   const { t } = useTranslation();
   const [rows, setRows] = useState<DayRow[] | null>(null);
-  const [isDefault, setIsDefault] = useState(false);
+  const [source, setSource] = useState<WorkScheduleSource>("BuiltIn");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -37,15 +50,8 @@ export function WorkScheduleEditor({ userId, userName, onClose }: Props) {
     getWorkSchedule(userId)
       .then((schedule) => {
         if (cancelled) return;
-        setIsDefault(schedule.isDefault);
-        setRows(
-          WEEKDAYS.map((day) => {
-            const saved = schedule.days.find((d) => d.dayOfWeek === day);
-            return saved
-              ? { dayOfWeek: day, works: true, startTime: toHm(saved.startTime), endTime: toHm(saved.endTime), breakMinutes: saved.breakMinutes }
-              : { dayOfWeek: day, works: false, startTime: "09:00", endTime: "17:00", breakMinutes: 30 };
-          })
-        );
+        setSource(schedule.source);
+        setRows(toRows(schedule));
       })
       .catch((err) => !cancelled && setError(extractErrorMessage(err)));
     return () => {
@@ -67,8 +73,8 @@ export function WorkScheduleEditor({ userId, userName, onClose }: Props) {
       const days: WorkScheduleDay[] = rows
         .filter((r) => r.works)
         .map(({ dayOfWeek, startTime, endTime, breakMinutes }) => ({ dayOfWeek, startTime, endTime, breakMinutes }));
-      await updateWorkSchedule(userId, days);
-      setIsDefault(false);
+      const updated = await updateWorkSchedule(userId, days);
+      setSource(updated.source);
       setSaved(true);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -77,13 +83,39 @@ export function WorkScheduleEditor({ userId, userName, onClose }: Props) {
     }
   }
 
+  async function handleReset() {
+    if (!userId) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const company = await resetWorkSchedule(userId);
+      setSource(company.source);
+      setRows(toRows(company));
+      setSaved(true);
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const sourceHint = userId
+    ? source === "Personal"
+      ? t('workSchedule.sourcePersonal')
+      : source === "Company"
+        ? t('workSchedule.sourceCompany')
+        : t('workSchedule.sourceBuiltIn')
+    : source === "BuiltIn"
+      ? t('workSchedule.companyNotSet')
+      : null;
+
   const weeklyHours = rows?.filter((r) => r.works).reduce((sum, r) => sum + scheduleDayHours(r), 0) ?? 0;
 
   return (
     <div className="panel">
-      <h2>{t('workSchedule.titleFor', { name: userName })}</h2>
-      <p className="form__hint">{t('workSchedule.hint')}</p>
-      {isDefault && <p className="form__hint">{t('workSchedule.usingDefault')}</p>}
+      <h2>{userId ? t('workSchedule.titleFor', { name: userName }) : t('workSchedule.companyTitle')}</h2>
+      <p className="form__hint">{userId ? t('workSchedule.hint') : t('workSchedule.companyHint')}</p>
+      {sourceHint && <p className="form__hint"><strong>{sourceHint}</strong></p>}
 
       {!rows ? (
         error ? <p className="form__error">{error}</p> : <p className="empty-state">{t('common.loading')}</p>
@@ -110,6 +142,11 @@ export function WorkScheduleEditor({ userId, userName, onClose }: Props) {
             <button className="btn btn--primary" type="submit" disabled={saving}>
               {saving ? t('common.saving') : t('common.save')}
             </button>
+            {userId && source === "Personal" && (
+              <button type="button" className="btn btn--ghost" onClick={handleReset} disabled={saving}>
+                {t('workSchedule.useCompany')}
+              </button>
+            )}
             <button type="button" className="btn btn--ghost" onClick={onClose}>
               {t('workSchedule.close')}
             </button>

@@ -25,6 +25,8 @@ export interface UserAccount {
   role: UserRole;
   supervisorId: string | null;
   isActive: boolean;
+  /** Whether their logged hours are compared with their work schedule. */
+  tracksHours: boolean;
 }
 
 export interface HourType {
@@ -144,10 +146,13 @@ export interface WorkScheduleDay {
   breakMinutes: number;
 }
 
+/** Where someone's hours come from: their own schedule, the company's, or the built-in Monday-Friday 9-17. */
+export type WorkScheduleSource = "Personal" | "Company" | "BuiltIn";
+
 export interface WorkSchedule {
-  userId: string;
-  /** True when nothing was saved yet and the default schedule applies. */
-  isDefault: boolean;
+  /** Null for the company schedule. */
+  userId: string | null;
+  source: WorkScheduleSource;
   days: WorkScheduleDay[];
   weeklyHours: number;
 }
@@ -195,4 +200,44 @@ export interface LeaveBalance {
   usedHours: number;
   pendingHours: number;
   remainingHours: number | null;
+}
+
+/** Logged versus scheduled hours over a period ending today. Positive difference = more than scheduled. */
+export interface HoursPeriod {
+  from: string;
+  to: string;
+  workedHours: number;
+  expectedHours: number;
+  differenceHours: number;
+}
+
+export interface HoursDay {
+  date: string;
+  workedHours: number;
+  expectedHours: number;
+  /** Not counted in the totals yet: a day still to come, or today while nothing is logged for it. */
+  isPending: boolean;
+  hasLeave: boolean;
+}
+
+export interface MyHoursOverview {
+  asOf: string;
+  /** False for people whose hours aren't compared with a schedule; the overview is then hidden. */
+  tracksHours: boolean;
+  scheduleSource: WorkScheduleSource;
+  weeklyScheduleHours: number;
+  week: HoursPeriod;
+  month: HoursPeriod;
+  year: HoursPeriod;
+  days: HoursDay[];
+}
+
+export interface TeamMemberHours {
+  userId: string;
+  fullName: string;
+  scheduleSource: WorkScheduleSource;
+  weeklyScheduleHours: number;
+  week: HoursPeriod;
+  month: HoursPeriod;
+  year: HoursPeriod;
 }

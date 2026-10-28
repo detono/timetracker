@@ -99,7 +99,8 @@
       "role": "Rol",
       "supervisor": "Leidinggevende",
       "status": "Status",
-      "actions": "Acties"
+      "actions": "Acties",
+      "tracksHours": "Registreert uren"
     },
     "youBadge": "Jij",
     "none": "— geen —",
@@ -109,7 +110,9 @@
     "cannotDeactivateSelf": "Je kunt je eigen account niet deactiveren",
     "deactivate": "Deactiveren",
     "reactivate": "Heractiveren",
-    "confirmDeactivate": "{{name}} deactiveren? Deze persoon kan niet meer inloggen, maar de geregistreerde uren blijven bewaard."
+    "confirmDeactivate": "{{name}} deactiveren? Deze persoon kan niet meer inloggen, maar de geregistreerde uren blijven bewaard.",
+    "tracksHoursFor": "Gelogde uren van {{name}} vergelijken met het uurrooster",
+    "tracksHoursHint": "Zet uit voor wie geen uren registreert, bv. een zaakvoerder. Die persoon valt dan weg uit het overzicht gewerkt vs. verwacht."
   },
   "dashboard": {
     "title": "Mijn uren",
@@ -295,14 +298,21 @@
     "button": "Uurrooster",
     "titleFor": "Uurrooster van {{name}}",
     "hint": "De uren die deze persoon normaal werkt. Goedgekeurd verlof wordt met deze uren op elke werkdag ingeboekt.",
-    "usingDefault": "Nog geen uurrooster opgeslagen: maandag tot vrijdag, 9:00 tot 17:00 met 30 minuten pauze wordt gebruikt.",
     "start": "Begin",
     "end": "Einde",
     "breakMinutes": "Pauze (min)",
     "dayOff": "Vrije dag",
     "weeklyTotal": "Per week:",
     "saved": "Uurrooster opgeslagen.",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "companyButton": "Uurrooster bedrijf",
+    "companyTitle": "Uurrooster van het bedrijf",
+    "companyHint": "De gebruikelijke werkuren in je bedrijf. Iedereen zonder eigen uurrooster volgt deze.",
+    "companyNotSet": "Nog niet ingesteld: maandag tot vrijdag, 9:00 tot 17:00 met 30 minuten pauze wordt gebruikt.",
+    "sourcePersonal": "Heeft een eigen uurrooster.",
+    "sourceCompany": "Volgt het uurrooster van het bedrijf. Opslaan geeft deze persoon een eigen uurrooster.",
+    "sourceBuiltIn": "Volgt het standaardrooster (maandag tot vrijdag, 9:00 tot 17:00), omdat het bedrijf er geen heeft. Opslaan geeft deze persoon een eigen uurrooster.",
+    "useCompany": "Uurrooster bedrijf gebruiken"
   },
   "leave": {
     "title": "Verlof",
@@ -370,5 +380,22 @@
       "pending": "Openstaand",
       "remaining": "Resterend"
     }
+  },
+  "hoursOverview": {
+    "title": "Gewerkt vs. verwacht",
+    "thisWeek": "Deze week",
+    "yearSoFar": "{{year}} tot nu",
+    "of": "van {{hours}}",
+    "onTarget": "op schema",
+    "short": "{{hours}} tekort",
+    "leaveBooked": "verlof ingepland",
+    "notYet": "nog niet",
+    "dayOff": "vrije dag",
+    "hint": "Verwachte uren volgen je uurrooster ({{hours}} per week): elke dag tot gisteren, en vandaag zodra je die registreert. Verlof en ziekte tellen als gewerkt.",
+    "teamTitle": "Gewerkt vs. verwacht",
+    "teamHint": "Verschil met ieders uurrooster, tot gisteren (vandaag zodra geregistreerd)",
+    "perWeek": "{{hours}}/week",
+    "perWeekOwn": "{{hours}}/week, eigen rooster",
+    "workedOf": "{{worked}} gewerkt van {{expected}}"
   }
 }

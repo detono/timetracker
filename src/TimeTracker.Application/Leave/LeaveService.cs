@@ -5,6 +5,18 @@ using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.Leave;
 
+/// <summary>Where someone's working hours come from.</summary>
+public enum WorkScheduleSource {
+    /// <summary>Their own schedule.</summary>
+    Personal,
+
+    /// <summary>The company's default schedule.</summary>
+    Company,
+
+    /// <summary>Monday to Friday, 9:00 to 17:00: neither they nor the company set one.</summary>
+    BuiltIn
+}
+
 /// <summary>The balance of one person for one year. Allowance is null when no allowance was set.</summary>
 public record LeaveBalanceSnapshot(int Year, decimal? AllowanceHours, decimal UsedHours, decimal PendingHours) {
     public decimal? RemainingHours => AllowanceHours - UsedHours;
@@ -29,8 +41,26 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
         return supervisees.Select(u => u.Id).ToList();
     }
 
+    /// <summary>Someone's own schedule, else the company's, else the built-in Monday-to-Friday one.</summary>
     public async Task<WorkSchedule> GetScheduleAsync(Guid userId, CancellationToken cancellationToken) =>
-        await unitOfWork.WorkSchedules.GetForUserAsync(userId, cancellationToken) ?? WorkSchedule.Default(userId);
+        (await ResolveScheduleAsync(userId, cancellationToken)).Schedule;
+
+    public async Task<(WorkSchedule Schedule, WorkScheduleSource Source)> ResolveScheduleAsync(
+        Guid userId, CancellationToken cancellationToken
+    ) {
+        if (await unitOfWork.WorkSchedules.GetForUserAsync(userId, cancellationToken) is { } own) {
+            return (own, WorkScheduleSource.Personal);
+        }
+
+        return await ResolveCompanyScheduleAsync(cancellationToken);
+    }
+
+    public async Task<(WorkSchedule Schedule, WorkScheduleSource Source)> ResolveCompanyScheduleAsync(
+        CancellationToken cancellationToken
+    ) =>
+        await unitOfWork.WorkSchedules.GetCompanyDefaultAsync(cancellationToken) is { } company
+            ? (company, WorkScheduleSource.Company)
+            : (WorkSchedule.BuiltInDefault(), WorkScheduleSource.BuiltIn);
 
     public static decimal HoursOf(IEnumerable<(DateOnly Date, WorkScheduleDay Hours)> days) =>
         Math.Round((decimal)days.Sum(d => d.Hours.Duration.TotalHours), 2);

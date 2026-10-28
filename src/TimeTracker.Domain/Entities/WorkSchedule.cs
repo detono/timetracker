@@ -3,12 +3,16 @@ using TimeTracker.Domain.Exceptions;
 namespace TimeTracker.Domain.Entities;
 
 /// <summary>
-/// The weekly hours a person normally works. Used to turn a leave request ("Monday to
-/// Friday") into the hours they would actually have worked on each of those days.
-/// Someone without a saved schedule is assumed to work <see cref="Default"/>.
+/// Weekly working hours. Used to turn a leave request ("Monday to Friday") into the hours
+/// someone would actually have worked on each of those days. A schedule either belongs to
+/// one person, or is the company's default (no <see cref="UserId"/>), which everyone
+/// without their own schedule follows. Without either, <see cref="DefaultDays"/> applies.
 /// </summary>
 public class WorkSchedule : TenantOwnedEntity {
-    public Guid UserId { get; private set; }
+    /// <summary>The person this schedule is for; null for the company default.</summary>
+    public Guid? UserId { get; private set; }
+
+    public bool IsCompanyDefault => UserId is null;
 
     private List<WorkScheduleDay> _days = new();
     public IReadOnlyList<WorkScheduleDay> Days => _days.AsReadOnly();
@@ -27,13 +31,20 @@ public class WorkSchedule : TenantOwnedEntity {
         return schedule;
     }
 
+    /// <summary>The company's default schedule, for everyone without their own.</summary>
+    public static WorkSchedule CreateCompanyDefault(IEnumerable<WorkScheduleDay> days) {
+        var schedule = new WorkSchedule();
+        schedule.SetDays(days);
+        return schedule;
+    }
+
     /// <summary>Monday to Friday, 09:00 to 17:00 with a 30-minute break (7.5 hours a day).</summary>
     public static IReadOnlyList<WorkScheduleDay> DefaultDays { get; } = new[] {
         DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday
     }.Select(d => new WorkScheduleDay(d, new TimeOnly(9, 0), new TimeOnly(17, 0), 30)).ToList();
 
-    /// <summary>An unsaved schedule with <see cref="DefaultDays"/>, for people who don't have one yet.</summary>
-    public static WorkSchedule Default(Guid userId) => Create(userId, DefaultDays);
+    /// <summary>An unsaved schedule with <see cref="DefaultDays"/>, for companies that haven't set one.</summary>
+    public static WorkSchedule BuiltInDefault() => CreateCompanyDefault(DefaultDays);
 
     public void SetDays(IEnumerable<WorkScheduleDay> days) {
         var list = days.ToList();

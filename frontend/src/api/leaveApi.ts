@@ -57,12 +57,20 @@ export async function setLeaveAllowance(userId: string, year: number, allowanceH
   await apiClient.put(`/leave-balances/${userId}/${year}`, { allowanceHours });
 }
 
-export async function getWorkSchedule(userId: string): Promise<WorkSchedule> {
-  const { data } = await apiClient.get<WorkSchedule>(`/work-schedules/${userId}`);
+/** Someone's schedule, or the company's when `userId` is null. */
+export async function getWorkSchedule(userId: string | null): Promise<WorkSchedule> {
+  const { data } = await apiClient.get<WorkSchedule>(`/work-schedules/${userId ?? "company"}`);
   return data;
 }
 
-export async function updateWorkSchedule(userId: string, days: WorkScheduleDay[]): Promise<WorkSchedule> {
-  const { data } = await apiClient.put<WorkSchedule>(`/work-schedules/${userId}`, days);
+/** Gives someone their own schedule, or sets the company's when `userId` is null. */
+export async function updateWorkSchedule(userId: string | null, days: WorkScheduleDay[]): Promise<WorkSchedule> {
+  const { data } = await apiClient.put<WorkSchedule>(`/work-schedules/${userId ?? "company"}`, days);
+  return data;
+}
+
+/** Removes someone's own schedule so they follow the company's again. */
+export async function resetWorkSchedule(userId: string): Promise<WorkSchedule> {
+  const { data } = await apiClient.delete<WorkSchedule>(`/work-schedules/${userId}`);
   return data;
 }

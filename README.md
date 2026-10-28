@@ -88,9 +88,12 @@ can no longer log in.
 
 ### Leave
 
-- **Work schedules.** Each person has weekly working hours (start, end and break per
-  weekday). An employer sets them under *Manage employees → Schedule*; until then Monday to
-  Friday, 9:00–17:00 with a 30-minute break applies.
+- **Work schedules.** Working hours are set per weekday (start, end and break). An employer
+  sets the company's usual hours under *Manage employees → Company work schedule*;
+  everyone follows those unless they get their own schedule (*Manage employees →
+  Schedule*), e.g. a part-timer. *Use company schedule* puts someone back on the
+  company's hours. Without a company schedule, Monday to Friday, 9:00–17:00 with a
+  30-minute break applies. Changing a schedule doesn't change leave that's already booked.
 - **Requests.** Anyone can request leave for a date range under an hour type marked *can be
   requested as leave*. The form shows how many working days and hours that is, and what's
   left of their balance.
@@ -105,6 +108,23 @@ can no longer log in.
   If the company's email is set up, the supervisor (or every employer, when there's no
   supervisor) gets an email about new requests, and the requester gets one when it's
   decided. Emails are in English for now.
+
+### Worked vs. expected
+
+*My hours* shows this week, this month and the year so far against your work schedule,
+plus the week day by day. Employers (everyone) and supervisors (their team) see the same per
+person on the team overview. Nothing is stored: the numbers are recalculated from logged hours
+and schedules every time, so there's no balance to manage or correct.
+
+- Expected hours count up to yesterday, plus today once something is logged for it, so you
+  don't look behind every morning before you've logged the day.
+- Every logged hour counts as worked, including leave and sick days.
+- Expected hours start on the day someone's account was created.
+- The current schedule applies to the whole period; earlier schedule changes aren't remembered.
+- People who don't log hours (e.g. an owner) can be switched off under *Manage employees →
+  Tracks hours*; they're then left out of the overview.
+
+The app follows the operating system's light or dark mode.
 
 ### Key design choices
 

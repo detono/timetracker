@@ -1,15 +1,16 @@
 using MediatR;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
+using TimeTracker.Application.Leave;
 using TimeTracker.Application.WorkSchedules.Dtos;
-using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.WorkSchedules.Queries.GetWorkSchedule;
 
 public class GetWorkScheduleQueryHandler(
     IUnitOfWork unitOfWork,
-    ICurrentUserService currentUser
+    ICurrentUserService currentUser,
+    LeaveService leave
 ) : IRequestHandler<GetWorkScheduleQuery, Result<WorkScheduleDto>> {
     public async Task<Result<WorkScheduleDto>> Handle(GetWorkScheduleQuery request, CancellationToken cancellationToken) {
         var caller = await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken);
@@ -23,8 +24,7 @@ public class GetWorkScheduleQueryHandler(
                 "You are not allowed to view this work schedule.", ResultErrorType.Forbidden);
         }
 
-        var saved = await unitOfWork.WorkSchedules.GetForUserAsync(target.Id, cancellationToken);
-        var schedule = saved ?? WorkSchedule.Default(target.Id);
-        return Result<WorkScheduleDto>.Success(schedule.ToDto(isDefault: saved is null));
+        var (schedule, source) = await leave.ResolveScheduleAsync(target.Id, cancellationToken);
+        return Result<WorkScheduleDto>.Success(schedule.ToDto(target.Id, source));
     }
 }

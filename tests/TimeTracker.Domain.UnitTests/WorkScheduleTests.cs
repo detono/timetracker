@@ -11,7 +11,7 @@ public class WorkScheduleTests {
 
     [Fact]
     public void Default_IsMondayToFridayAt7AndAHalfHours() {
-        var schedule = WorkSchedule.Default(Guid.NewGuid());
+        var schedule = WorkSchedule.BuiltInDefault();
 
         schedule.Days.Select(d => d.DayOfWeek).Should().Equal(
             DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday);
@@ -31,6 +31,19 @@ public class WorkScheduleTests {
         days.Select(d => d.Date).Should().Equal(new DateOnly(2026, 11, 2), new DateOnly(2026, 11, 4));
         days.Sum(d => d.Hours.Duration.TotalHours).Should().Be(12);
         schedule.Days[0].DayOfWeek.Should().Be(DayOfWeek.Monday, "days are kept in Monday-first order");
+    }
+
+    [Fact]
+    public void CompanyDefault_HasNoUserAndPersonalOneRequiresAUser() {
+        var friday = new WorkScheduleDay(DayOfWeek.Friday, new TimeOnly(8, 30), new TimeOnly(15, 30), 30);
+
+        var company = WorkSchedule.CreateCompanyDefault(new[] { friday });
+        company.IsCompanyDefault.Should().BeTrue();
+        company.UserId.Should().BeNull();
+
+        WorkSchedule.Create(Guid.NewGuid(), new[] { friday }).IsCompanyDefault.Should().BeFalse();
+        var act = () => WorkSchedule.Create(Guid.Empty, new[] { friday });
+        act.Should().Throw<DomainException>();
     }
 
     [Fact]

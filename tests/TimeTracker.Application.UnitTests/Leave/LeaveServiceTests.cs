@@ -9,7 +9,7 @@ public class LeaveServiceTests {
     [Fact]
     public void HoursInYear_SplitsARequestAcrossTheNewYear() {
         var userId = Guid.NewGuid();
-        var schedule = WorkSchedule.Default(userId); // 7.5 hours, Monday to Friday
+        var schedule = WorkSchedule.BuiltInDefault(); // 7.5 hours, Monday to Friday
 
         // Mon 28 Dec 2026 to Fri 8 Jan 2027: Mon-Thu in 2026, then Fri 1 Jan and the next full week in 2027.
         var start = new DateOnly(2026, 12, 28);

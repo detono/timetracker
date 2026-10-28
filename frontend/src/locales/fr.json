@@ -105,7 +105,8 @@
       "role": "Rôle",
       "supervisor": "Superviseur",
       "status": "Statut",
-      "actions": "Actions"
+      "actions": "Actions",
+      "tracksHours": "Encode ses heures"
     },
     "youBadge": "Vous",
     "none": "— aucun —",
@@ -115,7 +116,9 @@
     "cannotDeactivateSelf": "Vous ne pouvez pas désactiver votre propre compte",
     "deactivate": "Désactiver",
     "reactivate": "Réactiver",
-    "confirmDeactivate": "Désactiver {{name}} ? Ils ne pourront plus se connecter, mais leurs heures enregistrées seront conservées."
+    "confirmDeactivate": "Désactiver {{name}} ? Ils ne pourront plus se connecter, mais leurs heures enregistrées seront conservées.",
+    "tracksHoursFor": "Comparer les heures encodées de {{name}} à son horaire",
+    "tracksHoursHint": "Désactivez pour les personnes qui n'encodent pas leurs heures, p. ex. un gérant. Elles n'apparaissent alors plus dans l'aperçu prestées vs. prévues."
   },
   "dashboard": {
     "title": "Mes heures",
@@ -295,14 +298,21 @@
     "button": "Horaire",
     "titleFor": "Horaire de travail de {{name}}",
     "hint": "Les heures que cette personne preste normalement. Les congés approuvés sont encodés avec ces heures chaque jour ouvré.",
-    "usingDefault": "Aucun horaire enregistré : du lundi au vendredi, de 9:00 à 17:00 avec 30 minutes de pause, est utilisé.",
     "start": "Début",
     "end": "Fin",
     "breakMinutes": "Pause (min)",
     "dayOff": "Jour libre",
     "weeklyTotal": "Par semaine :",
     "saved": "Horaire enregistré.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "companyButton": "Horaire de l'entreprise",
+    "companyTitle": "Horaire de travail de l'entreprise",
+    "companyHint": "Les heures de travail habituelles de votre entreprise. Toute personne sans horaire propre suit celui-ci.",
+    "companyNotSet": "Pas encore défini : du lundi au vendredi, de 9:00 à 17:00 avec 30 minutes de pause, est utilisé.",
+    "sourcePersonal": "A son propre horaire.",
+    "sourceCompany": "Suit l'horaire de l'entreprise. Enregistrer ici lui donne son propre horaire.",
+    "sourceBuiltIn": "Suit l'horaire standard (du lundi au vendredi, de 9:00 à 17:00), car l'entreprise n'en a pas. Enregistrer ici lui donne son propre horaire.",
+    "useCompany": "Utiliser l'horaire de l'entreprise"
   },
   "leave": {
     "title": "Congés",
@@ -370,5 +380,22 @@
       "pending": "En attente",
       "remaining": "Restant"
     }
+  },
+  "hoursOverview": {
+    "title": "Prestées vs. prévues",
+    "thisWeek": "Cette semaine",
+    "yearSoFar": "{{year}} jusqu'ici",
+    "of": "sur {{hours}}",
+    "onTarget": "dans les temps",
+    "short": "{{hours}} en moins",
+    "leaveBooked": "congé prévu",
+    "notYet": "pas encore",
+    "dayOff": "jour libre",
+    "hint": "Les heures prévues suivent votre horaire ({{hours}} par semaine) : chaque jour jusqu'à hier, et aujourd'hui dès que vous l'avez encodé. Les congés et maladies comptent comme prestés.",
+    "teamTitle": "Prestées vs. prévues",
+    "teamHint": "Écart avec l'horaire de chacun, jusqu'à hier (aujourd'hui une fois encodé)",
+    "perWeek": "{{hours}}/semaine",
+    "perWeekOwn": "{{hours}}/semaine, horaire propre",
+    "workedOf": "{{worked}} prestées sur {{expected}}"
   }
 }

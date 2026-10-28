@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
 using TimeTracker.Application.HourTypes.Dtos;
+using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveBalances.Dtos;
 using TimeTracker.Application.LeaveRequests.Dtos;
 using TimeTracker.Application.TimeEntries.Dtos;
@@ -78,7 +79,7 @@ public class LeaveFlowTests : IClassFixture<CustomWebApplicationFactory> {
 
         // Without a saved schedule, the default applies.
         var defaultSchedule = await GetAsync<WorkScheduleDto>($"/api/work-schedules/{employee.Id}", employeeToken);
-        defaultSchedule.IsDefault.Should().BeTrue();
+        defaultSchedule.Source.Should().Be(WorkScheduleSource.BuiltIn);
         defaultSchedule.WeeklyHours.Should().Be(37.5);
 
         // Employees can't change their own schedule or allowance.
@@ -152,6 +153,52 @@ public class LeaveFlowTests : IClassFixture<CustomWebApplicationFactory> {
             .Should().BeEmpty("revoking leave removes the hours it booked");
         (await GetAsync<List<LeaveBalanceDto>>("/api/leave-balances?year=2026", employeeToken))
             .Should().ContainSingle().Which.RemainingHours.Should().Be(16);
+    }
+
+    [Fact]
+    public async Task EmployeesFollowTheCompanyScheduleUnlessTheyHaveTheirOwn() {
+        var tenant = await CreateTenantAsync(_client);
+        var employerToken = await LoginAsync(_client, tenant.EmployerEmail, Password);
+        var (employee, employeeToken) = await CreateEmployeeAsync(employerToken);
+        var paidLeave = await PaidLeaveAsync(employeeToken);
+
+        // Company hours: Monday to Thursday 8:30-17:30, Friday 8:30-15:30, 30-minute break (8.5h and 6.5h).
+        var companyDays = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday }
+            .Select(d => new { DayOfWeek = d, StartTime = "08:30", EndTime = "17:30", BreakMinutes = 30 })
+            .Append(new { DayOfWeek = DayOfWeek.Friday, StartTime = "08:30", EndTime = "15:30", BreakMinutes = 30 })
+            .ToArray();
+        (await SendAsync(HttpMethod.Put, "/api/work-schedules/company", employeeToken, companyDays))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var company = await SendOkAsync<WorkScheduleDto>(HttpMethod.Put, "/api/work-schedules/company", employerToken, companyDays);
+        company.Source.Should().Be(WorkScheduleSource.Company);
+        company.WeeklyHours.Should().Be(40.5);
+
+        // Without their own schedule, the employee follows the company's: a Friday off is 6.5 hours.
+        var followed = await GetAsync<WorkScheduleDto>($"/api/work-schedules/{employee.Id}", employeeToken);
+        followed.Source.Should().Be(WorkScheduleSource.Company);
+        followed.WeeklyHours.Should().Be(40.5);
+        var friday = await GetAsync<LeavePreviewDto>(
+            $"/api/leave-requests/preview?hourTypeId={paidLeave.Id}&startDate=2026-11-06&endDate=2026-11-06", employeeToken);
+        friday.Hours.Should().Be(6.5m);
+
+        // Their own schedule wins; resetting puts them back on the company's.
+        var own = await SendOkAsync<WorkScheduleDto>(
+            HttpMethod.Put, $"/api/work-schedules/{employee.Id}", employerToken, FourDayWeek);
+        own.Source.Should().Be(WorkScheduleSource.Personal);
+        (await GetAsync<LeavePreviewDto>(
+            $"/api/leave-requests/preview?hourTypeId={paidLeave.Id}&startDate=2026-11-06&endDate=2026-11-06", employeeToken))
+            .WorkingDays.Should().Be(0, "Friday is a day off in their own schedule");
+
+        var reset = await SendOkAsync<WorkScheduleDto>(HttpMethod.Delete, $"/api/work-schedules/{employee.Id}", employerToken);
+        reset.Source.Should().Be(WorkScheduleSource.Company);
+        (await GetAsync<WorkScheduleDto>($"/api/work-schedules/{employee.Id}", employeeToken))
+            .WeeklyHours.Should().Be(40.5);
+
+        // Another company still gets the built-in default.
+        var other = await CreateTenantAsync(_client);
+        var otherToken = await LoginAsync(_client, other.EmployerEmail, Password);
+        (await GetAsync<WorkScheduleDto>("/api/work-schedules/company", otherToken))
+            .Source.Should().Be(WorkScheduleSource.BuiltIn);
     }
 
     [Fact]

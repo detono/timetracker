@@ -429,6 +429,11 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("TracksHours")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -459,7 +464,7 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -468,6 +473,10 @@ namespace TimeTracker.Infrastructure.Migrations
 
                     b.HasIndex("UserId")
                         .IsUnique();
+
+                    b.HasIndex(new[] { "TenantId" }, "IX_WorkSchedules_TenantId_CompanyDefault")
+                        .IsUnique()
+                        .HasFilter("\"UserId\" IS NULL");
 
                     b.ToTable("WorkSchedules", (string)null);
                 });
@@ -590,8 +599,7 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.HasOne("TimeTracker.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.OwnsMany("TimeTracker.Domain.Entities.WorkScheduleDay", "Days", b1 =>
                         {

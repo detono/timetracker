@@ -9,7 +9,10 @@ public class WorkScheduleConfiguration : IEntityTypeConfiguration<WorkSchedule> 
         builder.ToTable("WorkSchedules");
         builder.HasKey(s => s.Id);
 
+        // One schedule per person, and one company default (no user) per tenant.
         builder.HasIndex(s => s.UserId).IsUnique();
+        builder.HasIndex(s => s.TenantId, "IX_WorkSchedules_TenantId_CompanyDefault")
+            .IsUnique().HasFilter("\"UserId\" IS NULL");
         builder.HasOne<User>().WithMany().HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
 
         builder.OwnsMany(s => s.Days, day => {
@@ -26,5 +29,6 @@ public class WorkScheduleConfiguration : IEntityTypeConfiguration<WorkSchedule> 
         builder.Navigation(s => s.Days).HasField("_days").UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Ignore(s => s.WeeklyDuration);
+        builder.Ignore(s => s.IsCompanyDefault);
     }
 }

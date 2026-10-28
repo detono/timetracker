@@ -75,7 +75,8 @@
       "role": "Role",
       "supervisor": "Supervisor",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "tracksHours": "Tracks hours"
     },
     "youBadge": "You",
     "none": "— none —",
@@ -85,7 +86,9 @@
     "cannotDeactivateSelf": "You cannot deactivate your own account",
     "deactivate": "Deactivate",
     "reactivate": "Reactivate",
-    "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in, but their logged hours are kept."
+    "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in, but their logged hours are kept.",
+    "tracksHoursFor": "Compare {{name}}'s logged hours with their work schedule",
+    "tracksHoursHint": "Switch off for people who don't log their hours, e.g. an owner. They're then left out of the worked vs. expected overview."
   },
   "dashboard": {
     "title": "My hours",
@@ -295,14 +298,21 @@
     "button": "Schedule",
     "titleFor": "Work schedule for {{name}}",
     "hint": "The hours this person normally works. Approved leave is booked with these hours on each working day.",
-    "usingDefault": "No schedule saved yet: Monday to Friday, 9:00 to 17:00 with a 30-minute break is used.",
     "start": "Start",
     "end": "End",
     "breakMinutes": "Break (min)",
     "dayOff": "Day off",
     "weeklyTotal": "Per week:",
     "saved": "Work schedule saved.",
-    "close": "Close"
+    "close": "Close",
+    "companyButton": "Company work schedule",
+    "companyTitle": "Company work schedule",
+    "companyHint": "The usual working hours in your company. Everyone without their own schedule follows these.",
+    "companyNotSet": "Not set yet: Monday to Friday, 9:00 to 17:00 with a 30-minute break is used.",
+    "sourcePersonal": "Has their own schedule.",
+    "sourceCompany": "Follows the company schedule. Saving here gives them their own.",
+    "sourceBuiltIn": "Follows the built-in schedule (Monday to Friday, 9:00 to 17:00), since the company has none. Saving here gives them their own.",
+    "useCompany": "Use company schedule"
   },
   "leave": {
     "title": "Leave",
@@ -370,5 +380,22 @@
       "pending": "Pending",
       "remaining": "Remaining"
     }
+  },
+  "hoursOverview": {
+    "title": "Worked vs. expected",
+    "thisWeek": "This week",
+    "yearSoFar": "{{year}} so far",
+    "of": "of {{hours}}",
+    "onTarget": "on target",
+    "short": "{{hours}} short",
+    "leaveBooked": "leave booked",
+    "notYet": "not yet",
+    "dayOff": "day off",
+    "hint": "Expected hours follow your work schedule ({{hours}} a week): every day up to yesterday, and today once you've logged it. Leave and sick days count as worked.",
+    "teamTitle": "Worked vs. expected",
+    "teamHint": "Difference with each person's schedule, up to yesterday (today once logged)",
+    "perWeek": "{{hours}}/week",
+    "perWeekOwn": "{{hours}}/week, own schedule",
+    "workedOf": "{{worked}} worked of {{expected}}"
   }
 }

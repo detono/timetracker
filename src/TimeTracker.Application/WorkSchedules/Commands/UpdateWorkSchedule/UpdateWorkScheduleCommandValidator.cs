@@ -4,7 +4,7 @@ namespace TimeTracker.Application.WorkSchedules.Commands.UpdateWorkSchedule;
 
 public class UpdateWorkScheduleCommandValidator : AbstractValidator<UpdateWorkScheduleCommand> {
     public UpdateWorkScheduleCommandValidator() {
-        RuleFor(x => x.UserId).NotEmpty();
+        RuleFor(x => x.UserId).NotEqual(Guid.Empty);
         RuleFor(x => x.Days).NotNull();
         RuleFor(x => x.Days).Must(days => days.Select(d => d.DayOfWeek).Distinct().Count() == days.Count)
             .When(x => x.Days is not null)

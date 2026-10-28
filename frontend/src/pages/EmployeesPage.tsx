@@ -6,7 +6,8 @@ import {
   createUser,
   deactivateUser,
   getAllUsers,
-  resetPassword
+  resetPassword,
+  setTracksHours
 } from "../api/usersApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
@@ -33,7 +34,8 @@ export function EmployeesPage() {
   const [resettingUser, setResettingUser] = useState<UserAccount | null>(null);
   const [resetPasswordValue, setResetPasswordValue] = useState("");
   const [resetSubmitting, setResetSubmitting] = useState(false);
-  const [scheduleUser, setScheduleUser] = useState<UserAccount | null>(null);
+  // The schedule being edited: a person, "company", or nothing.
+  const [scheduleUser, setScheduleUser] = useState<UserAccount | "company" | null>(null);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -100,6 +102,19 @@ export function EmployeesPage() {
     }
   }
 
+  async function handleTracksHoursChange(target: UserAccount, tracksHours: boolean) {
+    setBusyUserId(target.id);
+    setError(null);
+    try {
+      await setTracksHours(target.id, tracksHours);
+      await loadUsers();
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setBusyUserId(null);
+    }
+  }
+
   const potentialSupervisors = users.filter((u) => u.role === "Employee");
 
   async function handleResetPassword(e: FormEvent) {
@@ -124,6 +139,11 @@ export function EmployeesPage() {
         <div>
           <h1>{t('employees.title')}</h1>
           <p className="page__subtitle">{t('employees.subtitle')}</p>
+        </div>
+        <div className="page__header-actions">
+          <button className="btn btn--ghost" onClick={() => setScheduleUser("company")}>
+            {t('workSchedule.companyButton')}
+          </button>
         </div>
       </div>
 
@@ -221,8 +241,9 @@ export function EmployeesPage() {
 
       {scheduleUser && (
         <WorkScheduleEditor
-          userId={scheduleUser.id}
-          userName={`${scheduleUser.firstName} ${scheduleUser.lastName}`}
+          key={scheduleUser === "company" ? "company" : scheduleUser.id}
+          userId={scheduleUser === "company" ? null : scheduleUser.id}
+          userName={scheduleUser === "company" ? undefined : `${scheduleUser.firstName} ${scheduleUser.lastName}`}
           onClose={() => setScheduleUser(null)}
         />
       )}
@@ -237,6 +258,7 @@ export function EmployeesPage() {
               <th>{t('employees.table.email')}</th>
               <th>{t('employees.table.role')}</th>
               <th>{t('employees.table.supervisor')}</th>
+              <th title={t('employees.tracksHoursHint')}>{t('employees.table.tracksHours')}</th>
               <th>{t('employees.table.status')}</th>
               <th aria-label={t('employees.table.actions')} />
             </tr>
@@ -269,6 +291,16 @@ export function EmployeesPage() {
                   ) : (
                     <span className="list-view__notes">—</span>
                   )}
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={u.tracksHours}
+                    onChange={(e) => handleTracksHoursChange(u, e.target.checked)}
+                    disabled={busyUserId === u.id}
+                    aria-label={t('employees.tracksHoursFor', { name: `${u.firstName} ${u.lastName}` })}
+                    title={t('employees.tracksHoursHint')}
+                  />
                 </td>
                 <td>
                   <span className={u.isActive ? "status status--active" : "status status--inactive"}>
