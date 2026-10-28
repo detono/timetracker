@@ -59,10 +59,19 @@ public class WorkSchedule : TenantOwnedEntity {
     /// <summary>The working hours on <paramref name="date"/>, or null if it's a day off.</summary>
     public WorkScheduleDay? DayFor(DateOnly date) => _days.FirstOrDefault(d => d.DayOfWeek == date.DayOfWeek);
 
-    /// <summary>Every working day between the two dates (inclusive) with its scheduled hours.</summary>
-    public IReadOnlyList<(DateOnly Date, WorkScheduleDay Hours)> WorkingDaysBetween(DateOnly start, DateOnly end) {
+    /// <summary>
+    /// Every working day between the two dates (inclusive) with its scheduled hours, skipping
+    /// <paramref name="daysOff"/> (public holidays).
+    /// </summary>
+    public IReadOnlyList<(DateOnly Date, WorkScheduleDay Hours)> WorkingDaysBetween(
+        DateOnly start, DateOnly end, IReadOnlySet<DateOnly>? daysOff = null
+    ) {
         var result = new List<(DateOnly, WorkScheduleDay)>();
         for (var date = start; date <= end; date = date.AddDays(1)) {
+            if (daysOff?.Contains(date) == true) {
+                continue;
+            }
+
             if (DayFor(date) is { } hours) {
                 result.Add((date, hours));
             }

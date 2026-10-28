@@ -25,6 +25,7 @@ public class GetTeamHoursOverviewQueryHandler(
 
         var asOf = request.AsOf ?? clock.TodayUtc;
         var people = await loader.LoadAsync(users, asOf, cancellationToken);
+        var holidays = await loader.HolidaysAsync(asOf, cancellationToken);
 
         IReadOnlyList<TeamMemberHoursDto> rows = people.Select(p => {
             var countFrom = CountFrom(p.User);
@@ -33,9 +34,9 @@ public class GetTeamHoursOverviewQueryHandler(
                 $"{p.User.FirstName} {p.User.LastName}",
                 p.Source,
                 Math.Round(p.Schedule.WeeklyDuration.TotalHours, 2),
-                Week(asOf, countFrom, p.Schedule, p.Entries),
-                Month(asOf, countFrom, p.Schedule, p.Entries),
-                Year(asOf, countFrom, p.Schedule, p.Entries));
+                Week(asOf, countFrom, p.Schedule, p.Entries, holidays),
+                Month(asOf, countFrom, p.Schedule, p.Entries, holidays),
+                Year(asOf, countFrom, p.Schedule, p.Entries, holidays));
         }).ToList();
 
         return Result<IReadOnlyList<TeamMemberHoursDto>>.Success(rows);

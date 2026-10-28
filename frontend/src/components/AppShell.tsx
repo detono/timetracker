@@ -79,8 +79,8 @@ export function AppShell() {
                   <NavLink to="/projects" className={navLinkClass}>
                     {t('nav.projects')}
                   </NavLink>
-                  <NavLink to="/email" className={navLinkClass}>
-                    {t('nav.email')}
+                  <NavLink to="/company" className={navLinkClass}>
+                    {t('nav.company')}
                   </NavLink>
                 </>
               )}

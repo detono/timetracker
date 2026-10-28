@@ -213,7 +213,8 @@
     "tenants": "Bedrijven",
     "platformAdmins": "Platformbeheerders",
     "email": "E-mail",
-    "leave": "Verlof"
+    "leave": "Verlof",
+    "company": "Bedrijf"
   },
   "time": {
     "logHours": "Uren Registreren",
@@ -305,7 +306,7 @@
     "weeklyTotal": "Per week:",
     "saved": "Uurrooster opgeslagen.",
     "close": "Sluiten",
-    "companyButton": "Uurrooster bedrijf",
+    "companyButton": "Uurrooster bedrijf →",
     "companyTitle": "Uurrooster van het bedrijf",
     "companyHint": "De gebruikelijke werkuren in je bedrijf. Iedereen zonder eigen uurrooster volgt deze.",
     "companyNotSet": "Nog niet ingesteld: maandag tot vrijdag, 9:00 tot 17:00 met 30 minuten pauze wordt gebruikt.",
@@ -379,7 +380,8 @@
       "used": "Opgenomen",
       "pending": "Openstaand",
       "remaining": "Resterend"
-    }
+    },
+    "subtitleEmployer": "Beoordeel de verlofaanvragen van je team en beheer de verlofsaldi."
   },
   "hoursOverview": {
     "title": "Gewerkt vs. verwacht",
@@ -397,5 +399,32 @@
     "perWeek": "{{hours}}/week",
     "perWeekOwn": "{{hours}}/week, eigen rooster",
     "workedOf": "{{worked}} gewerkt van {{expected}}"
+  },
+  "company": {
+    "title": "Bedrijf",
+    "subtitle": "Instellingen voor het hele bedrijf: gegevens, gebruikelijke werkuren, feestdagen en e-mail.",
+    "detailsTitle": "Bedrijfsgegevens",
+    "name": "Bedrijfsnaam",
+    "street": "Straat en nummer",
+    "postalCode": "Postcode",
+    "city": "Gemeente",
+    "country": "Land",
+    "noCountry": "— kies een land —",
+    "region": "Regio (optioneel)",
+    "regionHint": "Het land bepaalt welke feestdagen gelden. Vul enkel een regio in waar feestdagen per regio verschillen, bv. DE-BY voor Beieren.",
+    "saved": "Bedrijfsgegevens opgeslagen.",
+    "holidaysTitle": "Feestdagen {{year}}",
+    "holidaysHint": "Op deze dagen wordt niemand verwacht te werken, en verlof erover gaat niet af van het saldo. Verwijder dagen waarop je bedrijf toch werkt, of voeg eigen vrije dagen toe.",
+    "importHolidays": "Officiële feestdagen voor {{country}} {{year}} laden",
+    "setCountryFirst": "Stel het land van het bedrijf in om officiële feestdagen te laden",
+    "holidaysImported_one": "{{count}} feestdag toegevoegd.",
+    "holidaysImported_other": "{{count}} feestdagen toegevoegd.",
+    "holidaysUpToDate": "Alle officiële feestdagen stonden al in de lijst.",
+    "noHolidays": "Nog geen feestdagen voor dit jaar.",
+    "holidayDate": "Datum",
+    "holidayName": "Naam",
+    "holidayNamePlaceholder": "Vrije dag bedrijf",
+    "addHoliday": "Dag toevoegen",
+    "confirmDeleteHoliday": "{{name}} verwijderen? Dan wordt verwacht dat iedereen die dag werkt."
   }
 }

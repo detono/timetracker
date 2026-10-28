@@ -15,6 +15,8 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (result: AuthResult) => void;
   logout: () => void;
+  /** Shows a renamed company in the header without signing in again. */
+  updateTenantName: (name: string) => void;
 }
 
 const STORAGE_KEY = "timetracker.auth";
@@ -49,6 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthToken(null);
         localStorage.removeItem(STORAGE_KEY);
         setUser(null);
+      },
+      updateTenantName: (name: string) => {
+        if (!user) return;
+        const state = { ...user, tenantName: name };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        setUser(state);
       }
     }),
     [user]

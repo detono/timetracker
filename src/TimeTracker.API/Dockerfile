@@ -30,7 +30,9 @@ COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
+# The aspnet image has no wget or curl, so the check talks HTTP over bash's /dev/tcp and
+# passes only on a "200" status line from /health.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget -qO- http://localhost:8080/health || exit 1
+  CMD ["bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && head -1 <&3 | grep -q ' 200 '"]
 
 ENTRYPOINT ["dotnet", "TimeTracker.API.dll"]

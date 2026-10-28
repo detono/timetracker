@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Domain.Interfaces;
 using TimeTracker.Infrastructure.Email;
+using TimeTracker.Infrastructure.Holidays;
 using TimeTracker.Infrastructure.Identity;
 using TimeTracker.Infrastructure.Persistence;
 using TimeTracker.Infrastructure.Persistence.Repositories;
@@ -34,6 +35,7 @@ public static class DependencyInjection {
         services.AddScoped<IWorkScheduleRepository, WorkScheduleRepository>();
         services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
         services.AddScoped<ILeaveBalanceRepository, LeaveBalanceRepository>();
+        services.AddScoped<IPublicHolidayRepository, PublicHolidayRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
@@ -50,6 +52,14 @@ public static class DependencyInjection {
         services.AddScoped<SmtpMailTransport>();
         services.AddScoped<IMailDispatcher, MailDispatcher>();
         services.AddScoped<IEmailSender, EmailSender>();
+
+        var holidayBaseUrl = configuration["PublicHolidays:BaseUrl"];
+        services.AddHttpClient<IPublicHolidayProvider, NagerDatePublicHolidayProvider>(client => {
+            client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(holidayBaseUrl)
+                ? NagerDatePublicHolidayProvider.DefaultBaseUrl
+                : holidayBaseUrl.TrimEnd('/') + "/");
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
 
         return services;
     }

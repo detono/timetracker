@@ -11,8 +11,8 @@ import { HourTypesPage } from "./pages/HourTypesPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { TenantsPage } from "./pages/TenantsPage";
 import { PlatformAdminsPage } from "./pages/PlatformAdminsPage";
-import { EmailSettingsPage } from "./pages/EmailSettingsPage";
 import { LeavePage } from "./pages/LeavePage";
+import { CompanyPage } from "./pages/CompanyPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -107,13 +107,15 @@ export default function App() {
           }
         />
         <Route
-          path="email"
+          path="company"
           element={
             <RequireEmployer>
-              <EmailSettingsPage />
+              <CompanyPage />
             </RequireEmployer>
           }
         />
+        {/* Email settings moved to the Company page. */}
+        <Route path="email" element={<Navigate to="/company" replace />} />
         <Route
           path="tenants"
           element={

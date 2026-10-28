@@ -23,7 +23,9 @@ public class GetLeaveBalancesQueryHandler(
 
         IReadOnlyList<User> users;
         if (currentUser.Role == UserRole.Employer) {
-            users = (await unitOfWork.Users.GetAllAsync(cancellationToken)).Where(u => u.IsActive).ToList();
+            users = (await unitOfWork.Users.GetAllAsync(cancellationToken))
+                .Where(u => u.IsActive && u.Role == UserRole.Employee)
+                .ToList();
         } else {
             var self = await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken);
             var supervisees = await unitOfWork.Users.GetSupervisedByAsync(currentUser.UserId, cancellationToken);
@@ -43,6 +45,7 @@ public class GetLeaveBalancesQueryHandler(
             .Where(r => deducting.Contains(r.HourTypeId) && r.Overlaps(from, to))
             .ToLookup(r => r.UserId);
 
+        var holidays = await leave.GetHolidaysAsync(from, to, cancellationToken);
         var dtos = new List<LeaveBalanceDto>(users.Count);
         foreach (var user in users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName)) {
             var used = LeaveService.UsedHours(entriesByUser[user.Id], deducting);
@@ -51,7 +54,7 @@ public class GetLeaveBalancesQueryHandler(
             var userPending = pendingByUser[user.Id].ToList();
             if (userPending.Count > 0) {
                 var schedule = await leave.GetScheduleAsync(user.Id, cancellationToken);
-                pending = userPending.Sum(r => LeaveService.HoursInYear(r, schedule, request.Year));
+                pending = userPending.Sum(r => LeaveService.HoursInYear(r, schedule, request.Year, holidays));
             }
 
             decimal? allowance = allowances.TryGetValue(user.Id, out var balance) ? balance.AllowanceHours : null;

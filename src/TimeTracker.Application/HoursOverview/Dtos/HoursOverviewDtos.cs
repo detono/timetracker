@@ -17,12 +17,14 @@ public record HoursPeriodDto(
 /// Not counted in the totals yet: a day still to come, or today while nothing is logged for it.
 /// </param>
 /// <param name="HasLeave">Leave is logged or booked on this day.</param>
+/// <param name="HolidayName">The public holiday or company day off on this day, if any.</param>
 public record HoursDayDto(
     DateOnly Date,
     decimal WorkedHours,
     decimal ExpectedHours,
     bool IsPending,
-    bool HasLeave);
+    bool HasLeave,
+    string? HolidayName = null);
 
 /// <summary>
 /// The caller's own overview: this week, month and year so far, plus the week day by day.

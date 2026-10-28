@@ -91,7 +91,9 @@ function DayCell({ day, language }: { day: HoursDay; language: string }) {
   const difference = day.workedHours - day.expectedHours;
 
   let status: JSX.Element;
-  if (day.isPending) {
+  if (day.holidayName && day.workedHours === 0) {
+    status = <span className="hours-day__note" title={day.holidayName}>{day.holidayName}</span>;
+  } else if (day.isPending) {
     status = day.hasLeave
       ? <span className="hours-day__note hours-day__note--leave">{t('hoursOverview.leaveBooked')}</span>
       : <span className="hours-day__note">{t('hoursOverview.notYet')}</span>;

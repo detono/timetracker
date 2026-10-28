@@ -218,6 +218,8 @@ export interface HoursDay {
   /** Not counted in the totals yet: a day still to come, or today while nothing is logged for it. */
   isPending: boolean;
   hasLeave: boolean;
+  /** The public holiday or company day off on this day, if any. */
+  holidayName: string | null;
 }
 
 export interface MyHoursOverview {
@@ -240,4 +242,26 @@ export interface TeamMemberHours {
   week: HoursPeriod;
   month: HoursPeriod;
   year: HoursPeriod;
+}
+
+export interface Company {
+  name: string;
+  street: string | null;
+  postalCode: string | null;
+  city: string | null;
+  /** ISO 3166-1 alpha-2, e.g. "BE". Decides which public holidays apply. */
+  countryCode: string | null;
+  /** ISO 3166-2, e.g. "DE-BY", for countries where holidays differ per region. */
+  region: string | null;
+}
+
+export interface PublicHoliday {
+  id: string;
+  date: string; // yyyy-MM-dd
+  name: string;
+}
+
+export interface PublicHolidayImport {
+  added: number;
+  holidays: PublicHoliday[];
 }

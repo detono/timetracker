@@ -23,15 +23,16 @@ public class GetMyHoursOverviewQueryHandler(
         var person = (await loader.LoadAsync(new[] { user }, asOf, cancellationToken))[0];
         var countFrom = CountFrom(user);
         var leaveTypes = await loader.LeaveHourTypeIdsAsync(cancellationToken);
+        var holidays = await loader.HolidaysAsync(asOf, cancellationToken);
 
         return Result<MyHoursOverviewDto>.Success(new MyHoursOverviewDto(
             asOf,
             user.TracksHours,
             person.Source,
             Math.Round(person.Schedule.WeeklyDuration.TotalHours, 2),
-            Week(asOf, countFrom, person.Schedule, person.Entries),
-            Month(asOf, countFrom, person.Schedule, person.Entries),
-            Year(asOf, countFrom, person.Schedule, person.Entries),
-            Days(asOf, countFrom, person.Schedule, person.Entries, leaveTypes)));
+            Week(asOf, countFrom, person.Schedule, person.Entries, holidays),
+            Month(asOf, countFrom, person.Schedule, person.Entries, holidays),
+            Year(asOf, countFrom, person.Schedule, person.Entries, holidays),
+            Days(asOf, countFrom, person.Schedule, person.Entries, leaveTypes, holidays)));
     }
 }

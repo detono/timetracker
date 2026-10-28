@@ -14,6 +14,7 @@ public interface IUnitOfWork
     IWorkScheduleRepository WorkSchedules { get; }
     ILeaveRequestRepository LeaveRequests { get; }
     ILeaveBalanceRepository LeaveBalances { get; }
+    IPublicHolidayRepository PublicHolidays { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

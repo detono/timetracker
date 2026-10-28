@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using TimeTracker.Application.Common.Exceptions;
+using TimeTracker.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using TimeTracker.Infrastructure.Persistence;
 
@@ -43,6 +46,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program> {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseInMemoryDatabase(_dbName)
             );
+
+            // Never call the real public holiday service from tests.
+            services.RemoveAll<IPublicHolidayProvider>();
+            services.AddSingleton<IPublicHolidayProvider, FakePublicHolidayProvider>();
             
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
@@ -54,5 +61,21 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program> {
             
             DbSeeder.SeedAsync(context, passwordHasher, config, logger).GetAwaiter().GetResult();
         });
+    }
+}
+
+/// <summary>Belgian-style holidays for any year, plus one regional German holiday; "XX" is unknown.</summary>
+public class FakePublicHolidayProvider : IPublicHolidayProvider {
+    public Task<IReadOnlyList<ExternalPublicHoliday>> GetAsync(string countryCode, int year, CancellationToken cancellationToken = default) {
+        if (countryCode == "XX") {
+            throw new PublicHolidayLookupException("No public holidays are known for country XX. Add them by hand.");
+        }
+
+        IReadOnlyList<ExternalPublicHoliday> holidays = new[] {
+            new ExternalPublicHoliday(new DateOnly(year, 11, 1), "Allerheiligen", null),
+            new ExternalPublicHoliday(new DateOnly(year, 11, 11), "Wapenstilstand", null),
+            new ExternalPublicHoliday(new DateOnly(year, 1, 6), "Heilige Drei Könige", new[] { "DE-BY" })
+        };
+        return Task.FromResult(holidays);
     }
 }

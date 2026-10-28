@@ -12,7 +12,8 @@ public class UnitOfWork(
     ITenantMailSettingsRepository mailSettings,
     IWorkScheduleRepository workSchedules,
     ILeaveRequestRepository leaveRequests,
-    ILeaveBalanceRepository leaveBalances
+    ILeaveBalanceRepository leaveBalances,
+    IPublicHolidayRepository publicHolidays
 ) : IUnitOfWork {
     public IUserRepository Users { get; } = users;
     public ITimeEntryRepository TimeEntries { get; } = timeEntries;
@@ -23,6 +24,7 @@ public class UnitOfWork(
     public IWorkScheduleRepository WorkSchedules { get; } = workSchedules;
     public ILeaveRequestRepository LeaveRequests { get; } = leaveRequests;
     public ILeaveBalanceRepository LeaveBalances { get; } = leaveBalances;
+    public IPublicHolidayRepository PublicHolidays { get; } = publicHolidays;
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         context.SaveChangesAsync(cancellationToken);

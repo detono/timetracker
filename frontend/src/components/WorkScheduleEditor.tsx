@@ -18,7 +18,8 @@ interface Props {
   /** The person to edit, or null for the company schedule. */
   userId: string | null;
   userName?: string;
-  onClose: () => void;
+  /** Shows a Close button when given. */
+  onClose?: () => void;
 }
 
 function toRows(schedule: WorkSchedule): DayRow[] {
@@ -147,9 +148,11 @@ export function WorkScheduleEditor({ userId, userName, onClose }: Props) {
                 {t('workSchedule.useCompany')}
               </button>
             )}
-            <button type="button" className="btn btn--ghost" onClick={onClose}>
-              {t('workSchedule.close')}
-            </button>
+            {onClose && (
+              <button type="button" className="btn btn--ghost" onClick={onClose}>
+                {t('workSchedule.close')}
+              </button>
+            )}
           </div>
         </form>
       )}

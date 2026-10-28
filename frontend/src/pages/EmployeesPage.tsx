@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import {
   activateUser,
   assignSupervisor,
@@ -34,8 +35,7 @@ export function EmployeesPage() {
   const [resettingUser, setResettingUser] = useState<UserAccount | null>(null);
   const [resetPasswordValue, setResetPasswordValue] = useState("");
   const [resetSubmitting, setResetSubmitting] = useState(false);
-  // The schedule being edited: a person, "company", or nothing.
-  const [scheduleUser, setScheduleUser] = useState<UserAccount | "company" | null>(null);
+  const [scheduleUser, setScheduleUser] = useState<UserAccount | null>(null);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -141,9 +141,9 @@ export function EmployeesPage() {
           <p className="page__subtitle">{t('employees.subtitle')}</p>
         </div>
         <div className="page__header-actions">
-          <button className="btn btn--ghost" onClick={() => setScheduleUser("company")}>
+          <Link to="/company" className="btn btn--ghost">
             {t('workSchedule.companyButton')}
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -241,9 +241,9 @@ export function EmployeesPage() {
 
       {scheduleUser && (
         <WorkScheduleEditor
-          key={scheduleUser === "company" ? "company" : scheduleUser.id}
-          userId={scheduleUser === "company" ? null : scheduleUser.id}
-          userName={scheduleUser === "company" ? undefined : `${scheduleUser.firstName} ${scheduleUser.lastName}`}
+          key={scheduleUser.id}
+          userId={scheduleUser.id}
+          userName={`${scheduleUser.firstName} ${scheduleUser.lastName}`}
           onClose={() => setScheduleUser(null)}
         />
       )}

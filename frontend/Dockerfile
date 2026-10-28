@@ -29,8 +29,10 @@ RUN chmod +x /docker-entrypoint.sh
 
 EXPOSE 80
 
+# 127.0.0.1, not localhost: in this image localhost resolves to IPv6 first, and nginx only
+# listens on IPv4, so the check failed even though the site was up.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:80 || exit 1
+  CMD wget -qO- http://127.0.0.1:80 >/dev/null || exit 1
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

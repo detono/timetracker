@@ -89,12 +89,12 @@ can no longer log in.
 ### Leave
 
 - **Work schedules.** Working hours are set per weekday (start, end and break). An employer
-  sets the company's usual hours under *Manage employees → Company work schedule*;
+  sets the company's usual hours on the *Company* page;
   everyone follows those unless they get their own schedule (*Manage employees →
   Schedule*), e.g. a part-timer. *Use company schedule* puts someone back on the
   company's hours. Without a company schedule, Monday to Friday, 9:00–17:00 with a
   30-minute break applies. Changing a schedule doesn't change leave that's already booked.
-- **Requests.** Anyone can request leave for a date range under an hour type marked *can be
+- **Requests.** Employees request leave for a date range under an hour type marked *can be
   requested as leave*. The form shows how many working days and hours that is, and what's
   left of their balance.
 - **Approval.** The requester's supervisor, or any employer, approves or rejects it. Approving
@@ -109,6 +109,18 @@ can no longer log in.
   supervisor) gets an email about new requests, and the requester gets one when it's
   decided. Emails are in English for now.
 
+### Company settings
+
+Employers manage company-wide settings on the *Company* page: name and address, the usual
+working hours, public holidays and outgoing email.
+
+**Public holidays.** The company's country (and, where holidays differ per region, a region
+like `DE-BY`) decides which official holidays apply. *Load official holidays* fetches them
+for a year from [Nager.Date](https://date.nager.at), a free service with no account or key;
+set `PublicHolidays__BaseUrl` to use another instance. The holidays are stored with the
+company, so an employer can remove days the company works anyway or add its own days off.
+Nobody is expected to work on them, and leave over them doesn't use up the balance.
+
 ### Worked vs. expected
 
 *My hours* shows this week, this month and the year so far against your work schedule,
@@ -120,6 +132,7 @@ and schedules every time, so there's no balance to manage or correct.
   don't look behind every morning before you've logged the day.
 - Every logged hour counts as worked, including leave and sick days.
 - Expected hours start on the day someone's account was created.
+- Public holidays and company days off aren't expected work.
 - The current schedule applies to the whole period; earlier schedule changes aren't remembered.
 - People who don't log hours (e.g. an owner) can be switched off under *Manage employees →
   Tracks hours*; they're then left out of the overview.

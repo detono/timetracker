@@ -23,6 +23,11 @@ public class TenantRepository(ApplicationDbContext context) : ITenantRepository 
         return context.Tenants.AnyAsync(t => t.Name.ToLower() == normalized, cancellationToken);
     }
 
+    public Task<bool> NameUsedByOtherAsync(string name, Guid tenantId, CancellationToken cancellationToken = default) {
+        var normalized = name.Trim().ToLower();
+        return context.Tenants.AnyAsync(t => t.Name.ToLower() == normalized && t.Id != tenantId, cancellationToken);
+    }
+
     public async Task AddAsync(Tenant tenant, CancellationToken cancellationToken = default) =>
         await context.Tenants.AddAsync(tenant, cancellationToken);
 

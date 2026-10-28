@@ -161,13 +161,13 @@ export function LeavePage() {
                 {ownBalance.pendingHours > 0 && ` · ${t('leave.pendingHours', { hours: hoursToHm(ownBalance.pendingHours) })}`}
               </>
             ) : (
-              t('leave.subtitle')
+              isEmployer ? t('leave.subtitleEmployer') : t('leave.subtitle')
             )}
           </p>
         </div>
       </div>
 
-      <RequestLeaveForm leaveTypes={leaveTypes} onCreated={afterChange} />
+      {!isEmployer && <RequestLeaveForm leaveTypes={leaveTypes} onCreated={afterChange} />}
 
       {error && <p className="form__error">{error}</p>}
 
@@ -265,6 +265,7 @@ export function LeavePage() {
             </div>
           )}
 
+          {!isEmployer && (
           <div className="panel">
             <h2>{t('leave.myRequestsTitle')}</h2>
             {mine.length === 0 ? (
@@ -317,6 +318,7 @@ export function LeavePage() {
               </table>
             )}
           </div>
+          )}
 
           {(isEmployer || balances.length > 1) && (
             <BalancesPanel

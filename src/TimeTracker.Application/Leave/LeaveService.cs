@@ -66,15 +66,21 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
         Math.Round((decimal)days.Sum(d => d.Hours.Duration.TotalHours), 2);
 
     /// <summary>The scheduled hours of <paramref name="request"/> that fall in <paramref name="year"/>.</summary>
-    public static decimal HoursInYear(LeaveRequest request, WorkSchedule schedule, int year) {
+    public static decimal HoursInYear(
+        LeaveRequest request, WorkSchedule schedule, int year, IReadOnlySet<DateOnly>? holidays = null
+    ) {
         if (request.StartDate.Year == year && request.EndDate.Year == year) {
             return request.Hours;
         }
 
         var start = Max(request.StartDate, new DateOnly(year, 1, 1));
         var end = Min(request.EndDate, new DateOnly(year, 12, 31));
-        return start > end ? 0 : HoursOf(schedule.WorkingDaysBetween(start, end));
+        return start > end ? 0 : HoursOf(schedule.WorkingDaysBetween(start, end, holidays));
     }
+
+    /// <summary>The company's public holidays and days off between the two dates, inclusive.</summary>
+    public async Task<HashSet<DateOnly>> GetHolidaysAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken) =>
+        (await unitOfWork.PublicHolidays.GetBetweenAsync(from, to, cancellationToken)).Select(h => h.Date).ToHashSet();
 
     /// <summary>Balance of one person, from their logged leave hours and pending requests.</summary>
     public async Task<LeaveBalanceSnapshot> GetBalanceAsync(
@@ -89,9 +95,10 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
 
         var pendingRequests = await unitOfWork.LeaveRequests.GetAsync(
             new[] { userId }, LeaveRequestStatus.Pending, cancellationToken);
+        var holidays = await GetHolidaysAsync(new DateOnly(year, 1, 1), new DateOnly(year, 12, 31), cancellationToken);
         var pending = pendingRequests
             .Where(r => deducting.Contains(r.HourTypeId))
-            .Sum(r => HoursInYear(r, schedule, year));
+            .Sum(r => HoursInYear(r, schedule, year, holidays));
 
         return new LeaveBalanceSnapshot(year, balance?.AllowanceHours, used, pending);
     }
@@ -109,10 +116,11 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
 
         LeaveBalanceSnapshot? first = null;
         var exceeds = false;
+        var holidays = await GetHolidaysAsync(request.StartDate, request.EndDate, cancellationToken);
         for (var year = request.StartDate.Year; year <= request.EndDate.Year; year++) {
             var snapshot = await GetBalanceAsync(request.UserId, year, schedule, cancellationToken);
             first ??= snapshot;
-            if (snapshot.RemainingHours is { } remaining && HoursInYear(request, schedule, year) > remaining) {
+            if (snapshot.RemainingHours is { } remaining && HoursInYear(request, schedule, year, holidays) > remaining) {
                 exceeds = true;
             }
         }

@@ -100,4 +100,18 @@ public class HoursOverviewCalculatorTests {
         // Future leave shows on the day but isn't in the week's total yet.
         Week(Wednesday, LongAgo, Firm, entries).WorkedHours.Should().Be(8);
     }
+
+    [Fact]
+    public void Holidays_AreNotExpectedWork() {
+        var holidays = new Dictionary<DateOnly, string> { [Monday.AddDays(1)] = "Company day off" };
+        var entries = new[] { Entry(Monday, 8, 17, 60), Entry(Wednesday, 8, 17, 60) };
+
+        var week = Week(Wednesday, LongAgo, Firm, entries, holidays);
+        week.ExpectedHours.Should().Be(16, "Tuesday is a holiday");
+        week.DifferenceHours.Should().Be(0);
+
+        var tuesday = Days(Wednesday, LongAgo, Firm, entries, new HashSet<Guid>(), holidays)[1];
+        tuesday.ExpectedHours.Should().Be(0);
+        tuesday.HolidayName.Should().Be("Company day off");
+    }
 }

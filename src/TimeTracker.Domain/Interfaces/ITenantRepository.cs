@@ -12,6 +12,9 @@ public interface ITenantRepository
     Task<IReadOnlyDictionary<Guid, int>> GetUserCountsAsync(CancellationToken cancellationToken = default);
 
     Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken = default);
+
+    /// <summary>Whether another tenant than <paramref name="tenantId"/> already uses this name.</summary>
+    Task<bool> NameUsedByOtherAsync(string name, Guid tenantId, CancellationToken cancellationToken = default);
     Task AddAsync(Tenant tenant, CancellationToken cancellationToken = default);
     void Update(Tenant tenant);
 }

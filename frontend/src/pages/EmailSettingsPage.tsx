@@ -7,7 +7,8 @@ import { defaultSmtpPort, formFromSettings, MailSettingsForm, toUpdatePayload } 
 
 const checkboxFieldStyle = { flexDirection: "row", alignItems: "center", gap: "8px", cursor: "pointer" } as const;
 
-export function EmailSettingsPage() {
+/** The company's email settings. `embedded` renders just the panel, for the Company page. */
+export function EmailSettingsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { t } = useTranslation();
   const [saved, setSaved] = useState<MailSettings | null>(null);
   const [form, setForm] = useState<MailSettingsForm | null>(null);
@@ -88,16 +89,14 @@ export function EmailSettingsPage() {
   const isSmtp = form.provider === "Smtp";
   const secretPlaceholder = (isSet: boolean | undefined) => (isSet ? t("emailSettings.secretKept") : "");
 
-  return (
-    <div className="page">
-      <div className="page__header">
-        <div>
-          <h1>{t("emailSettings.title")}</h1>
-          <p className="page__subtitle">{t("emailSettings.subtitle")}</p>
-        </div>
-      </div>
-
-      <form className="panel form" style={{ maxWidth: 640 }} onSubmit={handleSave}>
+  const content = (
+      <form className="panel form" style={embedded ? undefined : { maxWidth: 640 }} onSubmit={handleSave}>
+        {embedded && (
+          <>
+            <h2>{t("emailSettings.title")}</h2>
+            <p className="form__hint">{t("emailSettings.subtitle")}</p>
+          </>
+        )}
         <label className="form__field" style={checkboxFieldStyle}>
           <input
             type="checkbox"
@@ -251,6 +250,19 @@ export function EmailSettingsPage() {
           </button>
         </div>
       </form>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <div className="page">
+      <div className="page__header">
+        <div>
+          <h1>{t("emailSettings.title")}</h1>
+          <p className="page__subtitle">{t("emailSettings.subtitle")}</p>
+        </div>
+      </div>
+      {content}
     </div>
   );
 }

@@ -63,4 +63,15 @@ public class WorkScheduleTests {
 
         act.Should().Throw<DomainException>();
     }
+
+    [Fact]
+    public void WorkingDaysBetween_SkipsHolidays() {
+        var schedule = WorkSchedule.BuiltInDefault();
+        var armistice = new DateOnly(2026, 11, 11); // a Wednesday
+
+        var days = schedule.WorkingDaysBetween(new DateOnly(2026, 11, 9), new DateOnly(2026, 11, 13), new HashSet<DateOnly> { armistice });
+
+        days.Should().HaveCount(4);
+        days.Select(d => d.Date).Should().NotContain(armistice);
+    }
 }

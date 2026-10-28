@@ -39,6 +39,12 @@ public class HoursOverviewLoader(IUnitOfWork unitOfWork) {
         }).ToList();
     }
 
+    /// <summary>Holidays from 1 January of the reference year to the Sunday of the reference week, by date.</summary>
+    public async Task<IReadOnlyDictionary<DateOnly, string>> HolidaysAsync(DateOnly asOf, CancellationToken cancellationToken) =>
+        (await unitOfWork.PublicHolidays.GetBetweenAsync(
+            new DateOnly(asOf.Year, 1, 1), HoursOverviewCalculator.StartOfWeek(asOf).AddDays(6), cancellationToken))
+        .ToDictionary(h => h.Date, h => h.Name);
+
     public async Task<HashSet<Guid>> LeaveHourTypeIdsAsync(CancellationToken cancellationToken) =>
         (await unitOfWork.HourTypes.GetAllAsync(includeInactive: true, cancellationToken))
         .Where(t => t.IsLeave)

@@ -4,6 +4,7 @@ using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
 using TimeTracker.Domain.Entities;
+using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.LeaveRequests.Queries.PreviewLeaveRequest;
@@ -14,6 +15,11 @@ public class PreviewLeaveRequestQueryHandler(
     LeaveService leave
 ) : IRequestHandler<PreviewLeaveRequestQuery, Result<LeavePreviewDto>> {
     public async Task<Result<LeavePreviewDto>> Handle(PreviewLeaveRequestQuery request, CancellationToken cancellationToken) {
+        if (currentUser.Role == UserRole.Employer) {
+            return Result<LeavePreviewDto>.Failure(
+                "Employers don't request leave; log it directly as hours instead.", ResultErrorType.Forbidden);
+        }
+
         if (request.EndDate < request.StartDate ||
             request.EndDate.DayNumber - request.StartDate.DayNumber >= LeaveRequest.MaxRangeDays) {
             return Result<LeavePreviewDto>.Failure("Choose an end date on or after the start date, at most a year later.");
@@ -25,7 +31,8 @@ public class PreviewLeaveRequestQueryHandler(
         }
 
         var schedule = await leave.GetScheduleAsync(currentUser.UserId, cancellationToken);
-        var days = schedule.WorkingDaysBetween(request.StartDate, request.EndDate);
+        var holidays = await leave.GetHolidaysAsync(request.StartDate, request.EndDate, cancellationToken);
+        var days = schedule.WorkingDaysBetween(request.StartDate, request.EndDate, holidays);
         var hours = LeaveService.HoursOf(days);
         var overlaps = (await unitOfWork.LeaveRequests.GetActiveOverlappingAsync(
             currentUser.UserId, request.StartDate, request.EndDate, cancellationToken)).Count > 0;

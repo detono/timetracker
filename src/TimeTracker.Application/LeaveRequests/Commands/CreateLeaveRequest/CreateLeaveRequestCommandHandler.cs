@@ -4,6 +4,7 @@ using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
 using TimeTracker.Domain.Entities;
+using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.LeaveRequests.Commands.CreateLeaveRequest;
@@ -16,6 +17,12 @@ public class CreateLeaveRequestCommandHandler(
     LeaveNotifications notifications
 ) : IRequestHandler<CreateLeaveRequestCommand, Result<LeaveRequestDto>> {
     public async Task<Result<LeaveRequestDto>> Handle(CreateLeaveRequestCommand request, CancellationToken cancellationToken) {
+        // Employers log their own time off directly as hours; there's nobody to approve it.
+        if (currentUser.Role == UserRole.Employer) {
+            return Result<LeaveRequestDto>.Failure(
+                "Employers don't request leave; log it directly as hours instead.", ResultErrorType.Forbidden);
+        }
+
         var requester = await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken);
         if (requester is null) {
             return Result<LeaveRequestDto>.Failure("Your account was not found.", ResultErrorType.NotFound);
@@ -34,7 +41,8 @@ public class CreateLeaveRequestCommandHandler(
         }
 
         var schedule = await leave.GetScheduleAsync(requester.Id, cancellationToken);
-        var hours = LeaveService.HoursOf(schedule.WorkingDaysBetween(request.StartDate, request.EndDate));
+        var holidays = await leave.GetHolidaysAsync(request.StartDate, request.EndDate, cancellationToken);
+        var hours = LeaveService.HoursOf(schedule.WorkingDaysBetween(request.StartDate, request.EndDate, holidays));
         if (hours == 0) {
             return Result<LeaveRequestDto>.Failure("You have no working days in this period.");
         }

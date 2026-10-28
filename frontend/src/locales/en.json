@@ -209,7 +209,8 @@
     "tenants": "Companies",
     "platformAdmins": "Platform admins",
     "email": "Email",
-    "leave": "Leave"
+    "leave": "Leave",
+    "company": "Company"
   },
   "time": {
     "logHours": "Log Hours",
@@ -305,7 +306,7 @@
     "weeklyTotal": "Per week:",
     "saved": "Work schedule saved.",
     "close": "Close",
-    "companyButton": "Company work schedule",
+    "companyButton": "Company work schedule →",
     "companyTitle": "Company work schedule",
     "companyHint": "The usual working hours in your company. Everyone without their own schedule follows these.",
     "companyNotSet": "Not set yet: Monday to Friday, 9:00 to 17:00 with a 30-minute break is used.",
@@ -379,7 +380,8 @@
       "used": "Used",
       "pending": "Pending",
       "remaining": "Remaining"
-    }
+    },
+    "subtitleEmployer": "Review your team's leave requests and manage leave balances."
   },
   "hoursOverview": {
     "title": "Worked vs. expected",
@@ -397,5 +399,32 @@
     "perWeek": "{{hours}}/week",
     "perWeekOwn": "{{hours}}/week, own schedule",
     "workedOf": "{{worked}} worked of {{expected}}"
+  },
+  "company": {
+    "title": "Company",
+    "subtitle": "Settings for the whole company: details, usual working hours, public holidays and email.",
+    "detailsTitle": "Company details",
+    "name": "Company name",
+    "street": "Street and number",
+    "postalCode": "Postal code",
+    "city": "City",
+    "country": "Country",
+    "noCountry": "— choose a country —",
+    "region": "Region (optional)",
+    "regionHint": "The country decides which public holidays apply. Only fill in a region where holidays differ per region, e.g. DE-BY for Bavaria.",
+    "saved": "Company details saved.",
+    "holidaysTitle": "Public holidays {{year}}",
+    "holidaysHint": "Nobody is expected to work on these days, and leave over them doesn't use up the balance. Remove days your company works anyway, or add your own days off.",
+    "importHolidays": "Load official holidays for {{country}} {{year}}",
+    "setCountryFirst": "Set the company's country to load official holidays",
+    "holidaysImported_one": "Added {{count}} holiday.",
+    "holidaysImported_other": "Added {{count}} holidays.",
+    "holidaysUpToDate": "All official holidays were already in the list.",
+    "noHolidays": "No holidays for this year yet.",
+    "holidayDate": "Date",
+    "holidayName": "Name",
+    "holidayNamePlaceholder": "Company day off",
+    "addHoliday": "Add day",
+    "confirmDeleteHoliday": "Remove {{name}}? People will be expected to work that day."
   }
 }

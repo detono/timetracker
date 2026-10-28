@@ -213,7 +213,8 @@
     "tenants": "Entreprises",
     "platformAdmins": "Administrateurs",
     "email": "E-mail",
-    "leave": "Congés"
+    "leave": "Congés",
+    "company": "Entreprise"
   },
   "time": {
     "logHours": "Enregistrer des Heures",
@@ -305,7 +306,7 @@
     "weeklyTotal": "Par semaine :",
     "saved": "Horaire enregistré.",
     "close": "Fermer",
-    "companyButton": "Horaire de l'entreprise",
+    "companyButton": "Horaire de l'entreprise →",
     "companyTitle": "Horaire de travail de l'entreprise",
     "companyHint": "Les heures de travail habituelles de votre entreprise. Toute personne sans horaire propre suit celui-ci.",
     "companyNotSet": "Pas encore défini : du lundi au vendredi, de 9:00 à 17:00 avec 30 minutes de pause, est utilisé.",
@@ -379,7 +380,8 @@
       "used": "Pris",
       "pending": "En attente",
       "remaining": "Restant"
-    }
+    },
+    "subtitleEmployer": "Traitez les demandes de congé de votre équipe et gérez les soldes de congés."
   },
   "hoursOverview": {
     "title": "Prestées vs. prévues",
@@ -397,5 +399,32 @@
     "perWeek": "{{hours}}/semaine",
     "perWeekOwn": "{{hours}}/semaine, horaire propre",
     "workedOf": "{{worked}} prestées sur {{expected}}"
+  },
+  "company": {
+    "title": "Entreprise",
+    "subtitle": "Paramètres de toute l'entreprise : coordonnées, heures de travail habituelles, jours fériés et e-mail.",
+    "detailsTitle": "Coordonnées de l'entreprise",
+    "name": "Nom de l'entreprise",
+    "street": "Rue et numéro",
+    "postalCode": "Code postal",
+    "city": "Localité",
+    "country": "Pays",
+    "noCountry": "— choisissez un pays —",
+    "region": "Région (facultatif)",
+    "regionHint": "Le pays détermine les jours fériés applicables. Ne remplissez une région que si les jours fériés varient selon la région, p. ex. DE-BY pour la Bavière.",
+    "saved": "Coordonnées enregistrées.",
+    "holidaysTitle": "Jours fériés {{year}}",
+    "holidaysHint": "Personne n'est censé travailler ces jours-là, et un congé qui les couvre n'est pas déduit du solde. Supprimez les jours où votre entreprise travaille quand même, ou ajoutez vos propres jours de fermeture.",
+    "importHolidays": "Charger les jours fériés officiels {{country}} {{year}}",
+    "setCountryFirst": "Indiquez le pays de l'entreprise pour charger les jours fériés officiels",
+    "holidaysImported_one": "{{count}} jour férié ajouté.",
+    "holidaysImported_other": "{{count}} jours fériés ajoutés.",
+    "holidaysUpToDate": "Tous les jours fériés officiels figuraient déjà dans la liste.",
+    "noHolidays": "Pas encore de jours fériés pour cette année.",
+    "holidayDate": "Date",
+    "holidayName": "Nom",
+    "holidayNamePlaceholder": "Jour de fermeture",
+    "addHoliday": "Ajouter le jour",
+    "confirmDeleteHoliday": "Supprimer {{name}} ? Tout le monde sera alors censé travailler ce jour-là."
   }
 }
