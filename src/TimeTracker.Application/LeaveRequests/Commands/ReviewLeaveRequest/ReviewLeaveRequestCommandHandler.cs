@@ -3,6 +3,7 @@ using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
@@ -14,6 +15,7 @@ public class ReviewLeaveRequestCommandHandler(
     ICurrentUserService currentUser,
     IDateTimeProvider clock,
     LeaveService leave,
+    MonthLocks monthLocks,
     LeaveRequestMapper mapper,
     LeaveNotifications notifications
 ) : IRequestHandler<ReviewLeaveRequestCommand, Result<LeaveRequestDto>> {
@@ -43,6 +45,11 @@ public class ReviewLeaveRequestCommandHandler(
         }
 
         if (request.Decision == LeaveDecision.Approve) {
+            // Approving books hours; rejecting doesn't touch any, so it's always allowed.
+            if (await monthLocks.FindLockedAsync(leaveRequest.StartDate, leaveRequest.EndDate, cancellationToken) is { } locked) {
+                return Result<LeaveRequestDto>.Failure(locked, ResultErrorType.Conflict);
+            }
+
             // Book what the schedule says now: it may have changed since the request was made.
             var schedule = await leave.GetScheduleAsync(requester.Id, cancellationToken);
             var holidays = await leave.GetHolidaysAsync(leaveRequest.StartDate, leaveRequest.EndDate, cancellationToken);

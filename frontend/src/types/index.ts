@@ -197,6 +197,8 @@ export interface LeaveRequest {
   /** For pending requests that use up the balance: what the requester has left before it's booked. */
   remainingBalanceHours: number | null;
   exceedsBalance: boolean;
+  /** Some days are in a locked month: it can't be approved or revoked until it's unlocked. */
+  inLockedMonth: boolean;
 }
 
 export interface LeavePreview {
@@ -282,4 +284,13 @@ export interface PublicHoliday {
 export interface PublicHolidayImport {
   added: number;
   holidays: PublicHoliday[];
+}
+
+/** A month whose hours are final; nobody can change them until an employer unlocks it. */
+export interface LockedMonth {
+  year: number;
+  /** 1–12. */
+  month: number;
+  lockedByName: string;
+  lockedAtUtc: string;
 }

@@ -1,6 +1,8 @@
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { HourType, TimeEntry, Project } from "../types";
+import { extractErrorMessage } from "../api/client";
+import { isInLockedMonth } from "../utils/lockedMonths";
 import { formatCoordinates, GeolocationError, getCurrentPosition, reverseGeocode } from "../utils/geolocation";
 
 export interface TimeEntryFormValues {
@@ -22,9 +24,11 @@ interface Props {
   projects: Project[]; // Added this
   onSubmit: (values: TimeEntryFormValues) => Promise<void>;
   onCancel?: () => void;
+  /** Month keys ("2026-09") that are locked: hours can't be logged there. */
+  lockedMonths?: Set<string>;
 }
 
-export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel }: Props) {
+export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel, lockedMonths }: Props) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language.split('-')[0];
 
@@ -62,6 +66,8 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
     }
   }
 
+  const dateLocked = !!lockedMonths && isInLockedMonth(lockedMonths, values.workDate);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -69,7 +75,7 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
     try {
       await onSubmit(values);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('timeEntryForm.errorSave'));
+      setError(extractErrorMessage(err) || t('timeEntryForm.errorSave'));
     } finally {
       setSubmitting(false);
     }
@@ -179,10 +185,11 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
       </label>
       {locationError && <p className="form__error">{locationError}</p>}
 
+      {dateLocked && <p className="form__error">{t('lockedMonths.dateLocked')}</p>}
       {error && <p className="form__error">{error}</p>}
 
       <div className="form__actions">
-        <button type="submit" className="btn btn--primary" disabled={submitting || !values.hourTypeId}>
+        <button type="submit" className="btn btn--primary" disabled={submitting || !values.hourTypeId || dateLocked}>
           {submitting ? t('common.saving') : initial ? t('timeEntryForm.saveChanges') : t('timeEntryForm.logHoursBtn')}
         </button>
         {onCancel && (

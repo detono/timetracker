@@ -132,6 +132,16 @@ can no longer log in.
   supervisor) gets an email about new requests, and the requester gets one when it's
   decided. Emails are in each recipient's language (see "Languages").
 
+### Closed months
+
+Once a month's hours are final (e.g. after payroll), an employer locks it under *Reports →
+Closed months*. Nobody can then add, change, move or delete hours in that month, employers
+included, and leave that touches it can't be requested, approved or revoked. A pending
+request can still be rejected or withdrawn, since that changes no hours. The app shows
+locked hours with a lock and explains why; the API enforces it too. To fix something, an
+employer unlocks the month, makes the change and locks it again. Months that haven't
+started can't be locked.
+
 ### Company settings
 
 Employers manage company-wide settings on the *Company* page: name and address, the usual

@@ -884,3 +884,21 @@ button {
   cursor: pointer;
   align-self: flex-start;
 }
+
+/* ---------- Locked months ---------- */
+
+.locked-label {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.locked-months__name {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.planboard__shift--locked {
+  cursor: default;
+  opacity: 0.75;
+}

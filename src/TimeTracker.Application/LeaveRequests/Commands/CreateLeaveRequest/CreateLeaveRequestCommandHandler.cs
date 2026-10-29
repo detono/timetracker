@@ -3,6 +3,7 @@ using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
@@ -13,6 +14,7 @@ public class CreateLeaveRequestCommandHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
     LeaveService leave,
+    MonthLocks monthLocks,
     LeaveRequestMapper mapper,
     LeaveNotifications notifications
 ) : IRequestHandler<CreateLeaveRequestCommand, Result<LeaveRequestDto>> {
@@ -31,6 +33,10 @@ public class CreateLeaveRequestCommandHandler(
         var hourType = await unitOfWork.HourTypes.GetByIdAsync(request.HourTypeId, cancellationToken);
         if (hourType is null || !hourType.IsActive || !hourType.IsLeave) {
             return Result<LeaveRequestDto>.Failure("This hour type can't be requested as leave.");
+        }
+
+        if (await monthLocks.FindLockedAsync(request.StartDate, request.EndDate, cancellationToken) is { } locked) {
+            return Result<LeaveRequestDto>.Failure(locked, ResultErrorType.Conflict);
         }
 
         var overlapping = await unitOfWork.LeaveRequests.GetActiveOverlappingAsync(

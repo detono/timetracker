@@ -470,5 +470,18 @@
     "noEmail": "Na een paar minuten nog geen e-mail? Kijk in je spammap, of vraag je werkgever om je wachtwoord te herstellen.",
     "sendNewCode": "Nieuwe code versturen",
     "backToSignIn": "Terug naar aanmelden"
+  },
+  "lockedMonths": {
+    "title": "Afgesloten maanden",
+    "hint": "Vergrendel een maand zodra de uren definitief zijn, bv. na de loonverwerking. Daarna kan niemand nog uren toevoegen, wijzigen of verwijderen, of verlof goedkeuren of intrekken in die maand, jij ook niet. Ontgrendel de maand om iets recht te zetten.",
+    "lock": "Vergrendelen",
+    "unlock": "Ontgrendelen",
+    "open": "Open",
+    "locked": "Vergrendeld",
+    "lockedBy": "Vergrendeld door {{name}} op {{date}}",
+    "confirmLock": "{{month}} vergrendelen? Niemand kan de uren nog wijzigen tot de maand ontgrendeld is.",
+    "lockedHint": "Deze maand is vergrendeld. Vraag je werkgever om ze te ontgrendelen als dit moet veranderen.",
+    "leaveLockedHint": "Een deel van dit verlof valt in een vergrendelde maand. Afwijzen kan, goedkeuren of intrekken pas als de maand ontgrendeld is.",
+    "dateLocked": "Deze maand is vergrendeld: er kunnen geen uren meer bij of veranderen. Vraag je werkgever als er iets recht moet worden gezet."
   }
 }

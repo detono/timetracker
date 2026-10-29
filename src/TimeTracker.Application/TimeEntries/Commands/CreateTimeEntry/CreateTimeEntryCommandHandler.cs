@@ -1,6 +1,7 @@
 using MediatR;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Application.TimeEntries.Dtos;
 using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Enums;
@@ -9,7 +10,8 @@ using TimeTracker.Domain.Interfaces;
 namespace TimeTracker.Application.TimeEntries.Commands.CreateTimeEntry;
 
 public class CreateTimeEntryCommandHandler(
-    IUnitOfWork unitOfWork, 
+    IUnitOfWork unitOfWork,
+    MonthLocks monthLocks,
     ICurrentUserService currentUser
 ) : IRequestHandler<CreateTimeEntryCommand, Result<TimeEntryDto>> {
     public async Task<Result<TimeEntryDto>>
@@ -21,6 +23,10 @@ public class CreateTimeEntryCommandHandler(
             return Result<TimeEntryDto>.Failure(
                 "You are not allowed to log time on behalf of another employee.",
                 ResultErrorType.Forbidden);
+        }
+
+        if (await monthLocks.FindLockedAsync(request.WorkDate, cancellationToken) is { } locked) {
+            return Result<TimeEntryDto>.Failure(locked, ResultErrorType.Conflict);
         }
 
         var targetUser = await unitOfWork.Users.GetByIdAsync(targetUserId, cancellationToken);

@@ -3,6 +3,7 @@ using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
 
@@ -13,6 +14,7 @@ public class CancelLeaveRequestCommandHandler(
     ICurrentUserService currentUser,
     IDateTimeProvider clock,
     LeaveService leave,
+    MonthLocks monthLocks,
     LeaveRequestMapper mapper,
     LeaveNotifications notifications
 ) : IRequestHandler<CancelLeaveRequestCommand, Result<LeaveRequestDto>> {
@@ -41,6 +43,11 @@ public class CancelLeaveRequestCommandHandler(
         }
 
         if (leaveRequest.Status == LeaveRequestStatus.Approved) {
+            // Revoking removes booked hours; withdrawing a pending request doesn't touch any.
+            if (await monthLocks.FindLockedAsync(leaveRequest.StartDate, leaveRequest.EndDate, cancellationToken) is { } locked) {
+                return Result<LeaveRequestDto>.Failure(locked, ResultErrorType.Conflict);
+            }
+
             foreach (var entry in await unitOfWork.TimeEntries.GetByLeaveRequestIdAsync(leaveRequest.Id, cancellationToken)) {
                 unitOfWork.TimeEntries.Remove(entry);
             }

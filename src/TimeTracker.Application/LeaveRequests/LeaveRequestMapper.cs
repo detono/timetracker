@@ -1,6 +1,7 @@
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
@@ -8,7 +9,9 @@ using TimeTracker.Domain.Interfaces;
 namespace TimeTracker.Application.LeaveRequests;
 
 /// <summary>Turns leave requests into DTOs, including what the caller may do and the balance warning.</summary>
-public class LeaveRequestMapper(IUnitOfWork unitOfWork, ICurrentUserService currentUser, LeaveService leave) {
+public class LeaveRequestMapper(
+    IUnitOfWork unitOfWork, ICurrentUserService currentUser, LeaveService leave, MonthLocks monthLocks
+) {
     public async Task<IReadOnlyList<LeaveRequestDto>> ToDtosAsync(
         IReadOnlyList<LeaveRequest> requests, CancellationToken cancellationToken
     ) {
@@ -19,10 +22,15 @@ public class LeaveRequestMapper(IUnitOfWork unitOfWork, ICurrentUserService curr
         var users = (await unitOfWork.Users.GetAllAsync(cancellationToken)).ToDictionary(u => u.Id);
         var hourTypes = (await unitOfWork.HourTypes.GetAllAsync(includeInactive: true, cancellationToken))
             .ToDictionary(t => t.Id);
+        var lockedMonths = await monthLocks.LockedIndexesAsync(
+            requests.Min(r => r.StartDate), requests.Max(r => r.EndDate), cancellationToken);
 
         var dtos = new List<LeaveRequestDto>(requests.Count);
         foreach (var request in requests) {
-            dtos.Add(await ToDtoAsync(request, users, hourTypes, cancellationToken));
+            var inLockedMonth = Enumerable
+                .Range(LockedMonth.Index(request.StartDate), LockedMonth.Index(request.EndDate) - LockedMonth.Index(request.StartDate) + 1)
+                .Any(lockedMonths.Contains);
+            dtos.Add(await ToDtoAsync(request, users, hourTypes, inLockedMonth, cancellationToken));
         }
 
         return dtos;
@@ -35,6 +43,7 @@ public class LeaveRequestMapper(IUnitOfWork unitOfWork, ICurrentUserService curr
         LeaveRequest request,
         IReadOnlyDictionary<Guid, User> users,
         IReadOnlyDictionary<Guid, HourType> hourTypes,
+        bool inLockedMonth,
         CancellationToken cancellationToken
     ) {
         users.TryGetValue(request.UserId, out var requester);
@@ -74,9 +83,11 @@ public class LeaveRequestMapper(IUnitOfWork unitOfWork, ICurrentUserService curr
             request.ReviewComment,
             request.CreatedAtUtc,
             canReview,
-            CanCancel(request, canReview),
+            // Approved leave in a locked month has booked hours that can't be removed.
+            CanCancel(request, canReview) && !(inLockedMonth && request.Status == LeaveRequestStatus.Approved),
             remaining,
-            exceeds);
+            exceeds,
+            inLockedMonth);
     }
 
     /// <summary>The requester can withdraw a pending request; a reviewer can also revoke an approved one.</summary>

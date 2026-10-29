@@ -1,6 +1,7 @@
 using MediatR;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Application.TimeEntries.Dtos;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
@@ -8,7 +9,8 @@ using TimeTracker.Domain.Interfaces;
 namespace TimeTracker.Application.TimeEntries.Commands.UpdateTimeEntry;
 
 public class UpdateTimeEntryCommandHandler(
-    IUnitOfWork unitOfWork, 
+    IUnitOfWork unitOfWork,
+    MonthLocks monthLocks,
     ICurrentUserService currentUser
 ) : IRequestHandler<UpdateTimeEntryCommand, Result<TimeEntryDto>> {
     public async Task<Result<TimeEntryDto>>
@@ -21,6 +23,15 @@ public class UpdateTimeEntryCommandHandler(
         if (entry.UserId != currentUser.UserId && currentUser.Role != UserRole.Employer) {
             return Result<TimeEntryDto>.Failure("You are not allowed to edit this time entry.",
                 ResultErrorType.Forbidden);
+        }
+
+        // Neither moving an entry out of a locked month nor into one.
+        if (await monthLocks.FindLockedAsync(entry.WorkDate, cancellationToken) is { } lockedFrom) {
+            return Result<TimeEntryDto>.Failure(lockedFrom, ResultErrorType.Conflict);
+        }
+
+        if (await monthLocks.FindLockedAsync(request.WorkDate, cancellationToken) is { } lockedTo) {
+            return Result<TimeEntryDto>.Failure(lockedTo, ResultErrorType.Conflict);
         }
 
         var hourType = await unitOfWork.HourTypes.GetByIdAsync(request.HourTypeId, cancellationToken);

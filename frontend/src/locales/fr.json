@@ -470,5 +470,18 @@
     "noEmail": "Pas d'e-mail après quelques minutes ? Vérifiez vos spams, ou demandez à votre employeur de réinitialiser votre mot de passe.",
     "sendNewCode": "Envoyer un nouveau code",
     "backToSignIn": "Retour à la connexion"
+  },
+  "lockedMonths": {
+    "title": "Mois clôturés",
+    "hint": "Verrouillez un mois dès que ses heures sont définitives, par ex. après la paie. Personne ne peut alors ajouter, modifier ou supprimer des heures, ni approuver ou révoquer un congé dans ce mois, vous compris. Déverrouillez-le pour corriger quelque chose.",
+    "lock": "Verrouiller",
+    "unlock": "Déverrouiller",
+    "open": "Ouvert",
+    "locked": "Verrouillé",
+    "lockedBy": "Verrouillé par {{name}} le {{date}}",
+    "confirmLock": "Verrouiller {{month}} ? Personne ne pourra modifier ses heures tant qu’il n’est pas déverrouillé.",
+    "lockedHint": "Ce mois est verrouillé. Demandez à votre employeur de le déverrouiller pour modifier ceci.",
+    "leaveLockedHint": "Une partie de ce congé tombe dans un mois verrouillé. Il peut être refusé, mais pas approuvé ni révoqué tant que le mois n'est pas déverrouillé.",
+    "dateLocked": "Ce mois est verrouillé : on ne peut plus y ajouter ni modifier d'heures. Demandez à votre employeur si quelque chose doit être corrigé."
   }
 }

@@ -470,5 +470,18 @@
     "noEmail": "No email after a few minutes? Check your spam folder, or ask your employer to reset your password.",
     "sendNewCode": "Send a new code",
     "backToSignIn": "Back to sign in"
+  },
+  "lockedMonths": {
+    "title": "Closed months",
+    "hint": "Lock a month once its hours are final, e.g. after payroll. Nobody can then add, change or delete hours in it, or approve or revoke leave in it, you included. Unlock it to fix something.",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "open": "Open",
+    "locked": "Locked",
+    "lockedBy": "Locked by {{name}} on {{date}}",
+    "confirmLock": "Lock {{month}}? Nobody can change its hours until it is unlocked.",
+    "lockedHint": "This month is locked. Ask your employer to unlock it to change this.",
+    "leaveLockedHint": "Part of this leave is in a locked month. It can be rejected, but not approved or revoked until the month is unlocked.",
+    "dateLocked": "This month is locked: hours in it can no longer be added or changed. Ask your employer if something needs fixing."
   }
 }

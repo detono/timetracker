@@ -9,9 +9,11 @@ interface Props {
   showEmployeeColumn?: boolean;
   onEdit?: (entry: TimeEntry) => void;
   onDelete?: (entry: TimeEntry) => void;
+  /** Entries in a locked month get no edit or delete buttons. */
+  isLocked?: (entry: TimeEntry) => boolean;
 }
 
-export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Props) {
+export function ListView({ entries, showEmployeeColumn, onEdit, onDelete, isLocked }: Props) {
   const { t } = useTranslation();
 
   if (entries.length === 0) {
@@ -69,6 +71,12 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Prop
             </td>
             {(onEdit || onDelete) && (
               <td className="list-view__actions">
+                {isLocked?.(entry) ? (
+                  <span className="locked-label" title={t('lockedMonths.lockedHint')}>
+                    🔒 {t('lockedMonths.locked')}
+                  </span>
+                ) : (
+                <>
                 {onEdit && (
                   <button className="btn btn--ghost btn--sm" onClick={() => onEdit(entry)}>
                     {t('common.edit')}
@@ -78,6 +86,8 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete }: Prop
                   <button className="btn btn--ghost btn--sm btn--danger" onClick={() => onDelete(entry)}>
                     {t('common.delete')}
                   </button>
+                )}
+                </>
                 )}
               </td>
             )}

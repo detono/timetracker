@@ -235,15 +235,22 @@ export function LeavePage() {
                           <StatusLabel request={r} />
                         </td>
                         <td className="list-view__actions">
+                          {r.inLockedMonth && (
+                            <span className="locked-label" title={t('lockedMonths.leaveLockedHint')}>
+                              🔒 {t('lockedMonths.locked')}
+                            </span>
+                          )}
                           {r.status === "Pending" && r.canReview && (
                             <>
-                              <button
-                                className="btn btn--primary btn--sm"
-                                onClick={() => handleApprove(r)}
-                                disabled={busyId === r.id}
-                              >
-                                {t('leave.approve')}
-                              </button>
+                              {!r.inLockedMonth && (
+                                <button
+                                  className="btn btn--primary btn--sm"
+                                  onClick={() => handleApprove(r)}
+                                  disabled={busyId === r.id}
+                                >
+                                  {t('leave.approve')}
+                                </button>
+                              )}
                               <button
                                 className="btn btn--ghost btn--sm btn--danger"
                                 onClick={() => handleReject(r)}

@@ -20,6 +20,7 @@ public static class DependencyInjection {
         services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddScoped<LeaveService>();
+        services.AddScoped<LockedMonths.MonthLocks>();
         services.AddScoped<LeaveNotifications>();
         services.AddScoped<LeaveRequests.LeaveRequestMapper>();
         services.AddScoped<HoursOverview.HoursOverviewLoader>();

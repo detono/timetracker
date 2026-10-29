@@ -7,6 +7,8 @@ interface Props {
   days: string[];
   entries: TimeEntry[];
   onEdit?: (entry: TimeEntry) => void;
+  /** Entries in a locked month can't be opened for editing. */
+  isLocked?: (entry: TimeEntry) => boolean;
 }
 
 /**
@@ -14,7 +16,7 @@ interface Props {
  * one column per day, with a card per logged shift. Falls back to a single "You" row
  * when only the current user's entries are supplied.
  */
-export function PlanBoard({ days, entries, onEdit }: Props) {
+export function PlanBoard({ days, entries, onEdit, isLocked }: Props) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language.split('-')[0];
 
@@ -43,16 +45,18 @@ export function PlanBoard({ days, entries, onEdit }: Props) {
               const cellEntries = entries.filter((e) => e.userFullName === name && e.workDate === day);
               return (
                 <div className="planboard__cell" key={`${name}-${day}`}>
-                  {cellEntries.map((entry) => (
+                  {cellEntries.map((entry) => {
+                    const locked = isLocked?.(entry) ?? false;
+                    return (
                     <button
                       key={entry.id}
-                      className="planboard__shift"
+                      className={locked ? "planboard__shift planboard__shift--locked" : "planboard__shift"}
                       style={{
                         borderLeftColor: entry.hourTypeColor,
                         backgroundColor: `${entry.hourTypeColor}22`
                       }}
-                      onClick={() => onEdit?.(entry)}
-                      title={entry.notes ?? undefined}
+                      onClick={() => !locked && onEdit?.(entry)}
+                      title={locked ? t('lockedMonths.lockedHint') : entry.notes ?? undefined}
                     >
                       <span className="planboard__shift-time">
                         {entry.startTime.slice(0, 5)}–{entry.endTime.slice(0, 5)}
@@ -61,9 +65,13 @@ export function PlanBoard({ days, entries, onEdit }: Props) {
                         {/* Resolve the dictionary right here in the component */}
                         {entry.localizedHourTypeNames?.[currentLang] || entry.localizedHourTypeNames?.['en'] || 'Unknown'}
                       </span>
-                      <span className="planboard__shift-duration">{hoursToHm(entry.durationHours)}</span>
+                      <span className="planboard__shift-duration">
+                        {locked && "🔒 "}
+                        {hoursToHm(entry.durationHours)}
+                      </span>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               );
             })}

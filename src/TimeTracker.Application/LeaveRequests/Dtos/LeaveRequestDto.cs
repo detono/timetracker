@@ -7,6 +7,10 @@ namespace TimeTracker.Application.LeaveRequests.Dtos;
 /// request's start year before it's booked. Null when no allowance is set or not relevant.
 /// </param>
 /// <param name="ExceedsBalance">Booking this pending request would take the requester below zero.</param>
+/// <param name="InLockedMonth">
+/// Some of its days are in a locked month: it can't be approved or revoked until that month is
+/// unlocked. A pending request can still be rejected or withdrawn.
+/// </param>
 public record LeaveRequestDto(
     Guid Id,
     Guid UserId,
@@ -28,7 +32,8 @@ public record LeaveRequestDto(
     bool CanReview,
     bool CanCancel,
     decimal? RemainingBalanceHours,
-    bool ExceedsBalance);
+    bool ExceedsBalance,
+    bool InLockedMonth = false);
 
 /// <summary>What a leave request for a date range would amount to, before submitting it.</summary>
 /// <param name="WorkingDays">Working days covered; a half day counts as 0.5.</param>

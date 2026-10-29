@@ -37,6 +37,7 @@ public static class DependencyInjection {
         services.AddScoped<ILeaveBalanceRepository, LeaveBalanceRepository>();
         services.AddScoped<IPublicHolidayRepository, PublicHolidayRepository>();
         services.AddScoped<IPasswordResetCodeRepository, PasswordResetCodeRepository>();
+        services.AddScoped<ILockedMonthRepository, LockedMonthRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();

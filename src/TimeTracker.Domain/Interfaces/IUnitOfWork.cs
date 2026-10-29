@@ -16,6 +16,7 @@ public interface IUnitOfWork
     ILeaveBalanceRepository LeaveBalances { get; }
     IPublicHolidayRepository PublicHolidays { get; }
     IPasswordResetCodeRepository PasswordResetCodes { get; }
+    ILockedMonthRepository LockedMonths { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -1,14 +1,19 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format, startOfMonth } from "date-fns";
 import { downloadHoursReportCsv, getHoursReport } from "../api/reportsApi";
 import { extractErrorMessage } from "../api/client";
+import { getLockedMonths, lockMonth, unlockMonth } from "../api/lockedMonthsApi";
+import { useAuth } from "../auth/AuthContext";
+import { monthKey } from "../utils/lockedMonths";
+import { formatDayLabel } from "../utils/dateRange";
 import { HourTypeBadge } from "../components/HourTypeBadge";
-import type { HoursReport, ReportGrouping } from "../types";
+import type { HoursReport, LockedMonth, ReportGrouping } from "../types";
 import { hoursToHm } from "../utils/dateRange";
 
 export function ReportsPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [from, setFrom] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [to, setTo] = useState(format(new Date(), "yyyy-MM-dd"));
   const [grouping, setGrouping] = useState<ReportGrouping>("Week");
@@ -124,6 +129,102 @@ export function ReportsPage() {
           </table>
         </>
       )}
+
+      {user?.role === "Employer" && <ClosedMonthsPanel />}
+    </div>
+  );
+}
+
+/** How many months back the panel offers, counting the current one. */
+const MONTHS_SHOWN = 12;
+
+/**
+ * Employers close a month once its hours are final (e.g. after payroll). Nobody can then
+ * change hours in it, employers included, until it's unlocked here.
+ */
+function ClosedMonthsPanel() {
+  const { t, i18n } = useTranslation();
+  const [locked, setLocked] = useState<Map<string, LockedMonth>>(new Map());
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const months = await getLockedMonths();
+      setLocked(new Map(months.map((m) => [monthKey(m.year, m.month), m])));
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const now = new Date();
+  const months = Array.from({ length: MONTHS_SHOWN }, (_, i) => {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    return { year: date.getFullYear(), month: date.getMonth() + 1, date };
+  });
+  const monthName = (date: Date) => date.toLocaleDateString(i18n.language, { month: "long", year: "numeric" });
+
+  async function toggle(year: number, month: number, date: Date) {
+    const key = monthKey(year, month);
+    const isLocked = locked.has(key);
+    if (!isLocked && !confirm(t('lockedMonths.confirmLock', { month: monthName(date) }))) return;
+
+    setBusy(key);
+    setError(null);
+    try {
+      if (isLocked) await unlockMonth(year, month);
+      else await lockMonth(year, month);
+      await load();
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="panel">
+      <h2>{t('lockedMonths.title')}</h2>
+      <p className="form__hint">{t('lockedMonths.hint')}</p>
+      {error && <p className="form__error">{error}</p>}
+      <table className="list-view">
+        <tbody>
+          {months.map(({ year, month, date }) => {
+            const key = monthKey(year, month);
+            const lock = locked.get(key);
+            return (
+              <tr key={key}>
+                <td className="locked-months__name">{monthName(date)}</td>
+                <td>
+                  {lock ? (
+                    <span className="locked-label">
+                      🔒 {t('lockedMonths.lockedBy', {
+                        name: lock.lockedByName,
+                        date: formatDayLabel(lock.lockedAtUtc.slice(0, 10))
+                      })}
+                    </span>
+                  ) : (
+                    <span className="list-view__notes">{t('lockedMonths.open')}</span>
+                  )}
+                </td>
+                <td className="list-view__actions">
+                  <button
+                    className={lock ? "btn btn--ghost btn--sm" : "btn btn--primary btn--sm"}
+                    onClick={() => toggle(year, month, date)}
+                    disabled={busy === key}
+                  >
+                    {lock ? t('lockedMonths.unlock') : t('lockedMonths.lock')}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

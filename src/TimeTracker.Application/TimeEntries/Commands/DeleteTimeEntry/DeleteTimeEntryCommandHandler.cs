@@ -1,6 +1,7 @@
 using MediatR;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
 
@@ -10,11 +11,13 @@ public class DeleteTimeEntryCommandHandler : IRequestHandler<DeleteTimeEntryComm
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
+    private readonly MonthLocks _monthLocks;
 
-    public DeleteTimeEntryCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
+    public DeleteTimeEntryCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUser, MonthLocks monthLocks)
     {
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
+        _monthLocks = monthLocks;
     }
 
     public async Task<Result> Handle(DeleteTimeEntryCommand request, CancellationToken cancellationToken)
@@ -28,6 +31,11 @@ public class DeleteTimeEntryCommandHandler : IRequestHandler<DeleteTimeEntryComm
         if (entry.UserId != _currentUser.UserId && _currentUser.Role != UserRole.Employer)
         {
             return Result.Failure("You are not allowed to delete this time entry.", ResultErrorType.Forbidden);
+        }
+
+        if (await _monthLocks.FindLockedAsync(entry.WorkDate, cancellationToken) is { } locked)
+        {
+            return Result.Failure(locked, ResultErrorType.Conflict);
         }
 
         _unitOfWork.TimeEntries.Remove(entry);

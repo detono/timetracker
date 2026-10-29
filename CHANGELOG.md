@@ -31,6 +31,8 @@ Database migrations run automatically when the API starts, unless a release says
 - **Forgot password**: people reset their own password with a code emailed by their
   company, when it has email set up.
 - **Platform admins can reset an employer's password**, for when a company is locked out.
+- **Closed months**: employers lock a month once its hours are final. Nobody can change
+  hours or leave in it until it's unlocked (*Reports → Closed months*).
 
 ### Changed
 

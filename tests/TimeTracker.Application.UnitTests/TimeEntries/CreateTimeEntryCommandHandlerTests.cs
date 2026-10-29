@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Moq;
 using TimeTracker.Application.Common.Models;
+using TimeTracker.Application.LockedMonths;
 using TimeTracker.Application.TimeEntries.Commands.CreateTimeEntry;
 using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Enums;
@@ -15,6 +16,7 @@ public class CreateTimeEntryCommandHandlerTests {
     private readonly Mock<ITimeEntryRepository> _timeEntryRepository = new();
     private readonly Mock<IHourTypeRepository> _hourTypeRepository = new();
     private readonly Mock<IProjectRepository> _projectRepository = new(); 
+    private readonly Mock<ILockedMonthRepository> _lockedMonths = new();
     
     // FIX: Provide the dictionary instead of a single string
     private readonly HourType _workType = HourType.Create(
@@ -28,6 +30,9 @@ public class CreateTimeEntryCommandHandlerTests {
         _unitOfWork.SetupGet(u => u.TimeEntries).Returns(_timeEntryRepository.Object);
         _unitOfWork.SetupGet(u => u.HourTypes).Returns(_hourTypeRepository.Object);
         _unitOfWork.SetupGet(u => u.Projects).Returns(_projectRepository.Object); 
+        _unitOfWork.SetupGet(u => u.LockedMonths).Returns(_lockedMonths.Object);
+        _lockedMonths.Setup(r => r.GetBetweenAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<LockedMonth>());
         _hourTypeRepository.Setup(r => r.GetByIdAsync(_workType.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(_workType);
     }
@@ -37,7 +42,7 @@ public class CreateTimeEntryCommandHandlerTests {
         var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(user.Id, UserRole.Employee));
         var command = new CreateTimeEntryCommand(null, _workType.Id, null, new DateOnly(2026, 1, 5), new TimeOnly(9, 0),
             new TimeOnly(17, 0), 30, "Notes");
@@ -57,7 +62,7 @@ public class CreateTimeEntryCommandHandlerTests {
         var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         var otherUserId = Guid.NewGuid();
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(employee.Id, UserRole.Employee));
         var command = new CreateTimeEntryCommand(otherUserId, _workType.Id, null, new DateOnly(2026, 1, 5),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
@@ -75,7 +80,7 @@ public class CreateTimeEntryCommandHandlerTests {
         var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(employer.Id, UserRole.Employer));
         var command = new CreateTimeEntryCommand(employee.Id, _workType.Id, null, new DateOnly(2026, 1, 5),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
@@ -92,7 +97,7 @@ public class CreateTimeEntryCommandHandlerTests {
         _userRepository.Setup(r => r.GetByIdAsync(missingUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(employer.Id, UserRole.Employer));
         var command = new CreateTimeEntryCommand(missingUserId, _workType.Id, null, new DateOnly(2026, 1, 5),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
@@ -109,7 +114,7 @@ public class CreateTimeEntryCommandHandlerTests {
         _userRepository.Setup(r => r.GetByIdAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(user);
         var unknownTypeId = Guid.NewGuid();
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(user.Id, UserRole.Employee));
         var command = new CreateTimeEntryCommand(null, unknownTypeId, null, new DateOnly(2026, 1, 5),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
@@ -132,7 +137,7 @@ public class CreateTimeEntryCommandHandlerTests {
         _hourTypeRepository.Setup(r => r.GetByIdAsync(retiredType.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(retiredType);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(user.Id, UserRole.Employee));
         var command = new CreateTimeEntryCommand(null, retiredType.Id, null, new DateOnly(2026, 1, 5),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);
@@ -150,7 +155,7 @@ public class CreateTimeEntryCommandHandlerTests {
         var project = Project.Create("Internal Migration", "Tradecom NV");
         _projectRepository.Setup(r => r.GetByIdAsync(project.Id, It.IsAny<CancellationToken>())).ReturnsAsync(project);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(user.Id, UserRole.Employee));
         var command = new CreateTimeEntryCommand(null, _workType.Id, project.Id, new DateOnly(2026, 9, 13),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 30, "Migration work");
@@ -171,7 +176,7 @@ public class CreateTimeEntryCommandHandlerTests {
         _projectRepository.Setup(r => r.GetByIdAsync(missingProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Project?)null);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(user.Id, UserRole.Employee));
         var command = new CreateTimeEntryCommand(null, _workType.Id, missingProjectId, new DateOnly(2026, 9, 13),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 30, "Lost project");
@@ -195,7 +200,7 @@ public class CreateTimeEntryCommandHandlerTests {
         _hourTypeRepository.Setup(r => r.GetByIdAsync(frenchOnlyType.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(frenchOnlyType);
 
-        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object,
+        var handler = new CreateTimeEntryCommandHandler(_unitOfWork.Object, new MonthLocks(_unitOfWork.Object),
             new TestCurrentUserService(user.Id, UserRole.Employee));
         var command = new CreateTimeEntryCommand(null, frenchOnlyType.Id, null, new DateOnly(2026, 9, 13),
             new TimeOnly(9, 0), new TimeOnly(17, 0), 0, null);

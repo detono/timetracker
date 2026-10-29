@@ -14,7 +14,8 @@ public class UnitOfWork(
     ILeaveRequestRepository leaveRequests,
     ILeaveBalanceRepository leaveBalances,
     IPublicHolidayRepository publicHolidays,
-    IPasswordResetCodeRepository passwordResetCodes
+    IPasswordResetCodeRepository passwordResetCodes,
+    ILockedMonthRepository lockedMonths
 ) : IUnitOfWork {
     public IUserRepository Users { get; } = users;
     public ITimeEntryRepository TimeEntries { get; } = timeEntries;
@@ -27,6 +28,7 @@ public class UnitOfWork(
     public ILeaveBalanceRepository LeaveBalances { get; } = leaveBalances;
     public IPublicHolidayRepository PublicHolidays { get; } = publicHolidays;
     public IPasswordResetCodeRepository PasswordResetCodes { get; } = passwordResetCodes;
+    public ILockedMonthRepository LockedMonths { get; } = lockedMonths;
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         context.SaveChangesAsync(cancellationToken);

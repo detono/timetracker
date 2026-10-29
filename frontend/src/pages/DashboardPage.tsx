@@ -9,6 +9,8 @@ import {
   updateTimeEntry
 } from "../api/timeEntriesApi";
 import { getHourTypes } from "../api/hourTypesApi";
+import { getLockedMonths } from "../api/lockedMonthsApi";
+import { isInLockedMonth, lockedMonthKeys } from "../utils/lockedMonths";
 import { projectsApi } from "../api/projectsApi"; // <-- 1. Added this import
 import { extractErrorMessage } from "../api/client";
 import { ViewToggle, type ViewMode } from "../components/ViewToggle";
@@ -33,6 +35,7 @@ export function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<TimeEntry | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [lockedMonths, setLockedMonths] = useState<Set<string>>(new Set());
   const { pendingLeaveCount } = useOutletContext<ShellContext>();
   // Bumped after every reload of the entries, so the overview reflects new hours.
   const [overviewKey, setOverviewKey] = useState(0);
@@ -44,11 +47,13 @@ export function DashboardPage() {
     setError(null);
     try {
       // 2. Added projectsApi.getAll(false) to fetch active projects alongside the other data
-      const [entriesData, hourTypesData, projectsData] = await Promise.all([
+      const [entriesData, hourTypesData, projectsData, lockedData] = await Promise.all([
         getMyTimeEntries(user?.userId, from, to),
         getHourTypes(),
-        projectsApi.getAll(false)
+        projectsApi.getAll(false),
+        getLockedMonths()
       ]);
+      setLockedMonths(lockedMonthKeys(lockedData));
       setEntries(entriesData);
       setHourTypes(hourTypesData);
       setProjects(projectsData);
@@ -107,6 +112,8 @@ export function DashboardPage() {
     await loadEntries();
   }
 
+  const isLocked = (entry: TimeEntry) => isInLockedMonth(lockedMonths, entry.workDate);
+
   const totalHours = entries.reduce((sum, e) => sum + e.durationHours, 0);
 
   return (
@@ -146,6 +153,7 @@ export function DashboardPage() {
             projects={projects}
             initial={editing ?? undefined}
             hourTypes={hourTypes}
+            lockedMonths={lockedMonths}
             onSubmit={editing ? handleUpdate : handleCreate}
             onCancel={() => {
               setShowForm(false);
@@ -160,9 +168,9 @@ export function DashboardPage() {
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>
       ) : view === "list" ? (
-        <ListView entries={entries} onEdit={setEditing} onDelete={handleDelete} />
+        <ListView entries={entries} onEdit={setEditing} onDelete={handleDelete} isLocked={isLocked} />
       ) : (
-        <PlanBoard days={days} entries={entries} onEdit={setEditing} />
+        <PlanBoard days={days} entries={entries} onEdit={setEditing} isLocked={isLocked} />
       )}
     </div>
   );
