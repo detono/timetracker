@@ -105,10 +105,7 @@ export function ReportsPage() {
                 <tr key={`${line.userId}-${line.hourTypeId}-${line.periodLabel}-${idx}`}>
                   <td>{line.userFullName}</td>
                   <td>
-                    <HourTypeBadge
-                      localizedNames={line.localizedHourTypeNames}
-                      colorHex={line.hourTypeColor}
-                    />
+                    <HourTypeBadge name={line.hourTypeName} colorHex={line.hourTypeColor} />
                   </td>
                   <td>{line.periodLabel}</td>
                   <td>

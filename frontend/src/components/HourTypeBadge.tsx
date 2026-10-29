@@ -1,16 +1,20 @@
 import { useTranslation } from 'react-i18next';
 
 interface HourTypeBadgeProps {
-  localizedNames: Record<string, string>; // <-- Replaced 'name'
+  /** A name that's already in the right language, e.g. from a report. Wins over localizedNames. */
+  name?: string;
+  /** The name per language; the current language is shown, else English. */
+  localizedNames?: Record<string, string>;
   colorHex: string;
 }
 
-export const HourTypeBadge = ({ localizedNames, colorHex }: HourTypeBadgeProps) => {
+export const HourTypeBadge = ({ name, localizedNames, colorHex }: HourTypeBadgeProps) => {
   const { i18n } = useTranslation();
 
-  // Fallback chain: Current Locale -> English -> Unknown
-  const displayName = localizedNames[i18n.language]
-    || localizedNames['en']
+  // Fallback chain: given name -> current language -> English -> Unknown
+  const displayName = name
+    || localizedNames?.[i18n.language]
+    || localizedNames?.['en']
     || 'Unknown';
 
   return (

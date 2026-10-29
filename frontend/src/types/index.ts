@@ -93,8 +93,8 @@ export interface HoursReportLine {
   userId: string;
   userFullName: string;
   hourTypeId: string;
-  projectId?: string;
-  localizedHourTypeNames: Record<string, string>;
+  /** Already in the signed-in user's language. */
+  hourTypeName: string;
   hourTypeColor: string;
   periodLabel: string;
   periodStart: string;

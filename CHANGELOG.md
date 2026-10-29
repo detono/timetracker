@@ -46,6 +46,7 @@ Database migrations run automatically when the API starts, unless a release says
 
 ### Fixed
 
+- Running a report with any hours in it showed a blank page (since 0.3.0).
 - Deactivating a person or company, or resetting their password, now signs them out right
   away instead of when their sign-in expires (up to 8 hours later).
 - Docker health checks: containers no longer show as unhealthy.
