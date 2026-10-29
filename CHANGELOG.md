@@ -8,6 +8,8 @@ Database migrations run automatically when the API starts, unless a release says
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-29
+
 ### Added
 
 - **Outgoing email per company**, via SMTP or Microsoft 365 (Graph), with a test email.
@@ -143,7 +145,8 @@ Database migrations run automatically when the API starts, unless a release says
 - First release: logging hours, list and planboard views, reports per day, week and month,
   and the Employee, Supervisor and Employer roles.
 
-[Unreleased]: https://github.com/detono/timetracker/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/detono/timetracker/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/detono/timetracker/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/detono/timetracker/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/detono/timetracker/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/detono/timetracker/compare/v0.2.1...v0.3.0
