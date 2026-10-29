@@ -1,6 +1,8 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { HourType, TimeEntry, Project } from "../types";
+import type { HourType, TimeEntry, Project, WorkSchedule } from "../types";
+import { localToday } from "../utils/hoursOverview";
+import { scheduledTimes } from "../utils/workSchedule";
 import { extractErrorMessage } from "../api/client";
 import { isInLockedMonth } from "../utils/lockedMonths";
 import { formatCoordinates, GeolocationError, getCurrentPosition, reverseGeocode } from "../utils/geolocation";
@@ -26,26 +28,49 @@ interface Props {
   onCancel?: () => void;
   /** Month keys ("2026-09") that are locked: hours can't be logged there. */
   lockedMonths?: Set<string>;
+  /** Your work schedule: new entries start with that day's hours instead of 9 to 5. */
+  schedule?: WorkSchedule | null;
 }
 
-export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel, lockedMonths }: Props) {
+const FALLBACK_TIMES = { startTime: "09:00", endTime: "17:00", breakMinutes: 30 };
+
+export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel, lockedMonths, schedule }: Props) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language.split('-')[0];
 
   const defaultHourType = hourTypes.find(t => t.isDefault) || hourTypes[0];
 
+  // Today in your own time zone (not UTC, which is still "yesterday" just after midnight).
+  const today = localToday();
+  const proposed = scheduledTimes(schedule, today) ?? FALLBACK_TIMES;
   const [values, setValues] = useState<TimeEntryFormValues>({
     hourTypeId: initial?.hourTypeId ?? defaultHourType?.id ?? "",
     projectId: initial?.projectId ?? "", // Added this
-    workDate: initial?.workDate ?? new Date().toISOString().slice(0, 10),
-    startTime: initial?.startTime.slice(0, 5) ?? "09:00",
-    endTime: initial?.endTime.slice(0, 5) ?? "17:00",
-    breakMinutes: initial?.breakMinutes ?? 30,
+    workDate: initial?.workDate ?? today,
+    startTime: initial?.startTime.slice(0, 5) ?? proposed.startTime,
+    endTime: initial?.endTime.slice(0, 5) ?? proposed.endTime,
+    breakMinutes: initial?.breakMinutes ?? proposed.breakMinutes,
     notes: initial?.notes ?? "",
     location: initial?.location ?? "",
     latitude: initial?.latitude ?? null,
     longitude: initial?.longitude ?? null
   });
+  // A new entry follows the schedule for its date until you change the times yourself;
+  // an existing entry keeps its own times.
+  const timesEdited = useRef(!!initial);
+  const followSchedule = (workDate: string) => {
+    if (timesEdited.current) return;
+    const times = scheduledTimes(schedule, workDate);
+    if (times) setValues((v) => ({ ...v, ...times }));
+  };
+
+  // The schedule may arrive after the form opened.
+  useEffect(() => {
+    followSchedule(values.workDate);
+    // Only when the schedule itself changes; date changes are handled where they happen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedule]);
+
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -124,7 +149,10 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
           <input
             type="date"
             value={values.workDate}
-            onChange={(e) => setValues({ ...values, workDate: e.target.value })}
+            onChange={(e) => {
+              setValues({ ...values, workDate: e.target.value });
+              followSchedule(e.target.value);
+            }}
             required
           />
         </label>
@@ -133,7 +161,10 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
           <input
             type="time"
             value={values.startTime}
-            onChange={(e) => setValues({ ...values, startTime: e.target.value })}
+            onChange={(e) => {
+              timesEdited.current = true;
+              setValues({ ...values, startTime: e.target.value });
+            }}
             required
           />
         </label>
@@ -142,7 +173,10 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
           <input
             type="time"
             value={values.endTime}
-            onChange={(e) => setValues({ ...values, endTime: e.target.value })}
+            onChange={(e) => {
+              timesEdited.current = true;
+              setValues({ ...values, endTime: e.target.value });
+            }}
             required
           />
         </label>
@@ -152,7 +186,10 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
             type="number"
             min={0}
             value={values.breakMinutes}
-            onChange={(e) => setValues({ ...values, breakMinutes: Number(e.target.value) })}
+            onChange={(e) => {
+              timesEdited.current = true;
+              setValues({ ...values, breakMinutes: Number(e.target.value) });
+            }}
           />
         </label>
       </div>

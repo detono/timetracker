@@ -21,6 +21,12 @@ Database migrations run automatically when the API starts, unless a release says
 - The *Company* page is split into tabs: General, Working hours, Public holidays, Email and
   Activity. `/email` opens the Email tab.
 
+### Fixed
+
+- Logging hours proposed 9:00 to 17:00 every day; it now proposes your scheduled hours and break
+  for the chosen day.
+- Just after midnight, logging hours proposed yesterday's date.
+
 ## [1.0.0] - 2026-10-29
 
 ### Added

@@ -10,6 +10,7 @@ import {
 } from "../api/timeEntriesApi";
 import { getHourTypes } from "../api/hourTypesApi";
 import { getLockedMonths } from "../api/lockedMonthsApi";
+import { getWorkSchedule } from "../api/leaveApi";
 import { isInLockedMonth, lockedMonthKeys } from "../utils/lockedMonths";
 import { projectsApi } from "../api/projectsApi"; // <-- 1. Added this import
 import { extractErrorMessage } from "../api/client";
@@ -20,7 +21,7 @@ import { HoursOverviewCards } from "../components/HoursOverviewCards";
 import { TimeEntryForm, type TimeEntryFormValues } from "../components/TimeEntryForm";
 import { WeekNavigator } from "../components/WeekNavigator";
 import { getWeekRange, hoursToHm } from "../utils/dateRange";
-import type { HourType, Project, TimeEntry } from "../types";
+import type { HourType, Project, TimeEntry, WorkSchedule } from "../types";
 import type { ShellContext } from "../utils/leave";
 
 export function DashboardPage() {
@@ -37,6 +38,14 @@ export function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [lockedMonths, setLockedMonths] = useState<Set<string>>(new Set());
   const { pendingLeaveCount } = useOutletContext<ShellContext>();
+  // Your work schedule, so new hours start with your usual times.
+  const [schedule, setSchedule] = useState<WorkSchedule | null>(null);
+  useEffect(() => {
+    if (!user?.userId) return;
+    getWorkSchedule(user.userId)
+      .then(setSchedule)
+      .catch(() => setSchedule(null));
+  }, [user?.userId]);
   // Bumped after every reload of the entries, so the overview reflects new hours.
   const [overviewKey, setOverviewKey] = useState(0);
 
@@ -154,6 +163,7 @@ export function DashboardPage() {
             initial={editing ?? undefined}
             hourTypes={hourTypes}
             lockedMonths={lockedMonths}
+            schedule={schedule}
             onSubmit={editing ? handleUpdate : handleCreate}
             onCancel={() => {
               setShowForm(false);
