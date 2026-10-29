@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export type ViewMode = "list" | "planboard";
 
 interface Props {
@@ -6,15 +8,16 @@ interface Props {
 }
 
 export function ViewToggle({ value, onChange }: Props) {
+  const { t } = useTranslation();
   return (
-    <div className="view-toggle" role="tablist" aria-label="View mode">
+    <div className="view-toggle" role="tablist" aria-label={t('nav.viewMode')}>
       <button
         role="tab"
         aria-selected={value === "list"}
         className={value === "list" ? "view-toggle__btn is-active" : "view-toggle__btn"}
         onClick={() => onChange("list")}
       >
-        List
+        {t('nav.list')}
       </button>
       <button
         role="tab"
@@ -22,7 +25,7 @@ export function ViewToggle({ value, onChange }: Props) {
         className={value === "planboard" ? "view-toggle__btn is-active" : "view-toggle__btn"}
         onClick={() => onChange("planboard")}
       >
-        Planboard
+        {t('nav.planboard')}
       </button>
     </div>
   );

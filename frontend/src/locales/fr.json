@@ -34,7 +34,13 @@
     "statusArchived": "Archivé",
     "archive": "Archiver",
     "reactivate": "Réactiver",
-    "noProjects": "Aucun projet trouvé."
+    "noProjects": "Aucun projet trouvé.",
+    "viewDetails": "Voir les détails",
+    "hideDetails": "Masquer les détails",
+    "breakdownTitle": "Heures par personne",
+    "loadingBreakdown": "Chargement…",
+    "employee": "Employé",
+    "totalHours": "Total d'heures"
   },
   "timeEntryForm": {
     "errorSave": "Impossible d'enregistrer cette entrée.",
@@ -176,7 +182,12 @@
     "isLeave": "Peut être demandé comme congé",
     "deductsFromBalance": "Est déduit du solde de congés",
     "leaveBadge": "Congé",
-    "leaveBadgeBalance": "Congé · solde"
+    "leaveBadgeBalance": "Congé · solde",
+    "namesLegend": "Nom dans chaque langue",
+    "languageCode": "Langue",
+    "removeLanguage": "Supprimer {{code}}",
+    "addLanguage": "Ajouter une langue",
+    "setAsDefault": "Choisi par défaut lors de l'encodage des heures"
   },
   "reports": {
     "title": "Rapports",
@@ -216,7 +227,7 @@
   },
   "nav": {
     "planboard": "Planning",
-    "list": "Vue Liste",
+    "list": "Liste",
     "reports": "Rapports",
     "manageEmployees": "Gérer les Employés",
     "myHours": "Mes heures",
@@ -228,7 +239,9 @@
     "platformAdmins": "Administrateurs",
     "email": "E-mail",
     "leave": "Congés",
-    "company": "Entreprise"
+    "company": "Entreprise",
+    "menu": "Menu",
+    "viewMode": "Affichage"
   },
   "time": {
     "logHours": "Enregistrer des Heures",

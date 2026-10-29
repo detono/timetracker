@@ -52,6 +52,53 @@
   box-sizing: border-box;
 }
 
+/* ---------- Form controls everywhere (also outside .form__field, e.g. in tables) ---------- */
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
+select,
+textarea {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--color-primary);
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  vertical-align: middle;
+}
+
+input[type="color"] {
+  width: 3rem;
+  height: 2.25rem;
+  padding: 0.15rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper-raised);
+  cursor: pointer;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 html,
 body,
 #root {
@@ -199,11 +246,45 @@ button {
 
 .shell__header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 2rem;
   padding: 0.9rem 1.75rem;
   background: var(--color-primary);
   color: #fff;
+}
+
+.shell__menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.shell__menu-toggle {
+  display: none;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.shell__menu-dot {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-secondary);
 }
 
 .shell__brand-mark {
@@ -220,6 +301,7 @@ button {
 }
 
 .shell__nav-link {
+  white-space: nowrap;
   color: rgba(255, 255, 255, 0.65);
   text-decoration: none;
   font-size: 0.9rem;
@@ -266,6 +348,10 @@ button {
 }
 
 .shell__account-role {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -275,6 +361,61 @@ button {
 .shell__account .btn--ghost {
   border-color: rgba(255, 255, 255, 0.3);
   color: #fff;
+}
+
+.shell__account .btn--ghost {
+  white-space: nowrap;
+}
+
+/* Below this width the links don't fit on one row: they fold behind the menu button. */
+@media (max-width: 1199px) {
+  .shell__header {
+    gap: 0;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .shell__menu-toggle {
+    display: inline-flex;
+  }
+
+  .shell__menu {
+    display: none;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+  }
+
+  .shell__menu.is-open {
+    display: flex;
+  }
+
+  .shell__nav {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .shell__nav-link {
+    padding: 0.7rem 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  .shell__nav-link.is-active,
+  .shell__nav-link:hover {
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .shell__account {
+    justify-content: space-between;
+  }
+
+  .shell__account-info {
+    align-items: flex-start;
+  }
 }
 
 .shell__content {
@@ -342,9 +483,22 @@ button {
 
 .week-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem 1rem;
   margin-bottom: 1.25rem;
+}
+
+.week-nav .btn {
+  white-space: nowrap;
+}
+
+/* On phones the dates get their own line above the buttons. */
+@media (max-width: 600px) {
+  .week-nav__range {
+    order: -1;
+    flex-basis: 100%;
+  }
 }
 
 .week-nav__range {
@@ -437,19 +591,35 @@ button {
 
 /* ---------- List view ---------- */
 
+/* Tables scroll sideways inside their own box when they don't fit, instead of being cut off
+   or making the whole page wider (which zooms out the page on phones). */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
 .list-view {
   width: 100%;
   border-collapse: collapse;
   background: var(--paper-raised);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  overflow: hidden;
+}
+
+/* Short values (names, dates, hours) stay on one line; notes and comments may wrap. */
+.list-view td {
+  white-space: nowrap;
+}
+
+.list-view td.list-view__notes {
+  white-space: normal;
 }
 
 .list-view th,
 .list-view td {
   text-align: left;
-  padding: 0.65rem 0.9rem;
+  padding: 0.65rem 0.75rem;
   border-bottom: 1px solid var(--line);
   font-size: 0.88rem;
 }
@@ -472,10 +642,26 @@ button {
   color: var(--ink-soft);
 }
 
-.list-view__actions {
-  display: flex;
-  gap: 0.4rem;
+/* Stays a normal table cell (a flex cell breaks the row's alignment and borders). */
+.list-view td.list-view__actions {
   white-space: nowrap;
+  text-align: right;
+}
+
+.list-view__actions > * {
+  vertical-align: middle;
+}
+
+.list-view__actions > * + * {
+  margin-left: 0.4rem;
+}
+
+.list-view select {
+  max-width: 9.5rem;
+}
+
+.form__field select {
+  min-width: 8rem;
 }
 
 .empty-state {
@@ -645,11 +831,6 @@ button {
 }
 
 @media (max-width: 720px) {
-  .shell__header {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
   .shell__content {
     padding: 1rem;
   }
@@ -820,7 +1001,7 @@ button {
 
 .hours-overview__days {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
   gap: 0.5rem;
   background: var(--paper-raised);
   border: 1px solid var(--line);
@@ -847,6 +1028,7 @@ button {
 
 .hours-day__value {
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .hours-day__note {
@@ -877,6 +1059,7 @@ button {
 }
 
 .auth-card__links {
+  text-wrap: balance;
   margin: 1.25rem 0 0;
   font-size: 0.88rem;
   color: var(--ink-soft);
@@ -948,4 +1131,89 @@ button {
   .activity-log__item {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---------- Hour type name per language ---------- */
+
+.translation-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  border: none;
+}
+
+.translation-rows legend {
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.translation-row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 2.25rem;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  max-width: 30rem;
+}
+
+.translation-row--head {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.icon-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* A checkbox with its label on one line. */
+.check-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.form__row--options {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 0.75rem;
+}
+
+/* A person in a table: name with their email underneath. */
+.person-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.person-cell__name {
+  font-weight: 600;
+}
+
+.person-cell__email {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
 }

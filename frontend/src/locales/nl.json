@@ -34,7 +34,13 @@
     "statusArchived": "Gearchiveerd",
     "archive": "Archiveren",
     "reactivate": "Reactiveren",
-    "noProjects": "Geen projecten gevonden."
+    "noProjects": "Geen projecten gevonden.",
+    "viewDetails": "Details tonen",
+    "hideDetails": "Details verbergen",
+    "breakdownTitle": "Uren per persoon",
+    "loadingBreakdown": "Laden…",
+    "employee": "Medewerker",
+    "totalHours": "Totaal uren"
   },
   "timeEntryForm": {
     "errorSave": "Kon deze registratie niet opslaan.",
@@ -176,7 +182,12 @@
     "isLeave": "Kan als verlof aangevraagd worden",
     "deductsFromBalance": "Gaat af van het verlofsaldo",
     "leaveBadge": "Verlof",
-    "leaveBadgeBalance": "Verlof · saldo"
+    "leaveBadgeBalance": "Verlof · saldo",
+    "namesLegend": "Naam in elke taal",
+    "languageCode": "Taal",
+    "removeLanguage": "{{code}} verwijderen",
+    "addLanguage": "Taal toevoegen",
+    "setAsDefault": "Standaard gekozen bij het registreren van uren"
   },
   "reports": {
     "title": "Rapportages",
@@ -216,7 +227,7 @@
   },
   "nav": {
     "planboard": "Planbord",
-    "list": "Lijstweergave",
+    "list": "Lijst",
     "reports": "Rapportages",
     "manageEmployees": "Medewerkers Beheren",
     "myHours": "Mijn uren",
@@ -228,7 +239,9 @@
     "platformAdmins": "Platformbeheerders",
     "email": "E-mail",
     "leave": "Verlof",
-    "company": "Bedrijf"
+    "company": "Bedrijf",
+    "menu": "Menu",
+    "viewMode": "Weergave"
   },
   "time": {
     "logHours": "Uren Registreren",

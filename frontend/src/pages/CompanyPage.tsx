@@ -287,28 +287,30 @@ function HolidaysPanel({ company }: { company: Company }) {
       ) : holidays.length === 0 ? (
         <p className="empty-state">{t('company.noHolidays')}</p>
       ) : (
-        <table className="list-view">
-          <thead>
-            <tr>
-              <th>{t('company.holidayDate')}</th>
-              <th>{t('company.holidayName')}</th>
-              <th aria-label={t('leave.table.actions')} />
-            </tr>
-          </thead>
-          <tbody>
-            {holidays.map((h) => (
-              <tr key={h.id}>
-                <td>{formatDayLabel(h.date)}</td>
-                <td>{h.name}</td>
-                <td className="list-view__actions">
-                  <button className="btn btn--ghost btn--sm btn--danger" onClick={() => handleDelete(h)} disabled={busy}>
-                    {t('common.delete')}
-                  </button>
-                </td>
+        <div className="table-scroll">
+          <table className="list-view">
+            <thead>
+              <tr>
+                <th>{t('company.holidayDate')}</th>
+                <th>{t('company.holidayName')}</th>
+                <th aria-label={t('leave.table.actions')} />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {holidays.map((h) => (
+                <tr key={h.id}>
+                  <td>{formatDayLabel(h.date)}</td>
+                  <td>{h.name}</td>
+                  <td className="list-view__actions">
+                    <button className="btn btn--ghost btn--sm btn--danger" onClick={() => handleDelete(h)} disabled={busy}>
+                      {t('common.delete')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <form className="form" onSubmit={handleAdd} style={{ marginTop: '1rem' }}>

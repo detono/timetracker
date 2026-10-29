@@ -100,74 +100,78 @@ export function ReportsPage() {
           <p className="page__subtitle">
             {t('reports.grandTotal')} <strong>{hoursToHm(report.grandTotalHours)}</strong> {t('reports.lines', { count: report.lines.length })}
           </p>
-          <table className="list-view">
-            <thead>
-              <tr>
-                <th>{t('reports.table.employee')}</th>
-                <th>{t('reports.table.type')}</th>
-                <th>{t('reports.table.period')}</th>
-                <th>{t('reports.table.range')}</th>
-                <th>{t('reports.table.entries')}</th>
-                <th>{t('reports.table.totalHours')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.lines.map((line, idx) => (
-                <tr key={`${line.userId}-${line.hourTypeId}-${line.periodLabel}-${idx}`}>
-                  <td>{line.userFullName}</td>
-                  <td>
-                    <HourTypeBadge name={line.hourTypeName} colorHex={line.hourTypeColor} />
-                  </td>
-                  <td>{line.periodLabel}</td>
-                  <td>
-                    {line.periodStart} → {line.periodEnd}
-                  </td>
-                  <td>{line.entryCount}</td>
-                  <td>{hoursToHm(line.totalHours)}</td>
-                </tr>
-              ))}
-              {report.lines.length === 0 && (
+          <div className="table-scroll">
+            <table className="list-view">
+              <thead>
                 <tr>
-                  <td colSpan={6} className="empty-state">
-                    {t('reports.emptyState')}
-                  </td>
+                  <th>{t('reports.table.employee')}</th>
+                  <th>{t('reports.table.type')}</th>
+                  <th>{t('reports.table.period')}</th>
+                  <th>{t('reports.table.range')}</th>
+                  <th>{t('reports.table.entries')}</th>
+                  <th>{t('reports.table.totalHours')}</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {report.lines.map((line, idx) => (
+                  <tr key={`${line.userId}-${line.hourTypeId}-${line.periodLabel}-${idx}`}>
+                    <td>{line.userFullName}</td>
+                    <td>
+                      <HourTypeBadge name={line.hourTypeName} colorHex={line.hourTypeColor} />
+                    </td>
+                    <td>{line.periodLabel}</td>
+                    <td>
+                      {line.periodStart} → {line.periodEnd}
+                    </td>
+                    <td>{line.entryCount}</td>
+                    <td>{hoursToHm(line.totalHours)}</td>
+                  </tr>
+                ))}
+                {report.lines.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="empty-state">
+                      {t('reports.emptyState')}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
           {balance.length > 0 && (
             <>
               <h2 className="reports__section-title">{t('reports.balanceTitle')}</h2>
               <p className="form__hint">{t('reports.balanceHint')}</p>
-              <table className="list-view">
-                <thead>
-                  <tr>
-                    <th>{t('reports.table.employee')}</th>
-                    <th>{t('reports.table.period')}</th>
-                    <th>{t('reports.table.range')}</th>
-                    <th>{t('reports.table.worked')}</th>
-                    <th>{t('reports.table.expected')}</th>
-                    <th>{t('reports.table.difference')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {balance.map((line) => (
-                    <tr key={`${line.userId}-${line.periodLabel}`}>
-                      <td>{line.userFullName}</td>
-                      <td>{line.periodLabel}</td>
-                      <td>
-                        {line.periodStart} → {line.periodEnd}
-                      </td>
-                      <td>{hoursToHm(line.workedHours)}</td>
-                      <td>{hoursToHm(line.expectedHours)}</td>
-                      <td className={line.differenceHours < 0 ? "balance-negative" : undefined}>
-                        {signedHm(line.differenceHours)}
-                      </td>
+              <div className="table-scroll">
+                <table className="list-view">
+                  <thead>
+                    <tr>
+                      <th>{t('reports.table.employee')}</th>
+                      <th>{t('reports.table.period')}</th>
+                      <th>{t('reports.table.range')}</th>
+                      <th>{t('reports.table.worked')}</th>
+                      <th>{t('reports.table.expected')}</th>
+                      <th>{t('reports.table.difference')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {balance.map((line) => (
+                      <tr key={`${line.userId}-${line.periodLabel}`}>
+                        <td>{line.userFullName}</td>
+                        <td>{line.periodLabel}</td>
+                        <td>
+                          {line.periodStart} → {line.periodEnd}
+                        </td>
+                        <td>{hoursToHm(line.workedHours)}</td>
+                        <td>{hoursToHm(line.expectedHours)}</td>
+                        <td className={line.differenceHours < 0 ? "balance-negative" : undefined}>
+                          {signedHm(line.differenceHours)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </>
           )}
         </>
@@ -234,40 +238,42 @@ function ClosedMonthsPanel() {
       <h2>{t('lockedMonths.title')}</h2>
       <p className="form__hint">{t('lockedMonths.hint')}</p>
       {error && <p className="form__error">{error}</p>}
-      <table className="list-view">
-        <tbody>
-          {months.map(({ year, month, date }) => {
-            const key = monthKey(year, month);
-            const lock = locked.get(key);
-            return (
-              <tr key={key}>
-                <td className="locked-months__name">{monthName(date)}</td>
-                <td>
-                  {lock ? (
-                    <span className="locked-label">
-                      🔒 {t('lockedMonths.lockedBy', {
-                        name: lock.lockedByName,
-                        date: formatDayLabel(lock.lockedAtUtc.slice(0, 10))
-                      })}
-                    </span>
-                  ) : (
-                    <span className="list-view__notes">{t('lockedMonths.open')}</span>
-                  )}
-                </td>
-                <td className="list-view__actions">
-                  <button
-                    className={lock ? "btn btn--ghost btn--sm" : "btn btn--primary btn--sm"}
-                    onClick={() => toggle(year, month, date)}
-                    disabled={busy === key}
-                  >
-                    {lock ? t('lockedMonths.unlock') : t('lockedMonths.lock')}
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-scroll">
+        <table className="list-view">
+          <tbody>
+            {months.map(({ year, month, date }) => {
+              const key = monthKey(year, month);
+              const lock = locked.get(key);
+              return (
+                <tr key={key}>
+                  <td className="locked-months__name">{monthName(date)}</td>
+                  <td>
+                    {lock ? (
+                      <span className="locked-label">
+                        🔒 {t('lockedMonths.lockedBy', {
+                          name: lock.lockedByName,
+                          date: formatDayLabel(lock.lockedAtUtc.slice(0, 10))
+                        })}
+                      </span>
+                    ) : (
+                      <span className="list-view__notes">{t('lockedMonths.open')}</span>
+                    )}
+                  </td>
+                  <td className="list-view__actions">
+                    <button
+                      className={lock ? "btn btn--ghost btn--sm" : "btn btn--primary btn--sm"}
+                      onClick={() => toggle(year, month, date)}
+                      disabled={busy === key}
+                    >
+                      {lock ? t('lockedMonths.unlock') : t('lockedMonths.lock')}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

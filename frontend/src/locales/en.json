@@ -143,7 +143,12 @@
     "isLeave": "Can be requested as leave",
     "deductsFromBalance": "Uses up the leave balance",
     "leaveBadge": "Leave",
-    "leaveBadgeBalance": "Leave · balance"
+    "leaveBadgeBalance": "Leave · balance",
+    "namesLegend": "Name in each language",
+    "languageCode": "Language",
+    "removeLanguage": "Remove {{code}}",
+    "addLanguage": "Add language",
+    "setAsDefault": "Selected by default when logging hours"
   },
   "login": {
     "tagline": "Log hours. See the whole team. No guesswork at payroll time.",
@@ -189,32 +194,38 @@
   "projects": {
     "title": "Projects",
     "subtitle": "Manage clients and project assignments.",
-    "addNew": "Add New Project",
-    "editProject": "Edit Project",
-    "name": "Project Name",
-    "clientName": "Client Name",
+    "addNew": "Add a project",
+    "editProject": "Edit project",
+    "name": "Project name",
+    "clientName": "Client name",
     "optional": "Optional",
-    "createProject": "Create Project",
+    "createProject": "Create project",
     "confirmDeactivate": "Are you sure you want to archive the project '{{name}}'?",
     "table": {
       "name": "Name",
       "client": "Client",
       "status": "Status",
       "actions": "Actions",
-      "thisMonth": "This Month",
+      "thisMonth": "This month",
       "lifetime": "Lifetime"
     },
     "statusActive": "Active",
     "statusArchived": "Archived",
     "archive": "Archive",
     "reactivate": "Reactivate",
-    "noProjects": "No projects found."
+    "noProjects": "No projects found.",
+    "viewDetails": "View details",
+    "hideDetails": "Hide details",
+    "breakdownTitle": "Hours per person",
+    "loadingBreakdown": "Loading…",
+    "employee": "Employee",
+    "totalHours": "Total hours"
   },
   "nav": {
     "planboard": "Planboard",
-    "list": "List View",
+    "list": "List",
     "reports": "Reports",
-    "manageEmployees": "Manage Employees",
+    "manageEmployees": "Manage employees",
     "myHours": "My hours",
     "allEmployees": "All employees",
     "teamOverview": "Team overview",
@@ -224,13 +235,15 @@
     "platformAdmins": "Platform admins",
     "email": "Email",
     "leave": "Leave",
-    "company": "Company"
+    "company": "Company",
+    "menu": "Menu",
+    "viewMode": "View mode"
   },
   "time": {
-    "logHours": "Log Hours",
+    "logHours": "Log hours",
     "date": "Date",
     "duration": "Duration",
-    "hourType": "Hour Type",
+    "hourType": "Hour type",
     "notes": "Notes"
   },
   "roles": {

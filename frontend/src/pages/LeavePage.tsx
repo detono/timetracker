@@ -194,82 +194,85 @@ export function LeavePage() {
               {toReview.length === 0 ? (
                 <p className="empty-state">{t('leave.nothingToReview')}</p>
               ) : (
-                <table className="list-view">
-                  <thead>
-                    <tr>
-                      <th>{t('leave.table.employee')}</th>
-                      <th>{t('leave.table.type')}</th>
-                      <th>{t('leave.table.period')}</th>
-                      <th>{t('leave.table.hours')}</th>
-                      <th>{t('leave.table.balance')}</th>
-                      <th>{t('leave.table.comment')}</th>
-                      <th>{t('leave.table.status')}</th>
-                      <th aria-label={t('leave.table.actions')} />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {toReview.map((r) => (
-                      <tr key={r.id}>
-                        <td>{r.userFullName}</td>
-                        <td>
-                          <HourTypeLabel request={r} />
-                        </td>
-                        <td>{period(r, t)}</td>
-                        <td>{hoursToHm(r.hours)}</td>
-                        <td>
-                          {r.remainingBalanceHours != null ? (
-                            <span className={r.exceedsBalance ? "balance-negative" : undefined}>
-                              {t('leave.leftBefore', { hours: signedHours(r.remainingBalanceHours) })}
-                              {r.exceedsBalance && ` · ${t('leave.overBalance')}`}
-                            </span>
-                          ) : (
-                            <span className="list-view__notes">—</span>
-                          )}
-                        </td>
-                        <td className="list-view__notes">{r.comment ?? ""}</td>
-                        <td>
-                          <StatusLabel request={r} />
-                        </td>
-                        <td className="list-view__actions">
-                          {r.inLockedMonth && (
-                            <span className="locked-label" title={t('lockedMonths.leaveLockedHint')}>
-                              🔒 {t('lockedMonths.locked')}
-                            </span>
-                          )}
-                          {r.status === "Pending" && r.canReview && (
-                            <>
-                              {!r.inLockedMonth && (
+                <div className="table-scroll">
+                  <table className="list-view">
+                    <thead>
+                      <tr>
+                        <th>{t('leave.table.employee')}</th>
+                        <th>{t('leave.table.type')}</th>
+                        <th>{t('leave.table.period')}</th>
+                        <th>{t('leave.table.hours')}</th>
+                        <th>{t('leave.table.balance')}</th>
+                        <th>{t('leave.table.status')}</th>
+                        <th aria-label={t('leave.table.actions')} />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {toReview.map((r) => (
+                        <tr key={r.id}>
+                          <td>{r.userFullName}</td>
+                          <td>
+                            <HourTypeLabel request={r} />
+                          </td>
+                          <td>
+                            {period(r, t)}
+                            {r.comment && <div className="list-view__notes">{r.comment}</div>}
+                          </td>
+                          <td>{hoursToHm(r.hours)}</td>
+                          <td>
+                            {r.remainingBalanceHours != null ? (
+                              <span className={r.exceedsBalance ? "balance-negative" : undefined}>
+                                {t('leave.leftBefore', { hours: signedHours(r.remainingBalanceHours) })}
+                                {r.exceedsBalance && ` · ${t('leave.overBalance')}`}
+                              </span>
+                            ) : (
+                              <span className="list-view__notes">—</span>
+                            )}
+                          </td>
+                          <td>
+                            <StatusLabel request={r} />
+                          </td>
+                          <td className="list-view__actions">
+                            {r.inLockedMonth && (
+                              <span className="locked-label" title={t('lockedMonths.leaveLockedHint')}>
+                                🔒 {t('lockedMonths.locked')}
+                              </span>
+                            )}
+                            {r.status === "Pending" && r.canReview && (
+                              <>
+                                {!r.inLockedMonth && (
+                                  <button
+                                    className="btn btn--primary btn--sm"
+                                    onClick={() => handleApprove(r)}
+                                    disabled={busyId === r.id}
+                                  >
+                                    {t('leave.approve')}
+                                  </button>
+                                )}
                                 <button
-                                  className="btn btn--primary btn--sm"
-                                  onClick={() => handleApprove(r)}
+                                  className="btn btn--ghost btn--sm btn--danger"
+                                  onClick={() => handleReject(r)}
                                   disabled={busyId === r.id}
                                 >
-                                  {t('leave.approve')}
+                                  {t('leave.reject')}
                                 </button>
-                              )}
+                              </>
+                            )}
+                            {r.status === "Approved" && r.canCancel && (
                               <button
                                 className="btn btn--ghost btn--sm btn--danger"
-                                onClick={() => handleReject(r)}
+                                onClick={() => handleCancel(r)}
                                 disabled={busyId === r.id}
                               >
-                                {t('leave.reject')}
+                                {t('leave.revoke')}
                               </button>
-                            </>
-                          )}
-                          {r.status === "Approved" && r.canCancel && (
-                            <button
-                              className="btn btn--ghost btn--sm btn--danger"
-                              onClick={() => handleCancel(r)}
-                              disabled={busyId === r.id}
-                            >
-                              {t('leave.revoke')}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}
@@ -280,51 +283,53 @@ export function LeavePage() {
             {mine.length === 0 ? (
               <p className="empty-state">{t('leave.noRequests')}</p>
             ) : (
-              <table className="list-view">
-                <thead>
-                  <tr>
-                    <th>{t('leave.table.type')}</th>
-                    <th>{t('leave.table.period')}</th>
-                    <th>{t('leave.table.hours')}</th>
-                    <th>{t('leave.table.status')}</th>
-                    <th>{t('leave.table.reviewedBy')}</th>
-                    <th aria-label={t('leave.table.actions')} />
-                  </tr>
-                </thead>
-                <tbody>
-                  {mine.map((r) => (
-                    <tr key={r.id}>
-                      <td>
-                        <HourTypeLabel request={r} />
-                      </td>
-                      <td>
-                        {period(r, t)}
-                        {r.comment && <div className="list-view__notes">{r.comment}</div>}
-                      </td>
-                      <td>{hoursToHm(r.hours)}</td>
-                      <td>
-                        <StatusLabel request={r} />
-                        {r.exceedsBalance && <div className="balance-negative">{t('leave.overBalance')}</div>}
-                      </td>
-                      <td>
-                        {r.reviewedByName ?? <span className="list-view__notes">—</span>}
-                        {r.reviewComment && <div className="list-view__notes">“{r.reviewComment}”</div>}
-                      </td>
-                      <td className="list-view__actions">
-                        {r.canCancel && (
-                          <button
-                            className="btn btn--ghost btn--sm btn--danger"
-                            onClick={() => handleCancel(r)}
-                            disabled={busyId === r.id}
-                          >
-                            {r.status === "Approved" ? t('leave.revoke') : t('leave.withdraw')}
-                          </button>
-                        )}
-                      </td>
+              <div className="table-scroll">
+                <table className="list-view">
+                  <thead>
+                    <tr>
+                      <th>{t('leave.table.type')}</th>
+                      <th>{t('leave.table.period')}</th>
+                      <th>{t('leave.table.hours')}</th>
+                      <th>{t('leave.table.status')}</th>
+                      <th>{t('leave.table.reviewedBy')}</th>
+                      <th aria-label={t('leave.table.actions')} />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {mine.map((r) => (
+                      <tr key={r.id}>
+                        <td>
+                          <HourTypeLabel request={r} />
+                        </td>
+                        <td>
+                          {period(r, t)}
+                          {r.comment && <div className="list-view__notes">{r.comment}</div>}
+                        </td>
+                        <td>{hoursToHm(r.hours)}</td>
+                        <td>
+                          <StatusLabel request={r} />
+                          {r.exceedsBalance && <div className="balance-negative">{t('leave.overBalance')}</div>}
+                        </td>
+                        <td>
+                          {r.reviewedByName ?? <span className="list-view__notes">—</span>}
+                          {r.reviewComment && <div className="list-view__notes">“{r.reviewComment}”</div>}
+                        </td>
+                        <td className="list-view__actions">
+                          {r.canCancel && (
+                            <button
+                              className="btn btn--ghost btn--sm btn--danger"
+                              onClick={() => handleCancel(r)}
+                              disabled={busyId === r.id}
+                            >
+                              {r.status === "Approved" ? t('leave.revoke') : t('leave.withdraw')}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
           )}
@@ -570,70 +575,72 @@ function BalancesPanel({ year, onYearChange, balances, canEdit, onSaved, onError
         </div>
       </div>
       {canEdit && <p className="form__hint">{t('leave.balancesHint')}</p>}
-      <table className="list-view">
-        <thead>
-          <tr>
-            <th>{t('leave.table.employee')}</th>
-            <th>{t('leave.table.allowance')}</th>
-            <th>{t('leave.table.used')}</th>
-            <th>{t('leave.table.pending')}</th>
-            <th>{t('leave.table.remaining')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {balances.map((b) => {
-            const draft = drafts[b.userId];
-            return (
-              <tr key={b.userId}>
-                <td>{b.userFullName}</td>
-                <td>
-                  {canEdit ? (
-                    <form
-                      style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        save(b);
-                      }}
-                    >
-                      <input
-                        type="number"
-                        min={0}
-                        step={0.5}
-                        style={{ width: '6rem' }}
-                        aria-label={t('leave.allowanceFor', { name: b.userFullName })}
-                        placeholder={t('leave.notSet')}
-                        value={draft ?? (b.allowanceHours ?? "").toString()}
-                        onChange={(e) => setDrafts({ ...drafts, [b.userId]: e.target.value })}
-                      />
-                      {draft !== undefined && draft !== "" && (
-                        <button className="btn btn--primary btn--sm" type="submit" disabled={savingId === b.userId}>
-                          {t('common.save')}
-                        </button>
-                      )}
-                    </form>
-                  ) : b.allowanceHours != null ? (
-                    hoursToHm(b.allowanceHours)
-                  ) : (
-                    <span className="list-view__notes">{t('leave.notSet')}</span>
-                  )}
-                </td>
-                <td>{hoursToHm(b.usedHours)}</td>
-                <td>{b.pendingHours > 0 ? hoursToHm(b.pendingHours) : <span className="list-view__notes">—</span>}</td>
-                <td>
-                  {b.remainingHours != null ? (
-                    <span className={b.remainingHours < 0 ? "balance-negative" : undefined}>
-                      {signedHours(b.remainingHours)}
-                      {b.remainingHours <= 0 && ` · ${t('leave.usedUp')}`}
-                    </span>
-                  ) : (
-                    <span className="list-view__notes">—</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-scroll">
+        <table className="list-view">
+          <thead>
+            <tr>
+              <th>{t('leave.table.employee')}</th>
+              <th>{t('leave.table.allowance')}</th>
+              <th>{t('leave.table.used')}</th>
+              <th>{t('leave.table.pending')}</th>
+              <th>{t('leave.table.remaining')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {balances.map((b) => {
+              const draft = drafts[b.userId];
+              return (
+                <tr key={b.userId}>
+                  <td>{b.userFullName}</td>
+                  <td>
+                    {canEdit ? (
+                      <form
+                        style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          save(b);
+                        }}
+                      >
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.5}
+                          style={{ width: '6rem' }}
+                          aria-label={t('leave.allowanceFor', { name: b.userFullName })}
+                          placeholder={t('leave.notSet')}
+                          value={draft ?? (b.allowanceHours ?? "").toString()}
+                          onChange={(e) => setDrafts({ ...drafts, [b.userId]: e.target.value })}
+                        />
+                        {draft !== undefined && draft !== "" && (
+                          <button className="btn btn--primary btn--sm" type="submit" disabled={savingId === b.userId}>
+                            {t('common.save')}
+                          </button>
+                        )}
+                      </form>
+                    ) : b.allowanceHours != null ? (
+                      hoursToHm(b.allowanceHours)
+                    ) : (
+                      <span className="list-view__notes">{t('leave.notSet')}</span>
+                    )}
+                  </td>
+                  <td>{hoursToHm(b.usedHours)}</td>
+                  <td>{b.pendingHours > 0 ? hoursToHm(b.pendingHours) : <span className="list-view__notes">—</span>}</td>
+                  <td>
+                    {b.remainingHours != null ? (
+                      <span className={b.remainingHours < 0 ? "balance-negative" : undefined}>
+                        {signedHours(b.remainingHours)}
+                        {b.remainingHours <= 0 && ` · ${t('leave.usedUp')}`}
+                      </span>
+                    ) : (
+                      <span className="list-view__notes">—</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

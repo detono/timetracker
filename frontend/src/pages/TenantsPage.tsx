@@ -155,43 +155,45 @@ export function TenantsPage() {
       ) : tenants.length === 0 ? (
         <p className="empty-state">{t('tenants.emptyState')}</p>
       ) : (
-        <table className="list-view">
-          <thead>
-            <tr>
-              <th>{t('tenants.table.name')}</th>
-              <th>{t('tenants.table.users')}</th>
-              <th>{t('tenants.table.created')}</th>
-              <th>{t('employees.table.status')}</th>
-              <th aria-label={t('employees.table.actions')} />
-            </tr>
-          </thead>
-          <tbody>
-            {tenants.map((tenant) => (
-              <tr key={tenant.id}>
-                <td>{tenant.name}</td>
-                <td>{tenant.userCount}</td>
-                <td>{new Date(tenant.createdAtUtc).toLocaleDateString(i18n.language)}</td>
-                <td>
-                  <span className={tenant.isActive ? "status status--active" : "status status--inactive"}>
-                    {tenant.isActive ? t('employees.statusActive') : t('employees.statusDeactivated')}
-                  </span>
-                </td>
-                <td className="list-view__actions">
-                  <button className="btn btn--ghost btn--sm" onClick={() => setResetTenant(tenant)}>
-                    {t('tenants.resetEmployerPassword')}
-                  </button>
-                  <button
-                    className={tenant.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                    onClick={() => handleToggleActive(tenant)}
-                    disabled={busyTenantId === tenant.id}
-                  >
-                    {tenant.isActive ? t('employees.deactivate') : t('employees.reactivate')}
-                  </button>
-                </td>
+        <div className="table-scroll">
+          <table className="list-view">
+            <thead>
+              <tr>
+                <th>{t('tenants.table.name')}</th>
+                <th>{t('tenants.table.users')}</th>
+                <th>{t('tenants.table.created')}</th>
+                <th>{t('employees.table.status')}</th>
+                <th aria-label={t('employees.table.actions')} />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tenants.map((tenant) => (
+                <tr key={tenant.id}>
+                  <td>{tenant.name}</td>
+                  <td>{tenant.userCount}</td>
+                  <td>{new Date(tenant.createdAtUtc).toLocaleDateString(i18n.language)}</td>
+                  <td>
+                    <span className={tenant.isActive ? "status status--active" : "status status--inactive"}>
+                      {tenant.isActive ? t('employees.statusActive') : t('employees.statusDeactivated')}
+                    </span>
+                  </td>
+                  <td className="list-view__actions">
+                    <button className="btn btn--ghost btn--sm" onClick={() => setResetTenant(tenant)}>
+                      {t('tenants.resetEmployerPassword')}
+                    </button>
+                    <button
+                      className={tenant.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
+                      onClick={() => handleToggleActive(tenant)}
+                      disabled={busyTenantId === tenant.id}
+                    >
+                      {tenant.isActive ? t('employees.deactivate') : t('employees.reactivate')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

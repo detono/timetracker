@@ -30,34 +30,36 @@ export function TeamHoursTable() {
         <h2>{t('hoursOverview.teamTitle')}</h2>
         <span className="form__hint">{t('hoursOverview.teamHint')}</span>
       </div>
-      <table className="list-view">
-        <thead>
-          <tr>
-            <th>{t('leave.table.employee')}</th>
-            <th>{t('hoursOverview.thisWeek')}</th>
-            <th>{monthName.charAt(0).toUpperCase() + monthName.slice(1)}</th>
-            <th>{t('hoursOverview.yearSoFar', { year: new Date().getFullYear() })}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.userId}>
-              <td>
-                {r.fullName}
-                <span className="list-view__notes">
-                  {" · "}
-                  {r.scheduleSource === "Personal"
-                    ? t('hoursOverview.perWeekOwn', { hours: hoursToHm(r.weeklyScheduleHours) })
-                    : t('hoursOverview.perWeek', { hours: hoursToHm(r.weeklyScheduleHours) })}
-                </span>
-              </td>
-              <DiffCell period={r.week} weekly={r.weeklyScheduleHours} />
-              <DiffCell period={r.month} weekly={r.weeklyScheduleHours} />
-              <DiffCell period={r.year} weekly={r.weeklyScheduleHours} />
+      <div className="table-scroll">
+        <table className="list-view">
+          <thead>
+            <tr>
+              <th>{t('leave.table.employee')}</th>
+              <th>{t('hoursOverview.thisWeek')}</th>
+              <th>{monthName.charAt(0).toUpperCase() + monthName.slice(1)}</th>
+              <th>{t('hoursOverview.yearSoFar', { year: new Date().getFullYear() })}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.userId}>
+                <td>
+                  {r.fullName}
+                  <span className="list-view__notes">
+                    {" · "}
+                    {r.scheduleSource === "Personal"
+                      ? t('hoursOverview.perWeekOwn', { hours: hoursToHm(r.weeklyScheduleHours) })
+                      : t('hoursOverview.perWeek', { hours: hoursToHm(r.weeklyScheduleHours) })}
+                  </span>
+                </td>
+                <DiffCell period={r.week} weekly={r.weeklyScheduleHours} />
+                <DiffCell period={r.month} weekly={r.weeklyScheduleHours} />
+                <DiffCell period={r.year} weekly={r.weeklyScheduleHours} />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

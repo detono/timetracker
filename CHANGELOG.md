@@ -48,12 +48,21 @@ Database migrations run automatically when the API starts, unless a release says
 - Passwords set by someone else (new accounts and resets) are temporary: the person must
   choose their own at their next login.
 - Hour types look the same everywhere: a pill with a dot in the hour type's color.
+- The menu folds behind a menu button on laptops and phones, and every page fits a phone
+  screen; wide tables scroll inside their own box.
+- Tables keep their rows and buttons aligned, and fields, dropdowns and checkboxes look the
+  same everywhere, also in dark mode.
+- Manage employees shows the email under the name, and Leave shows the comment under the
+  period, so both tables fit on a laptop.
+- The browser tab shows a clock icon in the brand color.
 - Changing your password signs you out on your other devices. `POST /api/auth/change-password`
   now returns a new sign-in instead of an empty response.
 
 ### Fixed
 
 - Running a report with any hours in it showed a blank page (since 0.3.0).
+- Texts that were always English (hour type form, project details, list/planboard toggle)
+  are now translated, and English texts use sentence case throughout.
 - CSV exports quote names with commas, quotes or line breaks correctly, and names can't run as
   spreadsheet formulas.
 - Deactivating a person or company, or resetting their password, now signs them out right

@@ -23,23 +23,21 @@ const noLeave: LeaveOptions = { isLeave: false, deductsFromLeaveBalance: false }
 function LeaveOptionsFields({ value, onChange }: { value: LeaveOptions; onChange: (value: LeaveOptions) => void }) {
   const { t } = useTranslation();
   return (
-    <div className="form__row" style={{ marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-      <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+    <div className="form__row form__row--options">
+      <label className="check-field">
         <input
           type="checkbox"
           checked={value.isLeave}
           onChange={(e) => onChange({ isLeave: e.target.checked, deductsFromLeaveBalance: e.target.checked && value.deductsFromLeaveBalance })}
-          style={{ width: 'auto' }}
         />
         <span>{t('hourTypes.isLeave')}</span>
       </label>
-      <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+      <label className="check-field">
         <input
           type="checkbox"
           checked={value.deductsFromLeaveBalance}
           disabled={!value.isLeave}
           onChange={(e) => onChange({ ...value, deductsFromLeaveBalance: e.target.checked })}
-          style={{ width: 'auto' }}
         />
         <span>{t('hourTypes.deductsFromBalance')}</span>
       </label>
@@ -50,6 +48,58 @@ function LeaveOptionsFields({ value, onChange }: { value: LeaveOptions; onChange
 interface LocalizedInput {
   lang: string;
   value: string;
+}
+
+/** The hour type's name per language: one row per language code, with add and remove. */
+function NameTranslationsField({ rows, onChange }: { rows: LocalizedInput[]; onChange: (rows: LocalizedInput[]) => void }) {
+  const { t } = useTranslation();
+  const update = (idx: number, patch: Partial<LocalizedInput>) =>
+    onChange(rows.map((row, i) => (i === idx ? { ...row, ...patch } : row)));
+
+  return (
+    <fieldset className="translation-rows">
+      <legend>{t('hourTypes.namesLegend')}</legend>
+      <div className="translation-row translation-row--head" aria-hidden="true">
+        <span>{t('hourTypes.languageCode')}</span>
+        <span>{t('hourTypes.name')}</span>
+      </div>
+      {rows.map((row, idx) => (
+        <div key={idx} className="translation-row">
+          <input
+            value={row.lang}
+            onChange={(e) => update(idx, { lang: e.target.value })}
+            placeholder="en"
+            aria-label={t('hourTypes.languageCode')}
+            maxLength={5}
+            required
+          />
+          <input
+            value={row.value}
+            onChange={(e) => update(idx, { value: e.target.value })}
+            placeholder={t('hourTypes.namePlaceholder')}
+            aria-label={t('hourTypes.name')}
+            required
+          />
+          {rows.length > 1 ? (
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={() => onChange(rows.filter((_, i) => i !== idx))}
+              aria-label={t('hourTypes.removeLanguage', { code: row.lang || '?' })}
+              title={t('hourTypes.removeLanguage', { code: row.lang || '?' })}
+            >
+              ×
+            </button>
+          ) : (
+            <span />
+          )}
+        </div>
+      ))}
+      <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange([...rows, { lang: '', value: '' }])}>
+        + {t('hourTypes.addLanguage')}
+      </button>
+    </fieldset>
+  );
 }
 
 export function HourTypesPage() {
@@ -223,55 +273,9 @@ export function HourTypesPage() {
         <h2>{t('hourTypes.addNewType', 'Add New Type')}</h2>
         <form className="form" onSubmit={handleCreate}>
 
-          {/* Dynamic Language Inputs */}
-          <div className="form__row" style={{ flexWrap: 'wrap' }}>
-            {names.map((item, idx) => (
-              <div key={`create-lang-${idx}`} style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', marginBottom: '8px' }}>
-                <label className="form__field form__field--narrow">
-                  <span>Code (e.g. en)</span>
-                  <input
-                    value={item.lang}
-                    onChange={(e) => {
-                      const newNames = [...names];
-                      newNames[idx].lang = e.target.value;
-                      setNames(newNames);
-                    }}
-                    placeholder="en"
-                    required
-                  />
-                </label>
-                <label className="form__field">
-                  <span>Translation</span>
-                  <input
-                    value={item.value}
-                    onChange={(e) => {
-                      const newNames = [...names];
-                      newNames[idx].value = e.target.value;
-                      setNames(newNames);
-                    }}
-                    placeholder="e.g. Work"
-                    required
-                  />
-                </label>
-                {names.length > 1 && (
-                  <button type="button" className="btn btn--ghost btn--sm btn--danger" style={{ marginBottom: '4px' }} onClick={() => setNames(names.filter((_, i) => i !== idx))}>
-                    X
-                  </button>
-                )}
-              </div>
-            ))}
+          <NameTranslationsField rows={names} onChange={setNames} />
 
-            <button
-              type="button"
-              className="btn btn--ghost btn--sm"
-              style={{ alignSelf: 'center', marginTop: '16px' }}
-              onClick={() => setNames([...names, { lang: '', value: '' }])}
-            >
-              + Add Language
-            </button>
-          </div>
-
-          <div className="form__row" style={{ marginTop: '16px', alignItems: 'center' }}>
+          <div className="form__row form__row--options">
             <label className="form__field form__field--narrow">
               <span>{t('hourTypes.color', 'Color')}</span>
 
@@ -282,14 +286,13 @@ export function HourTypesPage() {
               />
             </label>
 
-            <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <label className="check-field">
               <input
                 type="checkbox"
                 checked={isDefault}
                 onChange={(e) => setIsDefault(e.target.checked)}
-                style={{ width: 'auto' }}
               />
-              <span>Set as Default</span>
+              <span>{t('hourTypes.setAsDefault')}</span>
             </label>
           </div>
 
@@ -308,138 +311,96 @@ export function HourTypesPage() {
       {loading ? (
         <p className="empty-state">{t('common.loading', 'Loading...')}</p>
       ) : (
-        <table className="list-view">
-          <thead>
-            <tr>
-              <th>{t('hourTypes.table.name', 'Name')}</th>
-              <th>{t('hourTypes.table.color', 'Color')}</th>
-              <th>{t('hourTypes.table.status', 'Status')}</th>
-              <th aria-label={t('hourTypes.table.actions', 'Actions')} />
-            </tr>
-          </thead>
-          <tbody>
-            {types.map((type) => (
-              <tr key={type.id}>
-                {editingId === type.id ? (
-                  <td colSpan={4}>
-                    <form className="form form--entry" onSubmit={handleSaveEdit}>
-
-                      {/* Dynamic Language Inputs for Edit Mode */}
-                      <div className="form__row" style={{ flexWrap: 'wrap' }}>
-                        {editNames.map((item, idx) => (
-                          <div key={`edit-lang-${idx}`} style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', marginBottom: '8px' }}>
-                            <label className="form__field form__field--narrow">
-                              <span>Code</span>
-                              <input
-                                value={item.lang}
-                                onChange={(e) => {
-                                  const newNames = [...editNames];
-                                  newNames[idx].lang = e.target.value;
-                                  setEditNames(newNames);
-                                }}
-                                required
-                              />
-                            </label>
-                            <label className="form__field">
-                              <span>Translation</span>
-                              <input
-                                value={item.value}
-                                onChange={(e) => {
-                                  const newNames = [...editNames];
-                                  newNames[idx].value = e.target.value;
-                                  setEditNames(newNames);
-                                }}
-                                required
-                              />
-                            </label>
-                            {editNames.length > 1 && (
-                              <button type="button" className="btn btn--ghost btn--sm btn--danger" style={{ marginBottom: '4px' }} onClick={() => setEditNames(editNames.filter((_, i) => i !== idx))}>
-                                X
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        <button
-                          type="button"
-                          className="btn btn--ghost btn--sm"
-                          style={{ alignSelf: 'center' }}
-                          onClick={() => setEditNames([...editNames, { lang: '', value: '' }])}
-                        >
-                          + Add Language
-                        </button>
-                      </div>
-
-                      <div className="form__row" style={{ marginTop: '16px', alignItems: 'center' }}>
-                        <label className="form__field form__field--narrow">
-                          <span>{t('hourTypes.color', 'Color')}</span>
-                          <input
-                            type="color"
-                            value={getValidHex(editColor)}
-                            onChange={(e) => setEditColor(e.target.value)}
-                          />
-                        </label>
-
-                        <label className="form__field" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={editIsDefault}
-                            onChange={(e) => setEditIsDefault(e.target.checked)}
-                            style={{ width: 'auto' }}
-                          />
-                          <span>Set as Default</span>
-                        </label>
-                      </div>
-
-                      <LeaveOptionsFields value={editLeaveOptions} onChange={setEditLeaveOptions} />
-
-                      <div className="form__actions" style={{ marginTop: '16px' }}>
-                        <button className="btn btn--primary" type="submit" disabled={savingEdit}>
-                          {savingEdit ? t('hourTypes.saving', 'Saving...') : t('common.save', 'Save')}
-                        </button>
-                        <button type="button" className="btn btn--ghost" onClick={() => setEditingId(null)}>
-                          {t('common.cancel', 'Cancel')}
-                        </button>
-                      </div>
-                    </form>
-                  </td>
-                ) : (
-                  <>
-                    <td>
-                      {getDisplayName(type.localizedNames)}
-                      {type.isDefault && <span style={{ marginLeft: '8px', fontSize: '0.85em' }}>⭐</span>}
-                      {type.isLeave && (
-                        <span className="badge" title={type.deductsFromLeaveBalance ? t('hourTypes.deductsFromBalance') : undefined}>
-                          {type.deductsFromLeaveBalance ? t('hourTypes.leaveBadgeBalance') : t('hourTypes.leaveBadge')}
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <span className="color-swatch" style={{ backgroundColor: type.colorHex }} />
-                      <span className="list-view__notes">{type.colorHex}</span>
-                    </td>
-                    <td>
-                      <span className={type.isActive ? "status status--active" : "status status--inactive"}>
-                        {type.isActive ? t('hourTypes.statusActive', 'Active') : t('hourTypes.statusDeactivated', 'Deactivated')}
-                      </span>
-                    </td>
-                    <td className="list-view__actions">
-                      <button className="btn btn--ghost btn--sm" onClick={() => startEdit(type)}>
-                        {t('common.edit', 'Edit')}
-                      </button>
-                      <button
-                        className={type.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                        onClick={() => handleToggleActive(type)}
-                        disabled={busyId === type.id}
-                      >
-                        {type.isActive ? t('hourTypes.deactivate', 'Deactivate') : t('hourTypes.reactivate', 'Reactivate')}
-                      </button>
-                    </td>
-                  </>
-                )}
+        <div className="table-scroll">
+          <table className="list-view">
+            <thead>
+              <tr>
+                <th>{t('hourTypes.table.name', 'Name')}</th>
+                <th>{t('hourTypes.table.color', 'Color')}</th>
+                <th>{t('hourTypes.table.status', 'Status')}</th>
+                <th aria-label={t('hourTypes.table.actions', 'Actions')} />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {types.map((type) => (
+                <tr key={type.id}>
+                  {editingId === type.id ? (
+                    <td colSpan={4}>
+                      <form className="form form--entry" onSubmit={handleSaveEdit}>
+
+                        <NameTranslationsField rows={editNames} onChange={setEditNames} />
+
+                        <div className="form__row form__row--options">
+                          <label className="form__field form__field--narrow">
+                            <span>{t('hourTypes.color', 'Color')}</span>
+                            <input
+                              type="color"
+                              value={getValidHex(editColor)}
+                              onChange={(e) => setEditColor(e.target.value)}
+                            />
+                          </label>
+
+                          <label className="check-field">
+                            <input
+                              type="checkbox"
+                              checked={editIsDefault}
+                              onChange={(e) => setEditIsDefault(e.target.checked)}
+                                          />
+                            <span>{t('hourTypes.setAsDefault')}</span>
+                          </label>
+                        </div>
+
+                        <LeaveOptionsFields value={editLeaveOptions} onChange={setEditLeaveOptions} />
+
+                        <div className="form__actions" style={{ marginTop: '16px' }}>
+                          <button className="btn btn--primary" type="submit" disabled={savingEdit}>
+                            {savingEdit ? t('hourTypes.saving', 'Saving...') : t('common.save', 'Save')}
+                          </button>
+                          <button type="button" className="btn btn--ghost" onClick={() => setEditingId(null)}>
+                            {t('common.cancel', 'Cancel')}
+                          </button>
+                        </div>
+                      </form>
+                    </td>
+                  ) : (
+                    <>
+                      <td>
+                        {getDisplayName(type.localizedNames)}
+                        {type.isDefault && <span style={{ marginLeft: '8px', fontSize: '0.85em' }}>⭐</span>}
+                        {type.isLeave && (
+                          <span className="badge" title={type.deductsFromLeaveBalance ? t('hourTypes.deductsFromBalance') : undefined}>
+                            {type.deductsFromLeaveBalance ? t('hourTypes.leaveBadgeBalance') : t('hourTypes.leaveBadge')}
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="color-swatch" style={{ backgroundColor: type.colorHex }} />
+                        <span className="list-view__notes">{type.colorHex}</span>
+                      </td>
+                      <td>
+                        <span className={type.isActive ? "status status--active" : "status status--inactive"}>
+                          {type.isActive ? t('hourTypes.statusActive', 'Active') : t('hourTypes.statusDeactivated', 'Deactivated')}
+                        </span>
+                      </td>
+                      <td className="list-view__actions">
+                        <button className="btn btn--ghost btn--sm" onClick={() => startEdit(type)}>
+                          {t('common.edit', 'Edit')}
+                        </button>
+                        <button
+                          className={type.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
+                          onClick={() => handleToggleActive(type)}
+                          disabled={busyId === type.id}
+                        >
+                          {type.isActive ? t('hourTypes.deactivate', 'Deactivate') : t('hourTypes.reactivate', 'Reactivate')}
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

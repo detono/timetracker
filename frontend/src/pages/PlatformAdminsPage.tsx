@@ -127,42 +127,44 @@ export function PlatformAdminsPage() {
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>
       ) : (
-        <table className="list-view">
-          <thead>
-            <tr>
-              <th>{t('employees.table.name')}</th>
-              <th>{t('employees.table.email')}</th>
-              <th>{t('employees.table.status')}</th>
-              <th aria-label={t('employees.table.actions')} />
-            </tr>
-          </thead>
-          <tbody>
-            {admins.map((admin) => (
-              <tr key={admin.id}>
-                <td>
-                  {admin.firstName} {admin.lastName}
-                  {admin.id === currentUser?.userId && <span className="badge">{t('employees.youBadge')}</span>}
-                </td>
-                <td>{admin.email}</td>
-                <td>
-                  <span className={admin.isActive ? "status status--active" : "status status--inactive"}>
-                    {admin.isActive ? t('employees.statusActive') : t('employees.statusDeactivated')}
-                  </span>
-                </td>
-                <td className="list-view__actions">
-                  <button
-                    className={admin.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                    onClick={() => handleToggleActive(admin)}
-                    disabled={busyAdminId === admin.id || admin.id === currentUser?.userId}
-                    title={admin.id === currentUser?.userId ? t('employees.cannotDeactivateSelf') : undefined}
-                  >
-                    {admin.isActive ? t('employees.deactivate') : t('employees.reactivate')}
-                  </button>
-                </td>
+        <div className="table-scroll">
+          <table className="list-view">
+            <thead>
+              <tr>
+                <th>{t('employees.table.name')}</th>
+                <th>{t('employees.table.email')}</th>
+                <th>{t('employees.table.status')}</th>
+                <th aria-label={t('employees.table.actions')} />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {admins.map((admin) => (
+                <tr key={admin.id}>
+                  <td>
+                    {admin.firstName} {admin.lastName}
+                    {admin.id === currentUser?.userId && <span className="badge">{t('employees.youBadge')}</span>}
+                  </td>
+                  <td>{admin.email}</td>
+                  <td>
+                    <span className={admin.isActive ? "status status--active" : "status status--inactive"}>
+                      {admin.isActive ? t('employees.statusActive') : t('employees.statusDeactivated')}
+                    </span>
+                  </td>
+                  <td className="list-view__actions">
+                    <button
+                      className={admin.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
+                      onClick={() => handleToggleActive(admin)}
+                      disabled={busyAdminId === admin.id || admin.id === currentUser?.userId}
+                      title={admin.id === currentUser?.userId ? t('employees.cannotDeactivateSelf') : undefined}
+                    >
+                      {admin.isActive ? t('employees.deactivate') : t('employees.reactivate')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

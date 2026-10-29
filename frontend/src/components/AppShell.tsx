@@ -33,12 +33,36 @@ export function AppShell() {
 
   const shellContext: ShellContext = { pendingLeaveCount, refreshPendingLeaveCount };
 
+  // On narrower screens the menu folds away behind a button; it closes again after navigating.
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="shell">
       <header className="shell__header">
         <div className="shell__brand">
           <span className="shell__brand-mark">{appConfig.title}</span>
         </div>
+        <button
+          type="button"
+          className="shell__menu-toggle"
+          aria-controls="main-menu"
+          aria-expanded={menuOpen}
+          aria-label={t('nav.menu')}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            {menuOpen ? (
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            ) : (
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            )}
+          </svg>
+          {pendingLeaveCount > 0 && !menuOpen && <span className="shell__menu-dot" aria-hidden="true" />}
+        </button>
+        <div id="main-menu" className={menuOpen ? "shell__menu is-open" : "shell__menu"}>
         <nav className="shell__nav">
           {user?.role === "PlatformAdmin" ? (
             <>
@@ -97,6 +121,7 @@ export function AppShell() {
           <button className="btn btn--ghost" onClick={logout}>
             {t('common.signOut')}
           </button>
+        </div>
         </div>
       </header>
       <main className="shell__content">

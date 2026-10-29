@@ -252,88 +252,93 @@ export function EmployeesPage() {
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>
       ) : (
-        <table className="list-view">
-          <thead>
-            <tr>
-              <th>{t('employees.table.name')}</th>
-              <th>{t('employees.table.email')}</th>
-              <th>{t('employees.table.role')}</th>
-              <th>{t('employees.table.supervisor')}</th>
-              <th title={t('employees.tracksHoursHint')}>{t('employees.table.tracksHours')}</th>
-              <th>{t('employees.table.status')}</th>
-              <th aria-label={t('employees.table.actions')} />
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id}>
-                <td>
-                  {u.firstName} {u.lastName}
-                  {u.id === currentUser?.userId && <span className="badge">{t('employees.youBadge')}</span>}
-                </td>
-                <td>{u.email}</td>
-                <td>{u.role === "Employer" ? t('roles.employer') : t('roles.employee')}</td>
-                <td>
-                  {u.role === "Employee" ? (
-                    <select
-                      value={u.supervisorId ?? ""}
-                      onChange={(e) => handleSupervisorChange(u, e.target.value)}
-                      disabled={busyUserId === u.id}
-                    >
-                      <option value="">{t('employees.none')}</option>
-                      {potentialSupervisors
-                        .filter((s) => s.id !== u.id)
-                        .map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.firstName} {s.lastName}
-                          </option>
-                        ))}
-                    </select>
-                  ) : (
-                    <span className="list-view__notes">—</span>
-                  )}
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={u.tracksHours}
-                    onChange={(e) => handleTracksHoursChange(u, e.target.checked)}
-                    disabled={busyUserId === u.id}
-                    aria-label={t('employees.tracksHoursFor', { name: `${u.firstName} ${u.lastName}` })}
-                    title={t('employees.tracksHoursHint')}
-                  />
-                </td>
-                <td>
-                  <span className={u.isActive ? "status status--active" : "status status--inactive"}>
-                    {u.isActive ? t('employees.statusActive') : t('employees.statusDeactivated')}
-                  </span>
-                </td>
-                <td className="list-view__actions">
-                  <button className="btn btn--ghost btn--sm" onClick={() => setScheduleUser(u)}>
-                    {t('workSchedule.button')}
-                  </button>
-                  <button
-                    className="btn btn--ghost btn--sm"
-                    onClick={() => {
-                      setResettingUser(u);
-                      setResetPasswordValue("");
-                    }}
-                  >
-                    {t('employees.btnResetPassword')}
-                  </button>
-                  <button
-                    className={u.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                    onClick={() => handleToggleActive(u)}
-                    disabled={busyUserId === u.id || u.id === currentUser?.userId}
-                    title={u.id === currentUser?.userId ? t('employees.cannotDeactivateSelf') : undefined}
-                  >
-                    {u.isActive ? t('employees.deactivate') : t('employees.reactivate')}
-                  </button>
-                </td>
+        <div className="table-scroll">
+          <table className="list-view">
+            <thead>
+              <tr>
+                <th>{t('employees.table.name')}</th>
+                <th>{t('employees.table.role')}</th>
+                <th>{t('employees.table.supervisor')}</th>
+                <th title={t('employees.tracksHoursHint')}>{t('employees.table.tracksHours')}</th>
+                <th>{t('employees.table.status')}</th>
+                <th aria-label={t('employees.table.actions')} />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id}>
+                  <td>
+                    <div className="person-cell">
+                      <span className="person-cell__name">
+                        {u.firstName} {u.lastName}
+                        {u.id === currentUser?.userId && <span className="badge">{t('employees.youBadge')}</span>}
+                      </span>
+                      <span className="person-cell__email">{u.email}</span>
+                    </div>
+                  </td>
+                  <td>{u.role === "Employer" ? t('roles.employer') : t('roles.employee')}</td>
+                  <td>
+                    {u.role === "Employee" ? (
+                      <select
+                        value={u.supervisorId ?? ""}
+                        onChange={(e) => handleSupervisorChange(u, e.target.value)}
+                        disabled={busyUserId === u.id}
+                      >
+                        <option value="">{t('employees.none')}</option>
+                        {potentialSupervisors
+                          .filter((s) => s.id !== u.id)
+                          .map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.firstName} {s.lastName}
+                            </option>
+                          ))}
+                      </select>
+                    ) : (
+                      <span className="list-view__notes">—</span>
+                    )}
+                  </td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={u.tracksHours}
+                      onChange={(e) => handleTracksHoursChange(u, e.target.checked)}
+                      disabled={busyUserId === u.id}
+                      aria-label={t('employees.tracksHoursFor', { name: `${u.firstName} ${u.lastName}` })}
+                      title={t('employees.tracksHoursHint')}
+                    />
+                  </td>
+                  <td>
+                    <span className={u.isActive ? "status status--active" : "status status--inactive"}>
+                      {u.isActive ? t('employees.statusActive') : t('employees.statusDeactivated')}
+                    </span>
+                  </td>
+                  <td className="list-view__actions">
+                    <button className="btn btn--ghost btn--sm" onClick={() => setScheduleUser(u)}>
+                      {t('workSchedule.button')}
+                    </button>
+                    <button
+                      className="btn btn--ghost btn--sm"
+                      onClick={() => {
+                        setResettingUser(u);
+                        setResetPasswordValue("");
+                      }}
+                    >
+                      {t('employees.btnResetPassword')}
+                    </button>
+                    <button
+                      className={u.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
+                      onClick={() => handleToggleActive(u)}
+                      disabled={busyUserId === u.id || u.id === currentUser?.userId}
+                      title={u.id === currentUser?.userId ? t('employees.cannotDeactivateSelf') : undefined}
+                    >
+                      {u.isActive ? t('employees.deactivate') : t('employees.reactivate')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
