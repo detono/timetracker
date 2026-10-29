@@ -1,5 +1,7 @@
+using System.Net;
 using System.Net.Sockets;
 using MailKit;
+using Microsoft.Extensions.Options;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
@@ -12,8 +14,9 @@ using TimeTracker.Domain.Enums;
 namespace TimeTracker.Infrastructure.Email;
 
 /// <summary>Sends mail through the tenant's SMTP server with MailKit.</summary>
-public class SmtpMailTransport(ISecretProtector secretProtector) {
+public class SmtpMailTransport(ISecretProtector secretProtector, IOptions<MailNetworkOptions>? networkOptions = null) {
     private const int TimeoutMilliseconds = 30_000;
+    private readonly bool _allowInternalHosts = networkOptions?.Value.AllowInternalHosts ?? false;
 
     public async Task SendAsync(TenantMailSettings settings, EmailMessage message, CancellationToken cancellationToken) {
         var host = settings.SmtpHost ?? throw new EmailDeliveryException("No SMTP host is configured.");
@@ -22,7 +25,9 @@ public class SmtpMailTransport(ISecretProtector secretProtector) {
 
         using var client = new SmtpClient { Timeout = TimeoutMilliseconds };
         try {
-            await client.ConnectAsync(host, port, ToSocketOptions(settings.SmtpSecurity), cancellationToken);
+            // Connect to a checked IP address ourselves, so the host can't resolve to something else in between.
+            var socket = await ConnectSocketAsync(host, port, cancellationToken);
+            await client.ConnectAsync(socket, host, port, ToSocketOptions(settings.SmtpSecurity), cancellationToken);
 
             if (!string.IsNullOrEmpty(settings.SmtpUsername)) {
                 var password = settings.SmtpPasswordProtected is null
@@ -82,4 +87,28 @@ public class SmtpMailTransport(ISecretProtector secretProtector) {
         SmtpSecurity.None => SecureSocketOptions.None,
         _ => SecureSocketOptions.StartTls
     };
+
+    private async Task<Socket> ConnectSocketAsync(string host, int port, CancellationToken cancellationToken) {
+        var addresses = IPAddress.TryParse(host, out var literal)
+            ? new[] { literal }
+            : await Dns.GetHostAddressesAsync(host, cancellationToken);
+        var allowed = _allowInternalHosts ? addresses : addresses.Where(a => !NetworkAddresses.IsInternal(a)).ToArray();
+        if (allowed.Length == 0) {
+            throw new EmailDeliveryException(
+                $"{host} is on an internal network, and this server only sends mail through public mail servers. " +
+                "Use your mail provider's SMTP host, or ask whoever runs this server to allow internal mail " +
+                "servers (Email__AllowInternalHosts=true).");
+        }
+
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeoutMilliseconds);
+        var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+        try {
+            await socket.ConnectAsync(allowed, port, timeout.Token);
+            return socket;
+        } catch {
+            socket.Dispose();
+            throw;
+        }
+    }
 }

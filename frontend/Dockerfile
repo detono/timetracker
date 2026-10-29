@@ -3,7 +3,8 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm install
+# Exactly the audited versions from package-lock.json.
+RUN npm ci
 
 COPY . .
 
@@ -23,6 +24,7 @@ RUN apk add --no-cache gettext
 
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY security-headers.conf /etc/nginx/security-headers.conf
 COPY config.template.js /usr/share/nginx/html/config.template.js
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh

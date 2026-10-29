@@ -4,8 +4,10 @@ namespace TimeTracker.Application.Common.Interfaces;
 public interface ISessionValidator
 {
     /// <summary>
-    /// False when the user or their company was deactivated, or when the sign-in is older than
-    /// their last password change or reset.
+    /// False when the user or their company was deactivated, when the sign-in is older than
+    /// their last password change or reset, or when the token's role or company don't match
+    /// the account (so even a token signed with a leaked secret can't claim more rights).
     /// </summary>
-    Task<bool> IsValidAsync(Guid userId, int sessionVersion, CancellationToken cancellationToken = default);
+    Task<bool> IsValidAsync(
+        Guid userId, int sessionVersion, string? role, Guid? tenantId, CancellationToken cancellationToken = default);
 }

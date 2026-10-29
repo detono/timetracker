@@ -54,6 +54,7 @@ public static class DependencyInjection {
 
         services.AddSingleton<IGraphTokenProvider, ClientSecretGraphTokenProvider>();
         services.AddHttpClient<GraphMailTransport>(client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.Configure<MailNetworkOptions>(configuration.GetSection(MailNetworkOptions.SectionName));
         services.AddScoped<SmtpMailTransport>();
         services.AddScoped<IMailDispatcher, MailDispatcher>();
         services.AddScoped<IEmailSender, EmailSender>();

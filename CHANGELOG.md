@@ -40,6 +40,23 @@ Database migrations run automatically when the API starts, unless a release says
 - **Activity log** on the Company page: who locked months, changed someone else's hours,
   reset passwords or (de)activated accounts.
 
+### Security
+
+- The API refuses to start with a missing, short or example JWT signing secret.
+- Every request checks that the token's role and company match the account, so a token
+  signed with a leaked secret still can't claim more rights.
+- The bootstrap platform admin can't use the example password, and chooses a new password at
+  the first sign-in.
+- Company SMTP settings can't point at internal addresses (`localhost`, private networks,
+  cloud metadata), unless `EMAIL_ALLOW_INTERNAL_HOSTS=true`. **Check this when upgrading** if
+  your mail server is on your own network.
+- Security headers (Content Security Policy, no framing, no sniffing) on everything the
+  frontend serves, and nginx no longer shows its version.
+- Endpoints require sign-in unless they explicitly allow anonymous access.
+- Signing in with an unknown address takes as long as with a known one.
+- Updated frontend packages with known vulnerabilities (vite, vitest, follow-redirects,
+  source-map-js, brace-expansion); builds install exactly the locked versions (`npm ci`).
+
 ### Changed
 
 - The *Email* menu item moved into the *Company* page (`/email` redirects there).
@@ -61,6 +78,9 @@ Database migrations run automatically when the API starts, unless a release says
 ### Fixed
 
 - Running a report with any hours in it showed a blank page (since 0.3.0).
+- Making an hour type the default while another one was the default failed with a server error.
+- Hour type names that differ only in capitals (e.g. "work" and "Work") are now caught as
+  duplicates.
 - Texts that were always English (hour type form, project details, list/planboard toggle)
   are now translated, and English texts use sentence case throughout.
 - CSV exports quote names with commas, quotes or line breaks correctly, and names can't run as

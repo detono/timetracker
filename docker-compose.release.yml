@@ -47,6 +47,8 @@ services:
       Seed__AdminPassword: "${SEED_ADMIN_PASSWORD:-}"
       Seed__AdminFirstName: "${SEED_ADMIN_FIRST_NAME:-}"
       Seed__AdminLastName: "${SEED_ADMIN_LAST_NAME:-}"
+      # Allow company email settings to use a mail server on an internal network (see README).
+      Email__AllowInternalHosts: "${EMAIL_ALLOW_INTERNAL_HOSTS:-false}"
     # ports:
     #   - "127.0.0.1:5067:8080"   # uncomment for local Swagger access at http://localhost:5067/swagger
 

@@ -63,4 +63,38 @@ public static class TestApi {
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return request;
     }
+
+    /// <summary>Sends a request as the given user, with an optional JSON body.</summary>
+    public static async Task<HttpResponseMessage> SendAsync(
+        HttpClient client, HttpMethod method, string url, string token, object? body = null
+    ) {
+        using var request = Authorized(method, url, token);
+        if (body is not null) {
+            request.Content = JsonContent.Create(body);
+        }
+
+        return await client.SendAsync(request);
+    }
+
+    /// <summary>Like <see cref="SendAsync"/>, but expects a 2xx answer and reads its JSON.</summary>
+    public static async Task<T> SendOkAsync<T>(
+        HttpClient client, HttpMethod method, string url, string token, object? body = null
+    ) {
+        var response = await SendAsync(client, method, url, token, body);
+        response.IsSuccessStatusCode.Should().BeTrue(await response.Content.ReadAsStringAsync());
+        return (await response.Content.ReadFromJsonAsync<T>())!;
+    }
+
+    /// <summary>Creates an employee in the employer's company and signs them in.</summary>
+    public static async Task<(Guid Id, string Email, string Token)> CreateEmployeeAsync(
+        HttpClient client, string employerToken, string firstName = "Eva", string lastName = "Employee"
+    ) {
+        var email = $"{Guid.NewGuid()}@employee.local";
+        var user = await SendOkAsync<UserIdOnly>(client, HttpMethod.Post, "/api/users", employerToken, new {
+            FirstName = firstName, LastName = lastName, Email = email, Password, Role = "Employee"
+        });
+        return (user.Id, email, await LoginAsync(client, email, Password));
+    }
+
+    public record UserIdOnly(Guid Id);
 }

@@ -31,12 +31,14 @@ public class HourTypeRepository(ApplicationDbContext context) : IHourTypeReposit
         Guid? excludingId = null,
         CancellationToken cancellationToken = default
     ) {
-        var normalized = name.Trim();
+        // Case-insensitive on both sides, so "work" and "Work" count as the same name.
+        var normalized = name.Trim().ToLowerInvariant();
 
-        var allTypes = await context.HourTypes.ToListAsync(cancellationToken);
+        // Read-only: tracking these would clash with handlers that update one of the same hour types afterwards.
+        var allTypes = await context.HourTypes.AsNoTracking().ToListAsync(cancellationToken);
 
-        return allTypes.Any(h => 
-            h.Id != excludingId && 
+        return allTypes.Any(h =>
+            h.Id != excludingId &&
             h.LocalizedNames.Values.Any(v => v.Trim().ToLowerInvariant() == normalized)
         );
     }

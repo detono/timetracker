@@ -33,6 +33,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program> {
                 ["Seed:AdminPassword"] = AdminPassword,
                 ["Seed:AdminFirstName"] = "Test",
                 ["Seed:AdminLastName"] = "Admin",
+                ["Jwt:Secret"] = "integration-tests-only-secret-0123456789abcdef",
                 // Every test client shares one address; the limit itself has its own test.
                 ["RateLimiting:AuthRequestsPerMinute"] = AuthRequestsPerMinute.ToString()
             });

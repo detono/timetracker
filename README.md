@@ -234,9 +234,10 @@ cp .env.example .env
 `.env` is gitignored — it's read automatically by `docker compose` (no flag needed). At minimum, set:
 
 - `DB_PASSWORD` — Postgres password
-- `JWT_SECRET` — any long random string (`openssl rand -base64 48` works well); compose will
-  refuse to start without it
-- `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` — the bootstrap platform admin, see below
+- `JWT_SECRET` — any long random string (`openssl rand -base64 48` works well). The API
+  refuses to start without one, with one shorter than 32 characters, or with the example value
+- `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` — the bootstrap platform admin, see below. The
+  example password is refused, and you choose a new password at the first sign-in
 
 ```yaml
 services:
@@ -274,6 +275,8 @@ services:
       Seed__AdminPassword: "${SEED_ADMIN_PASSWORD:-}"
       Seed__AdminFirstName: "${SEED_ADMIN_FIRST_NAME:-}"
       Seed__AdminLastName: "${SEED_ADMIN_LAST_NAME:-}"
+      # Allow company email settings to use a mail server on an internal network (see README).
+      Email__AllowInternalHosts: "${EMAIL_ALLOW_INTERNAL_HOSTS:-false}"
     ports:
       - "5067:8080"
 
@@ -299,6 +302,21 @@ services:
 volumes:
   timetracker-db-data:
 ```
+
+### Security
+
+- **Use HTTPS.** Put a reverse proxy with TLS (Caddy, Traefik, nginx) in front of the frontend
+  container, and turn on HSTS there. The app itself serves plain HTTP inside Docker.
+- **Security headers.** The frontend sends a strict Content Security Policy (scripts only from
+  this site, fonts from Google Fonts, location lookups to OpenStreetMap), and blocks framing
+  and content sniffing. They're in `frontend/security-headers.conf`. If you build the frontend
+  with `VITE_API_BASE_URL` on another origin, add that origin to `connect-src` there.
+- **Company mail servers.** Company email settings may only use mail servers on the internet,
+  so an employer can't make this server connect to services on its own network. If your mail
+  server is on your network, set `EMAIL_ALLOW_INTERNAL_HOSTS=true` (`Email__AllowInternalHosts`).
+- **Sign-ins** are checked on every request: deactivated people and companies are signed out
+  right away, and a token can't claim a different role or company than its account has.
+- **Backups** contain the encryption keys for mail secrets, so protect them like the secrets.
 
 ### Branding (white-label)
 

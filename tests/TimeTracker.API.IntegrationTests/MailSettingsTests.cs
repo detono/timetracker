@@ -119,21 +119,26 @@ public class MailSettingsTests : IClassFixture<CustomWebApplicationFactory> {
     }
 
     [Fact]
-    public async Task TestEmail_UnreachableHost_ReturnsReadableError() {
+    public async Task TestEmail_ToAnInternalHost_IsRefused_SoTheServerNetworkCantBeProbed() {
         var tenant = await CreateTenantAsync(_client);
         var token = await LoginAsync(_client, tenant.EmployerEmail, Password);
 
         var listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();
-        var closedPort = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
+        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
 
-        (await SendAsync(HttpMethod.Put, "/api/mail-settings", token, SmtpSettings("127.0.0.1", closedPort))).StatusCode
-            .Should().Be(HttpStatusCode.OK);
+        try {
+            (await SendAsync(HttpMethod.Put, "/api/mail-settings", token, SmtpSettings("127.0.0.1", port))).StatusCode
+                .Should().Be(HttpStatusCode.OK);
 
-        var response = await SendAsync(HttpMethod.Post, "/api/mail-settings/test", token);
+            var response = await SendAsync(HttpMethod.Post, "/api/mail-settings/test", token);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        (await response.Content.ReadAsStringAsync()).Should().Contain($"Could not connect to 127.0.0.1:{closedPort}");
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await response.Content.ReadAsStringAsync()).Should().Contain("internal network");
+            // Nothing even tried to connect.
+            listener.Pending().Should().BeFalse();
+        } finally {
+            listener.Stop();
+        }
     }
 }

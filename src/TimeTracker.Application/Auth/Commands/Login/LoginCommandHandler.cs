@@ -22,6 +22,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResu
         _throttle = throttle;
     }
 
+    // A hash of a random password, made once, for checking against when the address is unknown.
+    private Lazy<string> UnknownUserHash => _unknownUserHash ??= new Lazy<string>(() => _passwordHasher.Hash(Guid.NewGuid().ToString()));
+    private static Lazy<string>? _unknownUserHash;
+
     public static string LockedOutMessage(TimeSpan remaining) =>
         $"Too many failed sign-in attempts. Try again in {Math.Max(1, (int)Math.Ceiling(remaining.TotalMinutes))} minutes, " +
         "or reset your password.";
@@ -37,6 +41,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResu
         var user = await _unitOfWork.Users.GetByEmailAsync(request.Email, cancellationToken);
 
         // Constant-shape failure message to avoid leaking which part (email/password) was wrong.
+        // Unknown addresses still get a password check, so they take as long as known ones.
+        if (user is null)
+        {
+            _passwordHasher.Verify(request.Password, UnknownUserHash.Value);
+        }
+
         if (user is null || !user.IsActive || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
             _throttle.RecordFailure(request.Email);

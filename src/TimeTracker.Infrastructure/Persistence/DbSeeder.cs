@@ -34,6 +34,9 @@ public static class DbSeeder {
         await SeedBootstrapPlatformAdminAsync(context, passwordHasher, configuration, logger);
     }
 
+    /// <summary>SEED_ADMIN_PASSWORD from .env.example.</summary>
+    public const string ExamplePassword = "change_me_then_change_it_again_after_first_login";
+
     private static async Task SeedBootstrapPlatformAdminAsync(
         ApplicationDbContext context,
         IPasswordHasher passwordHasher,
@@ -55,6 +58,14 @@ public static class DbSeeder {
             return;
         }
 
+        // The example password is public: refuse it, so nobody can sign in with it before you do.
+        if (password.Trim() == ExamplePassword) {
+            logger.LogError(
+                "Not creating the bootstrap platform admin: Seed:AdminPassword (SEED_ADMIN_PASSWORD) is still the " +
+                "example value from .env.example. Set your own password and restart.");
+            return;
+        }
+
         var firstName = configuration["Seed:AdminFirstName"];
         var lastName = configuration["Seed:AdminLastName"];
 
@@ -64,6 +75,8 @@ public static class DbSeeder {
             email,
             passwordHasher.Hash(password));
 
+        // The password sits in configuration in plain text, so it's only good for the first login.
+        admin.RequirePasswordChange();
         context.Users.Add(admin);
         var seedAmount = await context.SaveChangesAsync();
 

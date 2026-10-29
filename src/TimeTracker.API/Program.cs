@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -67,8 +68,27 @@ builder.Services.AddSwaggerGen(options => {
     });
 });
 
-var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
-                  ?? throw new InvalidOperationException("Jwt configuration section is missing.");
+// Checked when the app starts, so a missing or well-known signing secret stops it instead of
+// letting anyone sign their own tokens.
+builder.Services.AddSingleton<IValidateOptions<JwtSettings>, JwtSettingsValidator>();
+builder.Services.AddOptions<JwtSettings>().ValidateOnStart();
+
+// Read from the final configuration (also what tests and environment variables set).
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtSettings>>((options, jwt) => {
+        var settings = jwt.Value;
+        options.TokenValidationParameters = new TokenValidationParameters {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = settings.Issuer,
+            ValidAudience = settings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Secret ?? "")),
+            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 },
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
 
 builder.Services
     .AddAuthentication(options => {
@@ -76,17 +96,6 @@ builder.Services
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(options => {
-        options.TokenValidationParameters = new TokenValidationParameters {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings.Issuer,
-            ValidAudience = jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
-            ClockSkew = TimeSpan.FromMinutes(1)
-        };
-
         // Deactivating someone (or their company) or resetting their password signs them out
         // on their next request, not only when the token expires.
         options.Events = new JwtBearerEvents {
@@ -100,7 +109,9 @@ builder.Services
                 // Tokens from before session versions existed count as version 0.
                 var version = int.TryParse(principal.FindFirstValue(SessionClaimTypes.SessionVersion), out var v) ? v : 0;
                 var validator = context.HttpContext.RequestServices.GetRequiredService<ISessionValidator>();
-                if (!await validator.IsValidAsync(userId, version, context.HttpContext.RequestAborted)) {
+                var role = principal.FindFirstValue(ClaimTypes.Role);
+                var tenantId = Guid.TryParse(principal.FindFirstValue(TenantClaimTypes.TenantId), out var t) ? t : (Guid?)null;
+                if (!await validator.IsValidAsync(userId, version, role, tenantId, context.HttpContext.RequestAborted)) {
                     context.Fail("This sign-in is no longer valid.");
                 }
             }
@@ -132,7 +143,7 @@ app.UseMiddleware<PasswordChangeRequiredMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health").AllowAnonymous();
 
 // Apply migrations and seed a bootstrap employer (from configuration only) on startup.
 using (var scope = app.Services.CreateScope()) {
