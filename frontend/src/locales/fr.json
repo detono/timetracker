@@ -1,5 +1,6 @@
 {
   "common": {
+    "actions": "Actions",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "edit": "Modifier",
@@ -229,7 +230,7 @@
     "planboard": "Planning",
     "list": "Liste",
     "reports": "Rapports",
-    "manageEmployees": "Gérer les Employés",
+    "manageEmployees": "Gérer les employés",
     "myHours": "Mes heures",
     "allEmployees": "Tous les employés",
     "teamOverview": "Aperçu de l'équipe",
@@ -240,6 +241,7 @@
     "email": "E-mail",
     "leave": "Congés",
     "company": "Entreprise",
+    "manage": "Gestion",
     "menu": "Menu",
     "viewMode": "Affichage"
   },
@@ -429,6 +431,8 @@
     }
   },
   "hoursOverview": {
+    "leaveLeft": "Congé restant",
+    "leavePending": "{{hours}} en attente d\u2019approbation",
     "title": "Prestées vs. prévues",
     "thisWeek": "Cette semaine",
     "yearSoFar": "{{year}} jusqu'ici",
@@ -446,6 +450,13 @@
     "workedOf": "{{worked}} prestées sur {{expected}}"
   },
   "company": {
+    "tabs": {
+      "general": "Général",
+      "schedule": "Horaires",
+      "holidays": "Jours fériés",
+      "email": "E-mail",
+      "activity": "Activité"
+    },
     "title": "Entreprise",
     "subtitle": "Paramètres de toute l'entreprise : coordonnées, heures de travail habituelles, jours fériés et e-mail.",
     "detailsTitle": "Coordonnées de l'entreprise",

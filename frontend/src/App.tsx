@@ -123,7 +123,7 @@ export default function App() {
           }
         />
         {/* Email settings moved to the Company page. */}
-        <Route path="email" element={<Navigate to="/company" replace />} />
+        <Route path="email" element={<Navigate to="/company?tab=email" replace />} />
         <Route
           path="tenants"
           element={

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { projectsApi } from "../api/projectsApi";
 import { extractErrorMessage } from "../api/client";
 import type { Project, ProjectBreakdown } from "../types";
+import { RowMenu } from "../components/RowMenu";
 
 const emptyForm = {
     name: "",
@@ -200,15 +201,21 @@ export function ProjectsPage() {
                                           </span>
                                       </td>
                                       <td className="list-view__actions">
-                                          <button className="btn btn--ghost btn--sm" onClick={() => handleToggleExpand(p.id)}>
-                                              {expandedId === p.id ? t('projects.hideDetails') : t('projects.viewDetails')}
-                                          </button>
-                                          <button className="btn btn--ghost btn--sm" onClick={() => handleEditClick(p)} disabled={busyProjectId === p.id}>
-                                              {t('common.edit')}
-                                          </button>
-                                          <button className={p.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"} onClick={() => handleToggleActive(p)} disabled={busyProjectId === p.id}>
-                                              {p.isActive ? t('projects.archive') : t('projects.reactivate')}
-                                          </button>
+                                          <RowMenu
+                                              disabled={busyProjectId === p.id}
+                                              items={[
+                                                  {
+                                                      label: expandedId === p.id ? t('projects.hideDetails') : t('projects.viewDetails'),
+                                                      onSelect: () => handleToggleExpand(p.id)
+                                                  },
+                                                  { label: t('common.edit'), onSelect: () => handleEditClick(p) },
+                                                  {
+                                                      label: p.isActive ? t('projects.archive') : t('projects.reactivate'),
+                                                      onSelect: () => handleToggleActive(p),
+                                                      danger: p.isActive
+                                                  }
+                                              ]}
+                                          />
                                       </td>
                                   </tr>
 

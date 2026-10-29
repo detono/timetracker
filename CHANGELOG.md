@@ -8,6 +8,19 @@ Database migrations run automatically when the API starts, unless a release says
 
 ## [Unreleased]
 
+### Changed
+
+- **New look**: the menu moved to a sidebar with icons, with the employer pages grouped under
+  *Manage* and your name and sign-out at the bottom. On laptops and phones it slides in from
+  the menu button.
+- *My hours* shows a progress bar under the week, month and year, and how much leave you have
+  left.
+- Table rows with several actions (employees, hour types, projects, companies, hours) have one
+  "⋯" menu instead of a row of buttons.
+- On phones, your hours, leave and the employee list show as cards instead of wide tables.
+- The *Company* page is split into tabs: General, Working hours, Public holidays, Email and
+  Activity. `/email` opens the Email tab.
+
 ## [1.0.0] - 2026-10-29
 
 ### Added

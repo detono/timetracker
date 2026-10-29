@@ -9,6 +9,7 @@ import {
 } from "../api/hourTypesApi";
 import { extractErrorMessage } from "../api/client";
 import type { HourType } from "../types";
+import { RowMenu } from "../components/RowMenu";
 
 const DEFAULT_COLOR = "#932e4a";
 
@@ -383,16 +384,17 @@ export function HourTypesPage() {
                         </span>
                       </td>
                       <td className="list-view__actions">
-                        <button className="btn btn--ghost btn--sm" onClick={() => startEdit(type)}>
-                          {t('common.edit', 'Edit')}
-                        </button>
-                        <button
-                          className={type.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                          onClick={() => handleToggleActive(type)}
+                        <RowMenu
                           disabled={busyId === type.id}
-                        >
-                          {type.isActive ? t('hourTypes.deactivate', 'Deactivate') : t('hourTypes.reactivate', 'Reactivate')}
-                        </button>
+                          items={[
+                            { label: t('common.edit', 'Edit'), onSelect: () => startEdit(type) },
+                            {
+                              label: type.isActive ? t('hourTypes.deactivate', 'Deactivate') : t('hourTypes.reactivate', 'Reactivate'),
+                              onSelect: () => handleToggleActive(type),
+                              danger: type.isActive
+                            }
+                          ]}
+                        />
                       </td>
                     </>
                   )}

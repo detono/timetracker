@@ -1,5 +1,6 @@
 {
   "common": {
+    "actions": "Acties",
     "save": "Opslaan",
     "cancel": "Annuleren",
     "edit": "Bewerken",
@@ -229,7 +230,7 @@
     "planboard": "Planbord",
     "list": "Lijst",
     "reports": "Rapportages",
-    "manageEmployees": "Medewerkers Beheren",
+    "manageEmployees": "Medewerkers beheren",
     "myHours": "Mijn uren",
     "allEmployees": "Alle medewerkers",
     "teamOverview": "Teamoverzicht",
@@ -240,6 +241,7 @@
     "email": "E-mail",
     "leave": "Verlof",
     "company": "Bedrijf",
+    "manage": "Beheer",
     "menu": "Menu",
     "viewMode": "Weergave"
   },
@@ -429,6 +431,8 @@
     }
   },
   "hoursOverview": {
+    "leaveLeft": "Verlof over",
+    "leavePending": "{{hours}} wacht op goedkeuring",
     "title": "Gewerkt vs. verwacht",
     "thisWeek": "Deze week",
     "yearSoFar": "{{year}} tot nu",
@@ -446,6 +450,13 @@
     "workedOf": "{{worked}} gewerkt van {{expected}}"
   },
   "company": {
+    "tabs": {
+      "general": "Algemeen",
+      "schedule": "Werkuren",
+      "holidays": "Feestdagen",
+      "email": "E-mail",
+      "activity": "Activiteit"
+    },
     "title": "Bedrijf",
     "subtitle": "Instellingen voor het hele bedrijf: gegevens, gebruikelijke werkuren, feestdagen en e-mail.",
     "detailsTitle": "Bedrijfsgegevens",

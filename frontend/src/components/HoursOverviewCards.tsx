@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getMyHoursOverview } from "../api/hoursOverviewApi";
+import { getLeaveBalances } from "../api/leaveApi";
+import { useAuth } from "../auth/AuthContext";
 import { hoursToHm } from "../utils/dateRange";
 import { diffTone, localToday, shortHm, signedHm } from "../utils/hoursOverview";
-import type { HoursDay, HoursPeriod, MyHoursOverview } from "../types";
+import type { HoursDay, HoursPeriod, LeaveBalance, MyHoursOverview } from "../types";
 
 interface Props {
   /** Change this to reload, e.g. after logging hours. */
@@ -13,17 +15,23 @@ interface Props {
 /** "Am I working enough?": this week, month and year so far against the work schedule. */
 export function HoursOverviewCards({ reloadKey }: Props) {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [overview, setOverview] = useState<MyHoursOverview | null>(null);
+  const [leave, setLeave] = useState<LeaveBalance | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     getMyHoursOverview(localToday())
       .then((data) => !cancelled && setOverview(data))
       .catch(() => !cancelled && setOverview(null));
+    // Your own leave balance for this year, when an allowance was set. Employers don't get one.
+    getLeaveBalances(new Date().getFullYear())
+      .then((balances) => !cancelled && setLeave(balances.find((b) => b.userId === user?.userId) ?? null))
+      .catch(() => !cancelled && setLeave(null));
     return () => {
       cancelled = true;
     };
-  }, [reloadKey]);
+  }, [reloadKey, user?.userId]);
 
   if (!overview || !overview.tracksHours) return null;
 
@@ -45,6 +53,19 @@ export function HoursOverviewCards({ reloadKey }: Props) {
           period={overview.year}
           weekly={overview.weeklyScheduleHours}
         />
+        {leave?.allowanceHours != null && leave.remainingHours != null && (
+          <div className="hours-card">
+            <span className="hours-card__label">{t('hoursOverview.leaveLeft')}</span>
+            <span className="hours-card__value">
+              {hoursToHm(leave.remainingHours)}{" "}
+              <span className="hours-card__of">{t('hoursOverview.of', { hours: hoursToHm(leave.allowanceHours) })}</span>
+            </span>
+            <Progress value={leave.remainingHours} max={leave.allowanceHours} />
+            {leave.pendingHours > 0 && (
+              <span className="hours-card__note">{t('hoursOverview.leavePending', { hours: hoursToHm(leave.pendingHours) })}</span>
+            )}
+          </div>
+        )}
       </div>
 
       {visibleDays.length > 0 && (
@@ -80,8 +101,20 @@ function PeriodCard({ label, period, weekly }: { label: string; period: HoursPer
         {hoursToHm(period.workedHours)}{" "}
         <span className="hours-card__of">{t('hoursOverview.of', { hours: hoursToHm(period.expectedHours) })}</span>
       </span>
+      <Progress value={period.workedHours} max={period.expectedHours} />
       <DiffBadge difference={period.differenceHours} weekly={weekly} />
     </div>
+  );
+}
+
+/** A thin bar showing how far along a value is; nothing when there's no maximum. */
+function Progress({ value, max }: { value: number; max: number }) {
+  if (max <= 0) return null;
+  const percent = Math.max(0, Math.min(100, Math.round((value / max) * 100)));
+  return (
+    <span className="progress" aria-hidden="true">
+      <span className="progress__bar" style={{ width: `${percent}%` }} />
+    </span>
   );
 }
 

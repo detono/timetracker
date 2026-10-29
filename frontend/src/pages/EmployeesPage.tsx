@@ -14,6 +14,7 @@ import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { WorkScheduleEditor } from "../components/WorkScheduleEditor";
 import type { UserAccount, UserRole } from "../types";
+import { RowMenu } from "../components/RowMenu";
 
 const emptyForm = {
   firstName: "",
@@ -252,7 +253,7 @@ export function EmployeesPage() {
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>
       ) : (
-        <div className="table-scroll">
+        <div className="table-scroll table-scroll--stack">
           <table className="list-view">
             <thead>
               <tr>
@@ -277,7 +278,7 @@ export function EmployeesPage() {
                     </div>
                   </td>
                   <td>{u.role === "Employer" ? t('roles.employer') : t('roles.employee')}</td>
-                  <td>
+                  <td data-label={t('employees.table.supervisor')}>
                     {u.role === "Employee" ? (
                       <select
                         value={u.supervisorId ?? ""}
@@ -297,7 +298,7 @@ export function EmployeesPage() {
                       <span className="list-view__notes">—</span>
                     )}
                   </td>
-                  <td>
+                  <td data-label={t('employees.table.tracksHours')}>
                     <input
                       type="checkbox"
                       checked={u.tracksHours}
@@ -313,26 +314,30 @@ export function EmployeesPage() {
                     </span>
                   </td>
                   <td className="list-view__actions">
-                    <button className="btn btn--ghost btn--sm" onClick={() => setScheduleUser(u)}>
-                      {t('workSchedule.button')}
-                    </button>
-                    <button
-                      className="btn btn--ghost btn--sm"
-                      onClick={() => {
-                        setResettingUser(u);
-                        setResetPasswordValue("");
-                      }}
-                    >
-                      {t('employees.btnResetPassword')}
-                    </button>
-                    <button
-                      className={u.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                      onClick={() => handleToggleActive(u)}
-                      disabled={busyUserId === u.id || u.id === currentUser?.userId}
-                      title={u.id === currentUser?.userId ? t('employees.cannotDeactivateSelf') : undefined}
-                    >
-                      {u.isActive ? t('employees.deactivate') : t('employees.reactivate')}
-                    </button>
+                    <RowMenu
+                      label={`${t('common.actions')}: ${u.firstName} ${u.lastName}`}
+                      disabled={busyUserId === u.id}
+                      items={[
+                        { label: t('workSchedule.button'), onSelect: () => setScheduleUser(u) },
+                        {
+                          label: t('employees.btnResetPassword'),
+                          onSelect: () => {
+                            setResettingUser(u);
+                            setResetPasswordValue("");
+                          }
+                        },
+                        // You can't deactivate yourself, so that option isn't offered on your own row.
+                        ...(u.id === currentUser?.userId
+                          ? []
+                          : [
+                              {
+                                label: u.isActive ? t('employees.deactivate') : t('employees.reactivate'),
+                                onSelect: () => handleToggleActive(u),
+                                danger: u.isActive
+                              }
+                            ])
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

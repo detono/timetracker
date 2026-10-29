@@ -194,7 +194,7 @@ export function LeavePage() {
               {toReview.length === 0 ? (
                 <p className="empty-state">{t('leave.nothingToReview')}</p>
               ) : (
-                <div className="table-scroll">
+                <div className="table-scroll table-scroll--stack">
                   <table className="list-view">
                     <thead>
                       <tr>
@@ -218,7 +218,7 @@ export function LeavePage() {
                             {period(r, t)}
                             {r.comment && <div className="list-view__notes">{r.comment}</div>}
                           </td>
-                          <td>{hoursToHm(r.hours)}</td>
+                          <td data-label={t('leave.table.hours')}>{hoursToHm(r.hours)}</td>
                           <td>
                             {r.remainingBalanceHours != null ? (
                               <span className={r.exceedsBalance ? "balance-negative" : undefined}>
@@ -283,7 +283,7 @@ export function LeavePage() {
             {mine.length === 0 ? (
               <p className="empty-state">{t('leave.noRequests')}</p>
             ) : (
-              <div className="table-scroll">
+              <div className="table-scroll table-scroll--stack">
                 <table className="list-view">
                   <thead>
                     <tr>
@@ -305,12 +305,12 @@ export function LeavePage() {
                           {period(r, t)}
                           {r.comment && <div className="list-view__notes">{r.comment}</div>}
                         </td>
-                        <td>{hoursToHm(r.hours)}</td>
+                        <td data-label={t('leave.table.hours')}>{hoursToHm(r.hours)}</td>
                         <td>
                           <StatusLabel request={r} />
                           {r.exceedsBalance && <div className="balance-negative">{t('leave.overBalance')}</div>}
                         </td>
-                        <td>
+                        <td data-label={t('leave.table.reviewedBy')}>
                           {r.reviewedByName ?? <span className="list-view__notes">—</span>}
                           {r.reviewComment && <div className="list-view__notes">“{r.reviewComment}”</div>}
                         </td>

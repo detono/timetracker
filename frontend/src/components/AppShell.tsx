@@ -6,6 +6,8 @@ import { getPendingLeaveCount } from "../api/leaveApi";
 import { appConfig } from "../config";
 import { roleLabel } from "../utils/roles";
 import type { ShellContext } from "../utils/leave";
+import { Icon, type IconName } from "./Icon";
+import { initials } from "../utils/initials";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "shell__nav-link is-active" : "shell__nav-link");
 
@@ -33,18 +35,31 @@ export function AppShell() {
 
   const shellContext: ShellContext = { pendingLeaveCount, refreshPendingLeaveCount };
 
-  // On narrower screens the menu folds away behind a button; it closes again after navigating.
+  // On narrower screens the sidebar slides in from a menu button; it closes after navigating
+  // or on Escape.
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
+  const navItem = (to: string, icon: IconName, label: string, extra?: JSX.Element) => (
+    <NavLink to={to} end={to === "/"} className={navLinkClass}>
+      <Icon name={icon} />
+      <span className="shell__nav-label">{label}</span>
+      {extra}
+    </NavLink>
+  );
 
   return (
     <div className="shell">
-      <header className="shell__header">
-        <div className="shell__brand">
-          <span className="shell__brand-mark">{appConfig.title}</span>
-        </div>
+      <header className="shell__topbar">
+        <Brand />
         <button
           type="button"
           className="shell__menu-toggle"
@@ -53,80 +68,85 @@ export function AppShell() {
           aria-label={t('nav.menu')}
           onClick={() => setMenuOpen((open) => !open)}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-            {menuOpen ? (
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            ) : (
-              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            )}
-          </svg>
+          <Icon name={menuOpen ? "close" : "menu"} size={22} />
           {pendingLeaveCount > 0 && !menuOpen && <span className="shell__menu-dot" aria-hidden="true" />}
         </button>
-        <div id="main-menu" className={menuOpen ? "shell__menu is-open" : "shell__menu"}>
+      </header>
+
+      <aside id="main-menu" className={menuOpen ? "shell__sidebar is-open" : "shell__sidebar"}>
+        <div className="shell__sidebar-brand">
+          <Brand />
+        </div>
         <nav className="shell__nav">
           {user?.role === "PlatformAdmin" ? (
             <>
-              <NavLink to="/tenants" className={navLinkClass}>
-                {t('nav.tenants')}
-              </NavLink>
-              <NavLink to="/platform-admins" className={navLinkClass}>
-                {t('nav.platformAdmins')}
-              </NavLink>
+              {navItem("/tenants", "building", t('nav.tenants'))}
+              {navItem("/platform-admins", "shield", t('nav.platformAdmins'))}
             </>
           ) : (
             <>
-              <NavLink to="/" end className={navLinkClass}>
-                {t('nav.myHours')}
-              </NavLink>
-              <NavLink to="/team" className={navLinkClass}>
-                {isEmployer ? t('nav.allEmployees') : t('nav.teamOverview')}
-              </NavLink>
-              <NavLink to="/leave" className={navLinkClass}>
-                {t('nav.leave')}
-                {pendingLeaveCount > 0 && (
+              {navItem("/", "clock", t('nav.myHours'))}
+              {navItem("/team", "team", isEmployer ? t('nav.allEmployees') : t('nav.teamOverview'))}
+              {navItem(
+                "/leave",
+                "leave",
+                t('nav.leave'),
+                pendingLeaveCount > 0 ? (
                   <span className="nav-badge" aria-label={t('leave.pendingBadge', { count: pendingLeaveCount })}>
                     {pendingLeaveCount}
                   </span>
-                )}
-              </NavLink>
-              <NavLink to="/reports" className={navLinkClass}>
-                {t('nav.reports')}
-              </NavLink>
+                ) : undefined
+              )}
+              {navItem("/reports", "reports", t('nav.reports'))}
               {isEmployer && (
                 <>
-                  <NavLink to="/employees" className={navLinkClass}>
-                    {t('nav.manageEmployees')}
-                  </NavLink>
-                  <NavLink to="/hour-types" className={navLinkClass}>
-                    {t('nav.hourTypes')}
-                  </NavLink>
-                  <NavLink to="/projects" className={navLinkClass}>
-                    {t('nav.projects')}
-                  </NavLink>
-                  <NavLink to="/company" className={navLinkClass}>
-                    {t('nav.company')}
-                  </NavLink>
+                  <span className="shell__nav-section">{t('nav.manage')}</span>
+                  {navItem("/employees", "people", t('nav.manageEmployees'))}
+                  {navItem("/hour-types", "tag", t('nav.hourTypes'))}
+                  {navItem("/projects", "folder", t('nav.projects'))}
+                  {navItem("/company", "building", t('nav.company'))}
                 </>
               )}
             </>
           )}
         </nav>
         <div className="shell__account">
-          <NavLink to="/account" className="shell__account-info shell__account-info--link">
-            <span className="shell__account-name">{user?.fullName}</span>
-            <span className="shell__account-role">
-              {user?.tenantName ? `${translatedRole} · ${user.tenantName}` : translatedRole}
+          <NavLink to="/account" className="shell__account-info">
+            <span className="shell__avatar" aria-hidden="true">{initials(user?.fullName)}</span>
+            <span className="shell__account-text">
+              <span className="shell__account-name">{user?.fullName}</span>
+              <span className="shell__account-role">
+                {user?.tenantName ? `${translatedRole} · ${user.tenantName}` : translatedRole}
+              </span>
             </span>
           </NavLink>
-          <button className="btn btn--ghost" onClick={logout}>
-            {t('common.signOut')}
+          <button
+            type="button"
+            className="shell__signout"
+            onClick={logout}
+            aria-label={t('common.signOut')}
+            title={t('common.signOut')}
+          >
+            <Icon name="logout" />
           </button>
         </div>
-        </div>
-      </header>
+      </aside>
+      {menuOpen && <div className="shell__backdrop" aria-hidden="true" onClick={() => setMenuOpen(false)} />}
+
       <main className="shell__content">
         <Outlet context={shellContext} />
       </main>
     </div>
+  );
+}
+
+function Brand() {
+  return (
+    <span className="shell__brand">
+      <span className="shell__brand-icon">
+        <Icon name="clock" size={18} />
+      </span>
+      <span className="shell__brand-name">{appConfig.title}</span>
+    </span>
   );
 }

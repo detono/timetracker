@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { extractErrorMessage } from "../api/client";
 import {
@@ -23,6 +24,9 @@ const COUNTRY_CODES = [
   "SI", "EE", "LV", "LT", "US", "CA", "AU", "NZ"
 ];
 
+const TABS = ["general", "schedule", "holidays", "email", "activity"] as const;
+type CompanyTab = (typeof TABS)[number];
+
 const emptyCompany: Company = { name: "", street: null, postalCode: null, city: null, countryCode: null, region: null };
 
 /** Company-wide settings for employers: details, usual working hours, public holidays and email. */
@@ -30,6 +34,23 @@ export function CompanyPage() {
   const { t } = useTranslation();
   const [company, setCompany] = useState<Company | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // The open tab lives in the address (?tab=email), so links and the back button work.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requested = searchParams.get("tab") as CompanyTab | null;
+  const tab: CompanyTab = requested && TABS.includes(requested) ? requested : "general";
+  const selectTab = (id: CompanyTab) =>
+    setSearchParams(id === "general" ? {} : { tab: id }, { replace: true });
+
+  // Arrow keys move between tabs, as in any tab list.
+  function onTabKeyDown(e: React.KeyboardEvent) {
+    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    const next = TABS[(TABS.indexOf(tab) + step + TABS.length) % TABS.length];
+    selectTab(next);
+    document.getElementById(`company-tab-${next}`)?.focus();
+  }
 
   useEffect(() => {
     getCompany()
@@ -49,11 +70,30 @@ export function CompanyPage() {
       {error && <p className="form__error">{error}</p>}
       {company ? (
         <>
-          <CompanyDetailsForm company={company} onSaved={setCompany} />
-          <WorkScheduleEditor userId={null} />
-          <HolidaysPanel company={company} />
-          <EmailSettingsPage embedded />
-          <ActivityLogPanel />
+          <div className="tabs" role="tablist" aria-label={t('company.title')} onKeyDown={onTabKeyDown}>
+            {TABS.map((id) => (
+              <button
+                key={id}
+                id={`company-tab-${id}`}
+                type="button"
+                role="tab"
+                className={id === tab ? "tabs__tab is-active" : "tabs__tab"}
+                aria-selected={id === tab}
+                aria-controls="company-tabpanel"
+                tabIndex={id === tab ? 0 : -1}
+                onClick={() => selectTab(id)}
+              >
+                {t(`company.tabs.${id}`)}
+              </button>
+            ))}
+          </div>
+          <div id="company-tabpanel" role="tabpanel" aria-labelledby={`company-tab-${tab}`}>
+            {tab === "general" && <CompanyDetailsForm company={company} onSaved={setCompany} />}
+            {tab === "schedule" && <WorkScheduleEditor userId={null} />}
+            {tab === "holidays" && <HolidaysPanel company={company} />}
+            {tab === "email" && <EmailSettingsPage embedded />}
+            {tab === "activity" && <ActivityLogPanel />}
+          </div>
         </>
       ) : (
         !error && <p className="empty-state">{t('common.loading')}</p>

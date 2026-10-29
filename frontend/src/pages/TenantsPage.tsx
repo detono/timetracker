@@ -10,6 +10,7 @@ import {
 } from "../api/tenantsApi";
 import { extractErrorMessage } from "../api/client";
 import type { Tenant, TenantEmployer } from "../types";
+import { RowMenu } from "../components/RowMenu";
 
 const emptyForm: CreateTenantPayload = {
   name: "",
@@ -178,16 +179,17 @@ export function TenantsPage() {
                     </span>
                   </td>
                   <td className="list-view__actions">
-                    <button className="btn btn--ghost btn--sm" onClick={() => setResetTenant(tenant)}>
-                      {t('tenants.resetEmployerPassword')}
-                    </button>
-                    <button
-                      className={tenant.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
-                      onClick={() => handleToggleActive(tenant)}
+                    <RowMenu
                       disabled={busyTenantId === tenant.id}
-                    >
-                      {tenant.isActive ? t('employees.deactivate') : t('employees.reactivate')}
-                    </button>
+                      items={[
+                        { label: t('tenants.resetEmployerPassword'), onSelect: () => setResetTenant(tenant) },
+                        {
+                          label: tenant.isActive ? t('employees.deactivate') : t('employees.reactivate'),
+                          onSelect: () => handleToggleActive(tenant),
+                          danger: tenant.isActive
+                        }
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

@@ -1,5 +1,6 @@
 {
   "common": {
+    "actions": "Actions",
     "save": "Save",
     "cancel": "Cancel",
     "edit": "Edit",
@@ -236,6 +237,7 @@
     "email": "Email",
     "leave": "Leave",
     "company": "Company",
+    "manage": "Manage",
     "menu": "Menu",
     "viewMode": "View mode"
   },
@@ -429,6 +431,8 @@
     }
   },
   "hoursOverview": {
+    "leaveLeft": "Leave left",
+    "leavePending": "{{hours}} waiting for approval",
     "title": "Worked vs. expected",
     "thisWeek": "This week",
     "yearSoFar": "{{year}} so far",
@@ -446,6 +450,13 @@
     "workedOf": "{{worked}} worked of {{expected}}"
   },
   "company": {
+    "tabs": {
+      "general": "General",
+      "schedule": "Working hours",
+      "holidays": "Public holidays",
+      "email": "Email",
+      "activity": "Activity"
+    },
     "title": "Company",
     "subtitle": "Settings for the whole company: details, usual working hours, public holidays and email.",
     "detailsTitle": "Company details",

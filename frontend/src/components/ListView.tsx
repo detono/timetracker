@@ -3,6 +3,8 @@ import type { TimeEntry } from "../types";
 import { formatDayLabel, hoursToHm } from "../utils/dateRange";
 import { HourTypeBadge } from "./HourTypeBadge";
 import { mapUrl } from "../utils/geolocation";
+import { RowMenu } from "./RowMenu";
+import { Icon } from "./Icon";
 
 interface Props {
   entries: TimeEntry[];
@@ -20,8 +22,50 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete, isLock
     return <p className="empty-state">{t('listView.emptyState')}</p>;
   }
 
+  const actionsFor = (entry: TimeEntry) =>
+    isLocked?.(entry) ? (
+      <span className="locked-label" title={t('lockedMonths.lockedHint')}>
+        <Icon name="lock" size={14} /> {t('lockedMonths.locked')}
+      </span>
+    ) : (
+      <RowMenu
+        items={[
+          ...(onEdit ? [{ label: t('common.edit'), onSelect: () => onEdit(entry) }] : []),
+          ...(onDelete ? [{ label: t('common.delete'), onSelect: () => onDelete(entry), danger: true }] : [])
+        ]}
+      />
+    );
+
   return (
-    <div className="table-scroll">
+    <>
+    {/* Phones get cards instead of the wide table; CSS shows one or the other. */}
+    <ul className="entry-cards">
+      {entries.map((entry) => (
+        <li key={entry.id} className="entry-card">
+          <div className="entry-card__top">
+            <span className="entry-card__date">{formatDayLabel(entry.workDate)}</span>
+            <span className="list-view__duration">{hoursToHm(entry.durationHours)}</span>
+          </div>
+          {showEmployeeColumn && <div className="entry-card__person">{entry.userFullName}</div>}
+          <div className="entry-card__middle">
+            <HourTypeBadge localizedNames={entry.localizedHourTypeNames} colorHex={entry.hourTypeColor} />
+            {(onEdit || onDelete) && actionsFor(entry)}
+          </div>
+          <div className="entry-card__meta">
+            {[
+              `${entry.startTime.slice(0, 5)}–${entry.endTime.slice(0, 5)}`,
+              entry.breakMinutes > 0 ? `${entry.breakMinutes} ${t('listView.minutes')} ${t('listView.break').toLowerCase()}` : null,
+              entry.projectName,
+              entry.location
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </div>
+          {entry.notes && <div className="entry-card__notes">{entry.notes}</div>}
+        </li>
+      ))}
+    </ul>
+    <div className="table-scroll table-scroll--wide-only">
       <table className="list-view">
         <thead>
           <tr>
@@ -71,31 +115,13 @@ export function ListView({ entries, showEmployeeColumn, onEdit, onDelete, isLock
                 )}
               </td>
               {(onEdit || onDelete) && (
-                <td className="list-view__actions">
-                  {isLocked?.(entry) ? (
-                    <span className="locked-label" title={t('lockedMonths.lockedHint')}>
-                      🔒 {t('lockedMonths.locked')}
-                    </span>
-                  ) : (
-                  <>
-                  {onEdit && (
-                    <button className="btn btn--ghost btn--sm" onClick={() => onEdit(entry)}>
-                      {t('common.edit')}
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button className="btn btn--ghost btn--sm btn--danger" onClick={() => onDelete(entry)}>
-                      {t('common.delete')}
-                    </button>
-                  )}
-                  </>
-                  )}
-                </td>
+                <td className="list-view__actions">{actionsFor(entry)}</td>
               )}
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+    </>
   );
 }
