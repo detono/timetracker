@@ -10,7 +10,8 @@ public class ResetForgottenPasswordCommandHandler(
     IUnitOfWork unitOfWork,
     ITenantScope tenantScope,
     IPasswordHasher passwordHasher,
-    IDateTimeProvider clock
+    IDateTimeProvider clock,
+    ILoginThrottle loginThrottle
 ) : IRequestHandler<ResetForgottenPasswordCommand, Result> {
     // The same message for every failure, so it doesn't reveal which accounts exist.
     public const string InvalidCodeMessage = "This code is wrong or has expired. Request a new one.";
@@ -44,6 +45,8 @@ public class ResetForgottenPasswordCommandHandler(
         await unitOfWork.PasswordResetCodes.RemoveAllForUserAsync(user.Id, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        // Someone locked out by wrong guesses can sign in again with their new password.
+        loginThrottle.Reset(user.Email);
         return Result.Success();
     }
 

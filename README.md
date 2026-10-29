@@ -104,6 +104,15 @@ can no longer log in.
 - **Signing out.** Deactivating a person or a company, resetting a password or changing it
   signs that person out everywhere on their next click, not only when their sign-in
   expires. Changing your own password keeps you signed in on the device you used.
+- **Password guessing.** Five wrong passwords for one email address within 15 minutes block
+  signing in with it for 15 minutes; resetting the password lifts the block. This works the
+  same for addresses without an account, so it doesn't reveal which ones exist. On top of
+  that, one IP address can make 20 sign-in or reset requests a minute
+  (`RateLimiting__AuthRequestsPerMinute`; raise it if a big office shares one IP). The counts
+  are kept in memory, so a restart clears them.
+- **Behind a reverse proxy.** The API takes the client's IP from `X-Forwarded-For`, but only
+  when the request comes from a private network (like the bundled nginx, or Traefik or Caddy
+  on the same Docker network). Requests straight from the internet can't fake their address.
 
 ### Leave
 
@@ -142,6 +151,13 @@ locked hours with a lock and explains why; the API enforces it too. To fix somet
 employer unlocks the month, makes the change and locks it again. Months that haven't
 started can't be locked.
 
+### Activity log
+
+The *Company* page shows employers who did what: locking and unlocking months, adding,
+changing or removing someone else's hours (with the hours before and after), password resets
+(also by a platform admin) and (de)activated accounts. Entries can't be changed or removed,
+and they're kept with the company's data.
+
 ### Company settings
 
 Employers manage company-wide settings on the *Company* page: name and address, the usual
@@ -170,6 +186,10 @@ and schedules every time, so there's no balance to manage or correct.
 - The current schedule applies to the whole period; earlier schedule changes aren't remembered.
 - People who don't log hours (e.g. an owner) can be switched off under *Manage employees →
   Tracks hours*; they're then left out of the overview.
+
+*Reports* shows the same comparison per person per day, week or month for any dates, and
+*Download worked vs. expected (CSV)* exports it. Names in CSV files are made safe for
+spreadsheets, so a name like `=HYPERLINK(...)` isn't run as a formula.
 
 The app follows the operating system's light or dark mode.
 

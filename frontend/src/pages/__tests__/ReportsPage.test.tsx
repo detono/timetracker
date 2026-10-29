@@ -29,7 +29,20 @@ vi.mock("../../api/reportsApi", () => ({
       }
     ]
   }),
-  downloadHoursReportCsv: vi.fn()
+  getHoursBalance: vi.fn().mockResolvedValue([
+    {
+      userId: "u1",
+      userFullName: "Eva Employee",
+      periodLabel: "2026-W43",
+      periodStart: "2026-10-19",
+      periodEnd: "2026-10-25",
+      workedHours: 7.5,
+      expectedHours: 37.5,
+      differenceHours: -30
+    }
+  ]),
+  downloadHoursReportCsv: vi.fn(),
+  downloadHoursBalanceCsv: vi.fn()
 }));
 
 describe("ReportsPage", () => {
@@ -38,8 +51,19 @@ describe("ReportsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Run report" }));
 
-    expect(await screen.findByText("Eva Employee")).toBeInTheDocument();
-    expect(screen.getByText("Work")).toBeInTheDocument();
+    expect(await screen.findByText("Work")).toBeInTheDocument();
+    expect(screen.getAllByText("Eva Employee")).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Download CSV" })).toBeInTheDocument();
+  });
+
+  it("shows worked vs. expected per person", async () => {
+    render(<ReportsPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Run report" }));
+
+    expect(await screen.findByText("Worked vs. expected")).toBeInTheDocument();
+    expect(screen.getByText("37h 30m")).toBeInTheDocument();
+    expect(screen.getByText("−30h")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download worked vs. expected (CSV)" })).toBeInTheDocument();
   });
 });

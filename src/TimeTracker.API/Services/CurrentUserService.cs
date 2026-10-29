@@ -82,5 +82,7 @@ public class CurrentUserService : ICurrentUserService, ITenantScope
         }
     }
 
+    public string? FullName => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
+
     public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
 }

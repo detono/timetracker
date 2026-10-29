@@ -1,4 +1,5 @@
 using MediatR;
+using TimeTracker.Application.AuditLog;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.LockedMonths;
@@ -12,7 +13,8 @@ namespace TimeTracker.Application.TimeEntries.Commands.CreateTimeEntry;
 public class CreateTimeEntryCommandHandler(
     IUnitOfWork unitOfWork,
     MonthLocks monthLocks,
-    ICurrentUserService currentUser
+    ICurrentUserService currentUser,
+    AuditTrail audit
 ) : IRequestHandler<CreateTimeEntryCommand, Result<TimeEntryDto>> {
     public async Task<Result<TimeEntryDto>>
         Handle(CreateTimeEntryCommand request, CancellationToken cancellationToken) {
@@ -68,6 +70,11 @@ public class CreateTimeEntryCommandHandler(
         );
 
         await unitOfWork.TimeEntries.AddAsync(entry, cancellationToken);
+        if (targetUserId != currentUser.UserId) {
+            await audit.RecordAsync(AuditAction.TimeEntryCreated, targetUser,
+                new Dictionary<string, string> { ["entry"] = AuditTrail.Describe(entry, hourType) }, cancellationToken);
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var dto = new TimeEntryDto(

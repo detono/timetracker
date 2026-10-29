@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using TimeTracker.Application.AuditLog;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Domain.Enums;
@@ -27,7 +28,8 @@ public class ResetEmployerPasswordCommandHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
     ITenantScope tenantScope,
-    IPasswordHasher passwordHasher
+    IPasswordHasher passwordHasher,
+    AuditTrail audit
 ) : IRequestHandler<ResetEmployerPasswordCommand, Result> {
     public async Task<Result> Handle(ResetEmployerPasswordCommand request, CancellationToken cancellationToken) {
         if (currentUser.Role != UserRole.PlatformAdmin) {
@@ -48,6 +50,8 @@ public class ResetEmployerPasswordCommandHandler(
 
         user.SetTemporaryPassword(passwordHasher.Hash(request.NewPassword));
         unitOfWork.Users.Update(user);
+        // Recorded in the company's own log, so its employers see that the platform admin did this.
+        await audit.RecordAsync(AuditAction.PasswordReset, user, null, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

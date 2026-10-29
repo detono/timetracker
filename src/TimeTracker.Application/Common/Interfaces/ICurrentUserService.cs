@@ -14,4 +14,7 @@ public interface ICurrentUserService
     /// <summary>The caller's tenant. Null for platform admins and outside a request (e.g. startup seeding).</summary>
     Guid? TenantId { get; }
     bool IsAuthenticated { get; }
+
+    /// <summary>The caller's name as signed in, e.g. for the activity log.</summary>
+    string? FullName => null;
 }

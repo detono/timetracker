@@ -293,4 +293,30 @@ public class AccountSecurityTests : IClassFixture<MailRecordingFactory> {
 
         _factory.Mail.Sent.Count(m => m.To.Contains(tenant.EmployerEmail)).Should().Be(1);
     }
+
+    [Fact]
+    public async Task FiveWrongPasswords_LockTheAccount_UntilItsPasswordIsReset() {
+        var tenant = await CreateTenantAsync(_client);
+        var employerToken = await LoginAsync(_client, tenant.EmployerEmail, Password);
+        await EnableEmailAsync(employerToken);
+        var employee = await CreateEmployeeAsync(employerToken);
+        await LoginAsync(_client, employee.Email, Password);
+
+        for (var i = 0; i < 5; i++) {
+            (await _client.PostAsJsonAsync("/api/auth/login", new { Email = employee.Email, Password = "Guess123!" }))
+                .StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        // Now even the right password is refused, the same way an unknown address would be.
+        var locked = await _client.PostAsJsonAsync("/api/auth/login", new { Email = employee.Email, Password });
+        locked.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        (await locked.Content.ReadAsStringAsync()).Should().Contain("Try again in 15 minutes");
+
+        // Resetting the password lifts the lock.
+        await _client.PostAsJsonAsync("/api/auth/password-reset", new { Email = employee.Email });
+        (await _client.PostAsJsonAsync("/api/auth/password-reset/confirm",
+            new { Email = employee.Email, Code = LatestCodeFor(employee.Email), NewPassword = "Remembered123!" }))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await LoginResultAsync(employee.Email, "Remembered123!")).Token.Should().NotBeEmpty();
+    }
 }

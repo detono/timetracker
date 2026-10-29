@@ -1,4 +1,5 @@
 using MediatR;
+using TimeTracker.Application.AuditLog;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Domain.Enums;
@@ -9,7 +10,8 @@ namespace TimeTracker.Application.Users.Commands.ResetPassword;
 public class ResetPasswordCommandHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
-    IPasswordHasher passwordHasher
+    IPasswordHasher passwordHasher,
+    AuditTrail audit
 ) : IRequestHandler<ResetPasswordCommand, Result> {
     public async Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken) {
         if (currentUser.Role != UserRole.Employer)
@@ -21,6 +23,7 @@ public class ResetPasswordCommandHandler(
 
         user.SetTemporaryPassword(passwordHasher.Hash(request.NewPassword));
         unitOfWork.Users.Update(user);
+        await audit.RecordAsync(AuditAction.PasswordReset, user, null, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using TimeTracker.Application.AuditLog;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Users.Commands.DeactivateUser;
 using TimeTracker.Domain.Entities;
@@ -12,11 +13,16 @@ namespace TimeTracker.Application.UnitTests.Users;
 public class DeactivateUserCommandHandlerTests
 {
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+
+    private readonly Mock<IAuditEntryRepository> _auditEntries = new();
+
+    private AuditTrail Audit() => new(_unitOfWork.Object, new TestCurrentUserService(Guid.NewGuid(), UserRole.Employer));
     private readonly Mock<IUserRepository> _userRepository = new();
 
     public DeactivateUserCommandHandlerTests()
     {
         _unitOfWork.SetupGet(u => u.Users).Returns(_userRepository.Object);
+        _unitOfWork.SetupGet(u => u.AuditEntries).Returns(_auditEntries.Object);
     }
 
     [Fact]
@@ -25,7 +31,7 @@ public class DeactivateUserCommandHandlerTests
         var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         var target = User.Create("Charlie", "Other", "charlie@co.com", "hash", UserRole.Employee, Guid.NewGuid());
 
-        var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employee.Id, UserRole.Employee));
+        var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employee.Id, UserRole.Employee), Audit());
         var result = await handler.Handle(new DeactivateUserCommand(target.Id), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -37,7 +43,7 @@ public class DeactivateUserCommandHandlerTests
     {
         var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());
 
-        var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer));
+        var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer), Audit());
         var result = await handler.Handle(new DeactivateUserCommand(employer.Id), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -51,7 +57,7 @@ public class DeactivateUserCommandHandlerTests
         var employee = User.Create("Bob", "Worker", "bob@co.com", "hash", UserRole.Employee, Guid.NewGuid());
         _userRepository.Setup(r => r.GetByIdAsync(employee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employee);
 
-        var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer));
+        var handler = new DeactivateUserCommandHandler(_unitOfWork.Object, new TestCurrentUserService(employer.Id, UserRole.Employer), Audit());
         var result = await handler.Handle(new DeactivateUserCommand(employee.Id), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();

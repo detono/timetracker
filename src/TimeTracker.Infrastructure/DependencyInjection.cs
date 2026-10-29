@@ -38,10 +38,12 @@ public static class DependencyInjection {
         services.AddScoped<IPublicHolidayRepository, PublicHolidayRepository>();
         services.AddScoped<IPasswordResetCodeRepository, PasswordResetCodeRepository>();
         services.AddScoped<ILockedMonthRepository, LockedMonthRepository>();
+        services.AddScoped<IAuditEntryRepository, AuditEntryRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ISessionValidator, SessionValidator>();
+        services.AddSingleton<ILoginThrottle, MemoryLoginThrottle>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         // Keys live in the database so encrypted mail secrets stay readable across container restarts.

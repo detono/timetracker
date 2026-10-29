@@ -11,23 +11,39 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResu
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ITokenService _tokenService;
+    private readonly ILoginThrottle _throttle;
 
-    public LoginCommandHandler(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher, ITokenService tokenService)
+    public LoginCommandHandler(
+        IUnitOfWork unitOfWork, IPasswordHasher passwordHasher, ITokenService tokenService, ILoginThrottle throttle)
     {
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
+        _throttle = throttle;
     }
+
+    public static string LockedOutMessage(TimeSpan remaining) =>
+        $"Too many failed sign-in attempts. Try again in {Math.Max(1, (int)Math.Ceiling(remaining.TotalMinutes))} minutes, " +
+        "or reset your password.";
 
     public async Task<Result<AuthResultDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
+        // Checked before the password, so even the right password doesn't get through while blocked.
+        if (_throttle.RemainingLockout(request.Email) is { } remaining)
+        {
+            return Result<AuthResultDto>.Failure(LockedOutMessage(remaining), ResultErrorType.TooManyRequests);
+        }
+
         var user = await _unitOfWork.Users.GetByEmailAsync(request.Email, cancellationToken);
 
         // Constant-shape failure message to avoid leaking which part (email/password) was wrong.
         if (user is null || !user.IsActive || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
+            _throttle.RecordFailure(request.Email);
             return Result<AuthResultDto>.Failure("Invalid email or password.", ResultErrorType.Validation);
         }
+
+        _throttle.Reset(request.Email);
 
         string? tenantName = null;
         if (user.TenantId.HasValue)

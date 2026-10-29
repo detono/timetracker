@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format, startOfMonth } from "date-fns";
-import { downloadHoursReportCsv, getHoursReport } from "../api/reportsApi";
+import { downloadHoursBalanceCsv, downloadHoursReportCsv, getHoursBalance, getHoursReport } from "../api/reportsApi";
 import { extractErrorMessage } from "../api/client";
 import { getLockedMonths, lockMonth, unlockMonth } from "../api/lockedMonthsApi";
 import { useAuth } from "../auth/AuthContext";
 import { monthKey } from "../utils/lockedMonths";
 import { formatDayLabel } from "../utils/dateRange";
 import { HourTypeBadge } from "../components/HourTypeBadge";
-import type { HoursReport, LockedMonth, ReportGrouping } from "../types";
+import type { HoursBalanceLine, HoursReport, LockedMonth, ReportGrouping } from "../types";
 import { hoursToHm } from "../utils/dateRange";
+import { signedHm } from "../utils/hoursOverview";
 
 export function ReportsPage() {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export function ReportsPage() {
   const [to, setTo] = useState(format(new Date(), "yyyy-MM-dd"));
   const [grouping, setGrouping] = useState<ReportGrouping>("Week");
   const [report, setReport] = useState<HoursReport | null>(null);
+  const [balance, setBalance] = useState<HoursBalanceLine[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,8 +27,12 @@ export function ReportsPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getHoursReport(from, to, grouping);
+      const [data, balanceData] = await Promise.all([
+        getHoursReport(from, to, grouping),
+        getHoursBalance(from, to, grouping)
+      ]);
       setReport(data);
+      setBalance(balanceData);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -34,9 +40,9 @@ export function ReportsPage() {
     }
   }
 
-  async function handleDownload() {
+  async function handleDownload(download: typeof downloadHoursReportCsv) {
     try {
-      await downloadHoursReportCsv(from, to, grouping);
+      await download(from, to, grouping);
     } catch (err) {
       setError(extractErrorMessage(err));
     }
@@ -74,9 +80,14 @@ export function ReportsPage() {
               {loading ? t('common.running') : t('reports.runReport')}
             </button>
             {report && (
-              <button className="btn btn--ghost" onClick={handleDownload}>
-                {t('reports.downloadCsv')}
-              </button>
+              <>
+                <button className="btn btn--ghost" onClick={() => handleDownload(downloadHoursReportCsv)}>
+                  {t('reports.downloadCsv')}
+                </button>
+                <button className="btn btn--ghost" onClick={() => handleDownload(downloadHoursBalanceCsv)}>
+                  {t('reports.downloadBalanceCsv')}
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -124,6 +135,41 @@ export function ReportsPage() {
               )}
             </tbody>
           </table>
+
+          {balance.length > 0 && (
+            <>
+              <h2 className="reports__section-title">{t('reports.balanceTitle')}</h2>
+              <p className="form__hint">{t('reports.balanceHint')}</p>
+              <table className="list-view">
+                <thead>
+                  <tr>
+                    <th>{t('reports.table.employee')}</th>
+                    <th>{t('reports.table.period')}</th>
+                    <th>{t('reports.table.range')}</th>
+                    <th>{t('reports.table.worked')}</th>
+                    <th>{t('reports.table.expected')}</th>
+                    <th>{t('reports.table.difference')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {balance.map((line) => (
+                    <tr key={`${line.userId}-${line.periodLabel}`}>
+                      <td>{line.userFullName}</td>
+                      <td>{line.periodLabel}</td>
+                      <td>
+                        {line.periodStart} → {line.periodEnd}
+                      </td>
+                      <td>{hoursToHm(line.workedHours)}</td>
+                      <td>{hoursToHm(line.expectedHours)}</td>
+                      <td className={line.differenceHours < 0 ? "balance-negative" : undefined}>
+                        {signedHm(line.differenceHours)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
         </>
       )}
 

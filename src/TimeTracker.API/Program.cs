@@ -108,12 +108,15 @@ builder.Services
     });
 
 builder.Services.AddAuthorization(options => options.AddTenantPolicies());
+builder.Services.AddPrivateNetworkProxies();
+builder.Services.AddAuthRateLimiting();
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment()) {
@@ -123,6 +126,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseSerilogRequestLogging();
 app.UseCors("Frontend");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseMiddleware<PasswordChangeRequiredMiddleware>();
 app.UseAuthorization();

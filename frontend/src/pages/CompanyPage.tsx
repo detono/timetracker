@@ -11,6 +11,7 @@ import {
   updateCompany
 } from "../api/companyApi";
 import { WorkScheduleEditor } from "../components/WorkScheduleEditor";
+import { ActivityLogPanel } from "../components/ActivityLogPanel";
 import { EmailSettingsPage } from "./EmailSettingsPage";
 import { formatDayLabel } from "../utils/dateRange";
 import type { Company, PublicHoliday } from "../types";
@@ -52,6 +53,7 @@ export function CompanyPage() {
           <WorkScheduleEditor userId={null} />
           <HolidaysPanel company={company} />
           <EmailSettingsPage embedded />
+          <ActivityLogPanel />
         </>
       ) : (
         !error && <p className="empty-state">{t('common.loading')}</p>

@@ -20,6 +20,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program> {
     public const string AdminPassword = "Password123!";
 
     private readonly string _dbName = $"TimeTrackerTests-{Guid.NewGuid()}";
+
+    protected virtual int AuthRequestsPerMinute => 10_000;
     protected override void ConfigureWebHost(IWebHostBuilder builder) {
         builder.UseEnvironment("Testing");
 
@@ -30,7 +32,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program> {
                 ["Seed:AdminEmail"] = AdminEmail,
                 ["Seed:AdminPassword"] = AdminPassword,
                 ["Seed:AdminFirstName"] = "Test",
-                ["Seed:AdminLastName"] = "Admin"
+                ["Seed:AdminLastName"] = "Admin",
+                // Every test client shares one address; the limit itself has its own test.
+                ["RateLimiting:AuthRequestsPerMinute"] = AuthRequestsPerMinute.ToString()
             });
         });
 

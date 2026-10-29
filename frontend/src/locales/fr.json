@@ -201,8 +201,14 @@
       "period": "Période",
       "range": "Plage",
       "entries": "Entrées",
-      "totalHours": "Total des heures"
-    }
+      "totalHours": "Total des heures",
+      "worked": "Prestées",
+      "expected": "Prévues",
+      "difference": "Différence"
+    },
+    "downloadBalanceCsv": "Télécharger prestées vs. prévues (CSV)",
+    "balanceTitle": "Heures prestées vs. prévues",
+    "balanceHint": "Heures encodées face à l'horaire de chacun, avec les mêmes règles que Mes heures : jusqu'à hier (aujourd'hui dès qu'il est encodé), sans les jours fériés. Les personnes qui ne suivent pas leurs heures ne sont pas listées."
   },
   "team": {
     "title": "Aperçu de l'équipe",
@@ -483,5 +489,22 @@
     "lockedHint": "Ce mois est verrouillé. Demandez à votre employeur de le déverrouiller pour modifier ceci.",
     "leaveLockedHint": "Une partie de ce congé tombe dans un mois verrouillé. Il peut être refusé, mais pas approuvé ni révoqué tant que le mois n'est pas déverrouillé.",
     "dateLocked": "Ce mois est verrouillé : on ne peut plus y ajouter ni modifier d'heures. Demandez à votre employeur si quelque chose doit être corrigé."
+  },
+  "activityLog": {
+    "title": "Journal d'activité",
+    "hint": "Qui a verrouillé ou déverrouillé des mois, modifié les heures de quelqu'un d'autre, réinitialisé un mot de passe ou (dés)activé un compte. Les lignes ne peuvent être ni modifiées ni supprimées.",
+    "empty": "Rien d’enregistré pour l’instant.",
+    "loadMore": "Afficher plus ancien",
+    "platformAdmin": "{{name}} (administrateur de la plateforme)",
+    "actions": {
+      "MonthLocked": "{{actor}} a verrouillé {{month}}",
+      "MonthUnlocked": "{{actor}} a déverrouillé {{month}}",
+      "TimeEntryCreated": "{{actor}} a ajouté des heures pour {{subject}} : {{entry}}",
+      "TimeEntryUpdated": "{{actor}} a modifié des heures de {{subject}} : {{before}} → {{after}}",
+      "TimeEntryDeleted": "{{actor}} a supprimé des heures de {{subject}} : {{entry}}",
+      "PasswordReset": "{{actor}} a réinitialisé le mot de passe de {{subject}}",
+      "UserDeactivated": "{{actor}} a désactivé {{subject}}",
+      "UserActivated": "{{actor}} a réactivé {{subject}}"
+    }
   }
 }

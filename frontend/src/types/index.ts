@@ -103,6 +103,19 @@ export interface HoursReportLine {
   entryCount: number;
 }
 
+/** Worked vs. expected for one person in one period; the period is cut to the requested dates. */
+export interface HoursBalanceLine {
+  userId: string;
+  userFullName: string;
+  periodLabel: string;
+  periodStart: string;
+  periodEnd: string;
+  workedHours: number;
+  expectedHours: number;
+  /** Worked minus expected: negative means behind. */
+  differenceHours: number;
+}
+
 export interface HoursReport {
   grouping: ReportGrouping;
   from: string;
@@ -293,4 +306,17 @@ export interface LockedMonth {
   month: number;
   lockedByName: string;
   lockedAtUtc: string;
+}
+
+/** One line of the company's activity log. */
+export interface AuditEntry {
+  id: string;
+  atUtc: string;
+  actorName: string;
+  actorRole: "Employer" | "Employee" | "PlatformAdmin";
+  /** E.g. "MonthUnlocked" or "TimeEntryUpdated". */
+  action: string;
+  subjectName: string | null;
+  /** Per action, e.g. "month", "entry", or "before" and "after". */
+  details: Record<string, string>;
 }

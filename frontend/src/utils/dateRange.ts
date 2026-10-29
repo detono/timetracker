@@ -13,7 +13,7 @@ export function getWeekRange(date: Date): { from: string; to: string; days: stri
  * English uses the British day-month order, like the rest of the app.
  */
 export function formatDayLabel(iso: string, language: string = i18next.language || "en"): string {
-  const locale = language === "en" ? "en-GB" : language;
+  const locale = dateLocale(language);
   return new Date(iso + "T00:00:00").toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
 }
 
@@ -21,4 +21,9 @@ export function hoursToHm(hours: number): string {
   const h = Math.floor(hours);
   const m = Math.round((hours - h) * 60);
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+/** The locale for dates: English uses the British day-month order, like the rest of the app. */
+export function dateLocale(language: string = i18next.language || "en"): string {
+  return language === "en" ? "en-GB" : language;
 }

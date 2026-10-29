@@ -16,6 +16,7 @@ public class LoginCommandHandlerTests
     private readonly Mock<IUserRepository> _userRepository = new();
     private readonly Mock<IPasswordHasher> _passwordHasher = new();
     private readonly Mock<ITokenService> _tokenService = new();
+    private readonly Mock<ILoginThrottle> _throttle = new();
     private readonly Mock<ITenantRepository> _tenantRepository = new();
     private readonly Tenant _tenant = Tenant.Create("Acme");
 
@@ -34,7 +35,7 @@ public class LoginCommandHandlerTests
         _passwordHasher.Setup(p => p.Verify("password", "hash")).Returns(true);
         _tokenService.Setup(t => t.GenerateToken(user)).Returns("fake-jwt");
 
-        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object);
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
         var result = await handler.Handle(new LoginCommand("jane@doe.com", "password"), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
@@ -47,7 +48,7 @@ public class LoginCommandHandlerTests
     {
         _userRepository.Setup(r => r.GetByEmailAsync("missing@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
 
-        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object);
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
         var result = await handler.Handle(new LoginCommand("missing@doe.com", "password"), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -61,7 +62,7 @@ public class LoginCommandHandlerTests
         _userRepository.Setup(r => r.GetByEmailAsync("jane@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _passwordHasher.Setup(p => p.Verify("wrong", "hash")).Returns(false);
 
-        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object);
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
         var result = await handler.Handle(new LoginCommand("jane@doe.com", "wrong"), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -74,7 +75,7 @@ public class LoginCommandHandlerTests
         user.Deactivate();
         _userRepository.Setup(r => r.GetByEmailAsync("jane@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
-        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object);
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
         var result = await handler.Handle(new LoginCommand("jane@doe.com", "password"), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -88,7 +89,7 @@ public class LoginCommandHandlerTests
         _userRepository.Setup(r => r.GetByEmailAsync("jane@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _passwordHasher.Setup(p => p.Verify("password", "hash")).Returns(true);
 
-        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object);
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
         var result = await handler.Handle(new LoginCommand("jane@doe.com", "password"), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -104,11 +105,43 @@ public class LoginCommandHandlerTests
         _passwordHasher.Setup(p => p.Verify("password", "hash")).Returns(true);
         _tokenService.Setup(t => t.GenerateToken(admin)).Returns("admin-jwt");
 
-        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object);
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
         var result = await handler.Handle(new LoginCommand("pat@platform.com", "password"), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         result.Value!.Role.Should().Be("PlatformAdmin");
         result.Value.TenantName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Handle_WhileLockedOut_RefusesEvenTheRightPassword()
+    {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, _tenant.Id);
+        _userRepository.Setup(r => r.GetByEmailAsync("jane@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _passwordHasher.Setup(p => p.Verify("password", "hash")).Returns(true);
+        _throttle.Setup(t => t.RemainingLockout("jane@doe.com")).Returns(TimeSpan.FromMinutes(9.5));
+
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
+        var result = await handler.Handle(new LoginCommand("jane@doe.com", "password"), CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorType.Should().Be(ResultErrorType.TooManyRequests);
+        result.Error.Should().Contain("10 minutes");
+        _passwordHasher.Verify(p => p.Verify(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_CountsWrongPasswords_AndClearsThemOnSuccess()
+    {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, _tenant.Id);
+        _userRepository.Setup(r => r.GetByEmailAsync("jane@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _passwordHasher.Setup(p => p.Verify("password", "hash")).Returns(true);
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
+
+        await handler.Handle(new LoginCommand("jane@doe.com", "wrong"), CancellationToken.None);
+        _throttle.Verify(t => t.RecordFailure("jane@doe.com"), Times.Once);
+
+        await handler.Handle(new LoginCommand("jane@doe.com", "password"), CancellationToken.None);
+        _throttle.Verify(t => t.Reset("jane@doe.com"), Times.Once);
     }
 }

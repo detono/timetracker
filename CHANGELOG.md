@@ -33,6 +33,12 @@ Database migrations run automatically when the API starts, unless a release says
 - **Platform admins can reset an employer's password**, for when a company is locked out.
 - **Closed months**: employers lock a month once its hours are final. Nobody can change
   hours or leave in it until it's unlocked (*Reports → Closed months*).
+- **Protection against password guessing**: 5 wrong passwords lock an address for 15 minutes,
+  and sign-in and reset requests are limited per IP address. No extra dependencies.
+- **Worked vs. expected in reports**: per person per period on the Reports page, with its own
+  CSV export.
+- **Activity log** on the Company page: who locked months, changed someone else's hours,
+  reset passwords or (de)activated accounts.
 
 ### Changed
 
@@ -41,12 +47,15 @@ Database migrations run automatically when the API starts, unless a release says
 - Dates follow the chosen language.
 - Passwords set by someone else (new accounts and resets) are temporary: the person must
   choose their own at their next login.
+- Hour types look the same everywhere: a pill with a dot in the hour type's color.
 - Changing your password signs you out on your other devices. `POST /api/auth/change-password`
   now returns a new sign-in instead of an empty response.
 
 ### Fixed
 
 - Running a report with any hours in it showed a blank page (since 0.3.0).
+- CSV exports quote names with commas, quotes or line breaks correctly, and names can't run as
+  spreadsheet formulas.
 - Deactivating a person or company, or resetting their password, now signs them out right
   away instead of when their sign-in expires (up to 8 hours later).
 - Docker health checks: containers no longer show as unhealthy.

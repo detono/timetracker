@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using TimeTracker.Application.AuditLog;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Domain.Entities;
@@ -30,7 +31,8 @@ public class LockMonthCommandValidator : AbstractValidator<LockMonthCommand> {
 public class LockedMonthsHandlers(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
-    IDateTimeProvider clock
+    IDateTimeProvider clock,
+    AuditTrail audit
 ) : IRequestHandler<GetLockedMonthsQuery, Result<IReadOnlyList<LockedMonthDto>>>,
     IRequestHandler<LockMonthCommand, Result<LockedMonthDto>>,
     IRequestHandler<UnlockMonthCommand, Result> {
@@ -53,6 +55,7 @@ public class LockedMonthsHandlers(
 
         var locked = LockedMonth.Create(request.Year, request.Month, currentUser.UserId, clock.TodayUtc);
         await unitOfWork.LockedMonths.AddAsync(locked, cancellationToken);
+        await audit.RecordAsync(AuditAction.MonthLocked, null, MonthDetails(request.Year, request.Month), cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<LockedMonthDto>.Success(ToDto(locked, users));
@@ -66,11 +69,15 @@ public class LockedMonthsHandlers(
         var locked = await unitOfWork.LockedMonths.GetAsync(request.Year, request.Month, cancellationToken);
         if (locked is not null) {
             unitOfWork.LockedMonths.Remove(locked);
+            await audit.RecordAsync(AuditAction.MonthUnlocked, null, MonthDetails(request.Year, request.Month), cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         return Result.Success();
     }
+
+    private static Dictionary<string, string> MonthDetails(int year, int month) =>
+        new() { ["month"] = $"{year:D4}-{month:D2}" };
 
     private static LockedMonthDto ToDto(LockedMonth month, IReadOnlyDictionary<Guid, User> users) =>
         new(month.Year, month.Month,

@@ -21,6 +21,7 @@ public static class DependencyInjection {
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddScoped<LeaveService>();
         services.AddScoped<LockedMonths.MonthLocks>();
+        services.AddScoped<AuditLog.AuditTrail>();
         services.AddScoped<LeaveNotifications>();
         services.AddScoped<LeaveRequests.LeaveRequestMapper>();
         services.AddScoped<HoursOverview.HoursOverviewLoader>();

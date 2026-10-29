@@ -45,5 +45,8 @@ public enum ResultErrorType
     Validation = 1,
     NotFound = 2,
     Forbidden = 3,
-    Conflict = 4
+    Conflict = 4,
+
+    /// <summary>Too many attempts in a short time; try again later (HTTP 429).</summary>
+    TooManyRequests = 5
 }

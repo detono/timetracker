@@ -177,8 +177,14 @@
       "period": "Period",
       "range": "Range",
       "entries": "Entries",
-      "totalHours": "Total hours"
-    }
+      "totalHours": "Total hours",
+      "worked": "Worked",
+      "expected": "Expected",
+      "difference": "Difference"
+    },
+    "downloadBalanceCsv": "Download worked vs. expected (CSV)",
+    "balanceTitle": "Worked vs. expected",
+    "balanceHint": "Logged hours against each person's work schedule, with the same rules as My hours: up to yesterday (today once it's logged), without public holidays. People who don't track hours aren't listed."
   },
   "projects": {
     "title": "Projects",
@@ -483,5 +489,22 @@
     "lockedHint": "This month is locked. Ask your employer to unlock it to change this.",
     "leaveLockedHint": "Part of this leave is in a locked month. It can be rejected, but not approved or revoked until the month is unlocked.",
     "dateLocked": "This month is locked: hours in it can no longer be added or changed. Ask your employer if something needs fixing."
+  },
+  "activityLog": {
+    "title": "Activity log",
+    "hint": "Who locked or unlocked months, changed someone else's hours, reset a password or (de)activated an account. Entries can't be changed or removed.",
+    "empty": "Nothing recorded yet.",
+    "loadMore": "Show older",
+    "platformAdmin": "{{name}} (platform admin)",
+    "actions": {
+      "MonthLocked": "{{actor}} locked {{month}}",
+      "MonthUnlocked": "{{actor}} unlocked {{month}}",
+      "TimeEntryCreated": "{{actor}} added hours for {{subject}}: {{entry}}",
+      "TimeEntryUpdated": "{{actor}} changed hours of {{subject}}: {{before}} → {{after}}",
+      "TimeEntryDeleted": "{{actor}} removed hours of {{subject}}: {{entry}}",
+      "PasswordReset": "{{actor}} reset the password of {{subject}}",
+      "UserDeactivated": "{{actor}} deactivated {{subject}}",
+      "UserActivated": "{{actor}} reactivated {{subject}}"
+    }
   }
 }

@@ -19,9 +19,7 @@ public class HoursOverviewLoader(IUnitOfWork unitOfWork) {
             return Array.Empty<PersonData>();
         }
 
-        var schedules = await unitOfWork.WorkSchedules.GetAllAsync(cancellationToken);
-        var company = schedules.FirstOrDefault(s => s.IsCompanyDefault);
-        var personal = schedules.Where(s => s.UserId is not null).ToDictionary(s => s.UserId!.Value);
+        var schedules = await ResolveSchedulesAsync(users, cancellationToken);
 
         var from = new DateOnly(asOf.Year, 1, 1);
         var sunday = HoursOverviewCalculator.StartOfWeek(asOf).AddDays(6);
@@ -30,13 +28,28 @@ public class HoursOverviewLoader(IUnitOfWork unitOfWork) {
             .ToLookup(e => e.UserId);
 
         return users.Select(user => {
-            var (schedule, source) = personal.TryGetValue(user.Id, out var own)
-                ? (own, WorkScheduleSource.Personal)
-                : company is not null
-                    ? (company, WorkScheduleSource.Company)
-                    : (WorkSchedule.BuiltInDefault(), WorkScheduleSource.BuiltIn);
+            var (schedule, source) = schedules[user.Id];
             return new PersonData(user, schedule, source, entries[user.Id].ToList());
         }).ToList();
+    }
+
+    /// <summary>Each person's work schedule: their own, else the company's, else the built-in one.</summary>
+    public async Task<IReadOnlyDictionary<Guid, WorkSchedule>> SchedulesAsync(
+        IReadOnlyList<User> users, CancellationToken cancellationToken
+    ) => (await ResolveSchedulesAsync(users, cancellationToken)).ToDictionary(p => p.Key, p => p.Value.Schedule);
+
+    private async Task<Dictionary<Guid, (WorkSchedule Schedule, WorkScheduleSource Source)>> ResolveSchedulesAsync(
+        IReadOnlyList<User> users, CancellationToken cancellationToken
+    ) {
+        var schedules = await unitOfWork.WorkSchedules.GetAllAsync(cancellationToken);
+        var company = schedules.FirstOrDefault(s => s.IsCompanyDefault);
+        var personal = schedules.Where(s => s.UserId is not null).ToDictionary(s => s.UserId!.Value);
+
+        return users.ToDictionary(user => user.Id, user => personal.TryGetValue(user.Id, out var own)
+            ? (own, WorkScheduleSource.Personal)
+            : company is not null
+                ? (company, WorkScheduleSource.Company)
+                : (WorkSchedule.BuiltInDefault(), WorkScheduleSource.BuiltIn));
     }
 
     /// <summary>Holidays from 1 January of the reference year to the Sunday of the reference week, by date.</summary>

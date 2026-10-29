@@ -28,6 +28,7 @@ public class ApplicationDbContext(
     public DbSet<PublicHoliday> PublicHolidays => Set<PublicHoliday>();
     public DbSet<PasswordResetCode> PasswordResetCodes => Set<PasswordResetCode>();
     public DbSet<LockedMonth> LockedMonths => Set<LockedMonth>();
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     /// <summary>
     /// The ASP.NET Core Data Protection key ring (used to encrypt mail secrets), kept in the
@@ -51,6 +52,7 @@ public class ApplicationDbContext(
         ConfigureTenantOwned<PublicHoliday>(modelBuilder);
         ConfigureTenantOwned<PasswordResetCode>(modelBuilder);
         ConfigureTenantOwned<LockedMonth>(modelBuilder);
+        ConfigureTenantOwned<AuditEntry>(modelBuilder);
 
         // Platform admins (TenantId null) only match each other here, never tenant users.
         modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == CurrentTenantId);

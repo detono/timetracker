@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using TimeTracker.API.Authorization;
 using TimeTracker.Application.Auth.Commands.ChangePassword;
 using TimeTracker.Application.Auth.Commands.Login;
 using TimeTracker.Application.Auth.Commands.RequestPasswordReset;
@@ -14,9 +16,11 @@ public class AuthController : ApiControllerBase
 {
     /// <summary>Authenticates a user and returns a JWT bearer token.</summary>
     [HttpPost("login")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     [AllowAnonymous]
     [ProducesResponseType(typeof(AuthResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<AuthResultDto>> Login(LoginCommand command, CancellationToken cancellationToken)
     {
         var result = await Mediator.Send(command, cancellationToken);
@@ -59,6 +63,7 @@ public class AuthController : ApiControllerBase
     /// answers 204, so it doesn't reveal which addresses have an account.
     /// </summary>
     [HttpPost("password-reset")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     [AllowAnonymous]
     public async Task<ActionResult> RequestPasswordReset(RequestPasswordResetCommand command, CancellationToken cancellationToken)
     {
@@ -68,6 +73,7 @@ public class AuthController : ApiControllerBase
 
     /// <summary>Sets a new password with an emailed code. Signs out every existing session.</summary>
     [HttpPost("password-reset/confirm")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     [AllowAnonymous]
     public async Task<ActionResult> ResetForgottenPassword(ResetForgottenPasswordCommand command, CancellationToken cancellationToken)
     {

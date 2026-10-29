@@ -201,8 +201,14 @@
       "period": "Periode",
       "range": "Bereik",
       "entries": "Registraties",
-      "totalHours": "Totaal uren"
-    }
+      "totalHours": "Totaal uren",
+      "worked": "Gewerkt",
+      "expected": "Verwacht",
+      "difference": "Verschil"
+    },
+    "downloadBalanceCsv": "Gewerkt vs. verwacht downloaden (CSV)",
+    "balanceTitle": "Gewerkt vs. verwacht",
+    "balanceHint": "Geregistreerde uren tegenover ieders werkrooster, met dezelfde regels als bij Mijn uren: tot gisteren (vandaag zodra het geregistreerd is), zonder feestdagen. Wie geen uren bijhoudt, staat er niet bij."
   },
   "team": {
     "title": "Teamoverzicht",
@@ -483,5 +489,22 @@
     "lockedHint": "Deze maand is vergrendeld. Vraag je werkgever om ze te ontgrendelen als dit moet veranderen.",
     "leaveLockedHint": "Een deel van dit verlof valt in een vergrendelde maand. Afwijzen kan, goedkeuren of intrekken pas als de maand ontgrendeld is.",
     "dateLocked": "Deze maand is vergrendeld: er kunnen geen uren meer bij of veranderen. Vraag je werkgever als er iets recht moet worden gezet."
+  },
+  "activityLog": {
+    "title": "Activiteitenlog",
+    "hint": "Wie maanden vergrendelde of ontgrendelde, uren van iemand anders wijzigde, een wachtwoord herstelde of een account (de)activeerde. Regels kunnen niet gewijzigd of verwijderd worden.",
+    "empty": "Nog niets geregistreerd.",
+    "loadMore": "Oudere tonen",
+    "platformAdmin": "{{name}} (platformbeheerder)",
+    "actions": {
+      "MonthLocked": "{{actor}} vergrendelde {{month}}",
+      "MonthUnlocked": "{{actor}} ontgrendelde {{month}}",
+      "TimeEntryCreated": "{{actor}} voegde uren toe voor {{subject}}: {{entry}}",
+      "TimeEntryUpdated": "{{actor}} wijzigde uren van {{subject}}: {{before}} → {{after}}",
+      "TimeEntryDeleted": "{{actor}} verwijderde uren van {{subject}}: {{entry}}",
+      "PasswordReset": "{{actor}} herstelde het wachtwoord van {{subject}}",
+      "UserDeactivated": "{{actor}} deactiveerde {{subject}}",
+      "UserActivated": "{{actor}} heractiveerde {{subject}}"
+    }
   }
 }

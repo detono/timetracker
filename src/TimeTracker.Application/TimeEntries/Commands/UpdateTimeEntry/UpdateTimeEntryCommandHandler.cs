@@ -1,4 +1,5 @@
 using MediatR;
+using TimeTracker.Application.AuditLog;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.LockedMonths;
@@ -11,7 +12,8 @@ namespace TimeTracker.Application.TimeEntries.Commands.UpdateTimeEntry;
 public class UpdateTimeEntryCommandHandler(
     IUnitOfWork unitOfWork,
     MonthLocks monthLocks,
-    ICurrentUserService currentUser
+    ICurrentUserService currentUser,
+    AuditTrail audit
 ) : IRequestHandler<UpdateTimeEntryCommand, Result<TimeEntryDto>> {
     public async Task<Result<TimeEntryDto>>
         Handle(UpdateTimeEntryCommand request, CancellationToken cancellationToken) {
@@ -50,6 +52,10 @@ public class UpdateTimeEntryCommandHandler(
             projectName = project.Name;
         }
 
+        var before = entry.UserId == currentUser.UserId
+            ? null
+            : AuditTrail.Describe(entry, await unitOfWork.HourTypes.GetByIdAsync(entry.HourTypeId, cancellationToken));
+
         entry.Reschedule(request.WorkDate);
         entry.SetTimes(request.StartTime, request.EndTime, request.BreakMinutes);
         entry.SetHourType(request.HourTypeId);
@@ -58,9 +64,15 @@ public class UpdateTimeEntryCommandHandler(
         entry.SetLocation(request.Location, request.Latitude, request.Longitude);
         
         unitOfWork.TimeEntries.Update(entry);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
         var user = await unitOfWork.Users.GetByIdAsync(entry.UserId, cancellationToken);
+        if (before is not null) {
+            await audit.RecordAsync(AuditAction.TimeEntryUpdated, user, new Dictionary<string, string> {
+                ["before"] = before,
+                ["after"] = AuditTrail.Describe(entry, hourType)
+            }, cancellationToken);
+        }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         
         var dto = new TimeEntryDto(
             entry.Id,

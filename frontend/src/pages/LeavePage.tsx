@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HourTypeBadge } from "../components/HourTypeBadge";
 import { useOutletContext } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { extractErrorMessage } from "../api/client";
@@ -42,12 +43,7 @@ function signedHours(hours: number): string {
 }
 
 function HourTypeLabel({ request }: { request: LeaveRequest }) {
-  const { i18n } = useTranslation();
-  return (
-    <span className="hour-type-badge" style={{ borderColor: request.hourTypeColor }}>
-      {localizedName(request.localizedHourTypeNames, i18n.language)}
-    </span>
-  );
+  return <HourTypeBadge localizedNames={request.localizedHourTypeNames} colorHex={request.hourTypeColor} />;
 }
 
 function StatusLabel({ request }: { request: LeaveRequest }) {

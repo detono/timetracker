@@ -37,6 +37,7 @@ public abstract class ApiControllerBase : ControllerBase
         ResultErrorType.NotFound => NotFound(new { error }),
         ResultErrorType.Forbidden => new ObjectResult(new { error }) { StatusCode = StatusCodes.Status403Forbidden },
         ResultErrorType.Conflict => Conflict(new { error }),
+        ResultErrorType.TooManyRequests => new ObjectResult(new { error }) { StatusCode = StatusCodes.Status429TooManyRequests },
         _ => BadRequest(new { error })
     };
 }
