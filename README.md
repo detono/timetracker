@@ -111,7 +111,7 @@ can no longer log in.
 - **Notifications.** Approvers see a count next to *Leave* and a banner on their dashboard.
   If the company's email is set up, the supervisor (or every employer, when there's no
   supervisor) gets an email about new requests, and the requester gets one when it's
-  decided. Emails are in English for now.
+  decided. Emails are in each recipient's language (see "Languages").
 
 ### Company settings
 
@@ -157,6 +157,22 @@ The app follows the operating system's light or dark mode.
   Infrastructure — swappable without touching Application or API.
 - Passwords are hashed with PBKDF2/HMAC-SHA256 (100k iterations) — no plaintext, no
   external dependency required to run the sample.
+
+### External services
+
+TimeTracker runs fully on your own server. It only contacts other services in these cases,
+and none of them need an account or key from us:
+
+| Service | Called by | When | What it receives |
+| --- | --- | --- | --- |
+| [Google Fonts](https://fonts.google.com) | The browser | Every page load | The visitor's IP address and browser details, as with any website font |
+| [OpenStreetMap Nominatim](https://nominatim.org) | The browser | Only when someone clicks *Use my location* on a time entry | The coordinates, to turn them into a street address |
+| [Nager.Date](https://date.nager.at) | The API | Only when an employer clicks *Load official holidays* | The country code and year |
+| Your SMTP server or Microsoft 365 | The API | Only when the company's email is set up and switched on | The emails being sent |
+
+Nothing else leaves your server: no analytics, tracking or update checks. Nager.Date can
+point to your own instance with `PublicHolidays__BaseUrl`. If the location lookup fails,
+the raw coordinates are kept instead.
 
 ## Configuration (do this first)
 
@@ -256,7 +272,7 @@ misread as a comment by some `.env` parsers.
 ### Outgoing email (per company)
 
 Each company sends email with its own settings, which an employer manages on the
-**Email** page (`GET`/`PUT /api/mail-settings`, `POST /api/mail-settings/test`). Nothing
+**Company** page (`GET`/`PUT /api/mail-settings`, `POST /api/mail-settings/test`). Nothing
 goes in `.env`. If a company has no settings, or has "Send email" switched off, the app
 just skips sending and logs it — it's never an error. **Send test email** mails the
 signed-in employer with the saved settings (also while sending is switched off) and shows
