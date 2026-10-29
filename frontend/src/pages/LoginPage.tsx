@@ -1,7 +1,7 @@
-import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { login } from "../api/authApi";
+import { getPasswordResetAvailable, login } from "../api/authApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { appConfig } from "../config";
@@ -14,6 +14,14 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetAvailable, setResetAvailable] = useState(false);
+
+  // Only offer "forgot password" when some company can actually send the email.
+  useEffect(() => {
+    getPasswordResetAvailable()
+      .then(setResetAvailable)
+      .catch(() => setResetAvailable(false));
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -36,6 +44,8 @@ export function LoginPage() {
         <div className="auth-card__brand">{appConfig.title}</div>
         <p className="auth-card__tagline">{t('login.tagline')}</p>
 
+        {auth.sessionEnded && <p className="auth-card__notice">{t('login.sessionEnded')}</p>}
+
         <form onSubmit={handleSubmit} className="form">
           <label className="form__field">
             <span>{t('login.email')}</span>
@@ -52,6 +62,14 @@ export function LoginPage() {
             {loading ? t('common.signingIn') : t('login.signIn')}
           </button>
         </form>
+
+        <p className="auth-card__links">
+          {resetAvailable ? (
+            <Link to="/forgot-password">{t('login.forgotPassword')}</Link>
+          ) : (
+            <span>{t('login.forgotPasswordAskEmployer')}</span>
+          )}
+        </p>
       </div>
     </div>
   );

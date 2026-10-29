@@ -107,4 +107,29 @@ public class UserTests
         admin.Role.Should().Be(UserRole.PlatformAdmin);
         admin.TenantId.Should().BeNull();
     }
+
+    [Fact]
+    public void SetTemporaryPassword_RequiresAChange_AndEndsExistingSessions()
+    {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
+
+        user.SetTemporaryPassword("temp-hash");
+
+        user.PasswordHash.Should().Be("temp-hash");
+        user.MustChangePassword.Should().BeTrue();
+        user.SessionVersion.Should().Be(1);
+    }
+
+    [Fact]
+    public void ChangePassword_ClearsTheRequiredChange_AndEndsExistingSessions()
+    {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
+        user.SetTemporaryPassword("temp-hash");
+
+        user.ChangePassword("own-hash");
+
+        user.PasswordHash.Should().Be("own-hash");
+        user.MustChangePassword.Should().BeFalse();
+        user.SessionVersion.Should().Be(2);
+    }
 }

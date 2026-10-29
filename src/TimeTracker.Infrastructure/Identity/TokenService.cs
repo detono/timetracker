@@ -27,8 +27,14 @@ public class TokenService : ITokenService
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
             new Claim(ClaimTypes.Role, user.Role.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(SessionClaimTypes.SessionVersion, user.SessionVersion.ToString(), ClaimValueTypes.Integer32)
         };
+
+        if (user.MustChangePassword)
+        {
+            claims.Add(new Claim(SessionClaimTypes.MustChangePassword, "true"));
+        }
 
         if (user.TenantId.HasValue)
         {

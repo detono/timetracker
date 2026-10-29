@@ -34,6 +34,7 @@ public class CreateTenantCommandHandler(
             passwordHasher.Hash(request.EmployerPassword),
             UserRole.Employer,
             tenant.Id);
+        employer.RequirePasswordChange();
 
         await unitOfWork.Tenants.AddAsync(tenant, cancellationToken);
         await unitOfWork.Users.AddAsync(employer, cancellationToken);

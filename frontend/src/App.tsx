@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import { AppShell } from "./components/AppShell";
 import { LoginPage } from "./pages/LoginPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { ChoosePasswordPage } from "./pages/ChoosePasswordPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { TeamPage } from "./pages/TeamPage";
@@ -15,8 +17,10 @@ import { LeavePage } from "./pages/LeavePage";
 import { CompanyPage } from "./pages/CompanyPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  // A password someone else set must be replaced before anything else (the API enforces this too).
+  return user?.mustChangePassword ? <ChoosePasswordPage /> : children;
 }
 
 /** Company pages. A platform admin has no company, so they're sent to their own home page. */
@@ -41,6 +45,10 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route
+        path="/forgot-password"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <ForgotPasswordPage />}
+      />
       <Route
         path="/"
         element={

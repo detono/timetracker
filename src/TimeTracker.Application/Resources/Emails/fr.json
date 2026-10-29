@@ -14,5 +14,9 @@
   "leaveCancelled.subject": "Votre congé a été annulé : {period}",
   "leaveCancelled.body": "{reviewer} a annulé votre congé ({type}) pour {period}.",
   "testEmail.subject": "E-mail de test TimeTracker",
-  "testEmail.body": "Ceci est un e-mail de test de TimeTracker, envoyé avec les paramètres {provider} de votre entreprise. Si vous pouvez lire ceci, l'envoi d'e-mails fonctionne."
+  "testEmail.body": "Ceci est un e-mail de test de TimeTracker, envoyé avec les paramètres {provider} de votre entreprise. Si vous pouvez lire ceci, l'envoi d'e-mails fonctionne.",
+  "passwordReset.subject": "Votre code de réinitialisation du mot de passe TimeTracker",
+  "passwordReset.body": "Quelqu'un a demandé à réinitialiser le mot de passe de {email}. Saisissez ce code sur la page de connexion de TimeTracker pour choisir un nouveau mot de passe :",
+  "passwordReset.expiry": "Le code est valable {minutes} minutes.",
+  "passwordReset.ignore": "Vous n'avez rien demandé ? Vous pouvez ignorer cet e-mail ; votre mot de passe reste le même."
 }

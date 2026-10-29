@@ -36,9 +36,11 @@ public static class DependencyInjection {
         services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
         services.AddScoped<ILeaveBalanceRepository, LeaveBalanceRepository>();
         services.AddScoped<IPublicHolidayRepository, PublicHolidayRepository>();
+        services.AddScoped<IPasswordResetCodeRepository, PasswordResetCodeRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ISessionValidator, SessionValidator>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         // Keys live in the database so encrypted mail secrets stay readable across container restarts.

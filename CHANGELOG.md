@@ -28,15 +28,24 @@ Database migrations run automatically when the API starts, unless a release says
   language is a matter of adding a file (see the README).
 - Dark mode that follows the operating system.
 - README section listing every external service the app contacts.
+- **Forgot password**: people reset their own password with a code emailed by their
+  company, when it has email set up.
+- **Platform admins can reset an employer's password**, for when a company is locked out.
 
 ### Changed
 
 - The *Email* menu item moved into the *Company* page (`/email` redirects there).
 - Employers no longer request leave; they log time off as hours.
 - Dates follow the chosen language.
+- Passwords set by someone else (new accounts and resets) are temporary: the person must
+  choose their own at their next login.
+- Changing your password signs you out on your other devices. `POST /api/auth/change-password`
+  now returns a new sign-in instead of an empty response.
 
 ### Fixed
 
+- Deactivating a person or company, or resetting their password, now signs them out right
+  away instead of when their sign-in expires (up to 8 hours later).
 - Docker health checks: containers no longer show as unhealthy.
 - Editing an hour type no longer saves the create form's color.
 

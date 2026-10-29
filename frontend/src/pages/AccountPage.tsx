@@ -9,7 +9,7 @@ import { roleLabel } from "../utils/roles";
 
 export function AccountPage() {
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [languageError, setLanguageError] = useState<string | null>(null);
 
   async function handleLanguageChange(language: string) {
@@ -40,7 +40,8 @@ export function AccountPage() {
 
     setSubmitting(true);
     try {
-      await changePassword(currentPassword, newPassword);
+      // The server signs out other sessions and hands this one a fresh sign-in.
+      login(await changePassword(currentPassword, newPassword));
       setSuccess(true);
       setCurrentPassword("");
       setNewPassword("");

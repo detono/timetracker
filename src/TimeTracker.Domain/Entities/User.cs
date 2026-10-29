@@ -41,6 +41,19 @@ public class User : BaseEntity
     /// </summary>
     public string? Language { get; private set; }
 
+    /// <summary>
+    /// Goes up whenever existing sign-ins must stop working, e.g. after a password change or
+    /// reset. Each sign-in remembers the number it started with and stops working once it's
+    /// out of date.
+    /// </summary>
+    public int SessionVersion { get; private set; }
+
+    /// <summary>
+    /// True when someone else set this password (an employer or platform admin). The user
+    /// must choose their own before they can do anything else.
+    /// </summary>
+    public bool MustChangePassword { get; private set; }
+
     private readonly List<TimeEntry> _timeEntries = new();
     public IReadOnlyCollection<TimeEntry> TimeEntries => _timeEntries.AsReadOnly();
 
@@ -118,7 +131,34 @@ public class User : BaseEntity
         MarkUpdated();
     }
 
+    /// <summary>Sets a password the user chose themself. Signs out their other sessions.</summary>
     public void ChangePassword(string newPasswordHash)
+    {
+        SetPasswordHash(newPasswordHash);
+        MustChangePassword = false;
+    }
+
+    /// <summary>
+    /// Sets a password someone else chose for this user. Signs them out everywhere, and they
+    /// must choose their own password at their next login.
+    /// </summary>
+    public void SetTemporaryPassword(string newPasswordHash)
+    {
+        SetPasswordHash(newPasswordHash);
+        MustChangePassword = true;
+    }
+
+    /// <summary>
+    /// For a new account whose first password was picked by whoever created it: the user
+    /// chooses their own at their first login.
+    /// </summary>
+    public void RequirePasswordChange()
+    {
+        MustChangePassword = true;
+        MarkUpdated();
+    }
+
+    private void SetPasswordHash(string newPasswordHash)
     {
         if (string.IsNullOrWhiteSpace(newPasswordHash))
         {
@@ -126,6 +166,7 @@ public class User : BaseEntity
         }
 
         PasswordHash = newPasswordHash;
+        SessionVersion++;
         MarkUpdated();
     }
 

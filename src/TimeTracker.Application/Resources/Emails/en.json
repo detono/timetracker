@@ -14,5 +14,9 @@
   "leaveCancelled.subject": "Your leave was cancelled: {period}",
   "leaveCancelled.body": "{reviewer} cancelled your leave ({type}) for {period}.",
   "testEmail.subject": "TimeTracker test email",
-  "testEmail.body": "This is a test email from TimeTracker, sent with your company's {provider} settings. If you can read this, outgoing email works."
+  "testEmail.body": "This is a test email from TimeTracker, sent with your company's {provider} settings. If you can read this, outgoing email works.",
+  "passwordReset.subject": "Your TimeTracker password reset code",
+  "passwordReset.body": "Someone asked to reset the password for {email}. Enter this code on the TimeTracker login page to choose a new password:",
+  "passwordReset.expiry": "The code works for {minutes} minutes.",
+  "passwordReset.ignore": "Didn't ask for this? Then you can ignore this email; your password stays the same."
 }

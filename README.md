@@ -86,6 +86,25 @@ log in with that company's employer account. Deactivating a
 user is a soft delete — their historical time entries and report data are kept; they simply
 can no longer log in.
 
+### Passwords and signing in
+
+- **Temporary passwords.** A password someone else chose is temporary: for a new account
+  (created by an employer or a platform admin), or after a reset. After signing in with it,
+  the person must choose their own before they can do anything else. The API enforces this,
+  not only the UI.
+- **Resets.** An employer resets an employee's password under *Manage employees*. A platform
+  admin resets an employer's password under *Companies → Reset employer password*, for when
+  a company's employer is locked out. Platform admins can't reset employees.
+- **Forgot password.** If a company has outgoing email set up, its people can reset their own
+  password from the login page: they get an emailed code (not a link) that works for one hour
+  and allows five wrong tries, and at most one code is sent per minute. The login page only
+  offers this when some company on the installation has email switched on; otherwise it
+  says to ask your employer. Platform admins have no company email, so another platform
+  admin has to help them.
+- **Signing out.** Deactivating a person or a company, resetting a password or changing it
+  signs that person out everywhere on their next click, not only when their sign-in
+  expires. Changing your own password keeps you signed in on the device you used.
+
 ### Leave
 
 - **Work schedules.** Working hours are set per weekday (start, end and break). An employer

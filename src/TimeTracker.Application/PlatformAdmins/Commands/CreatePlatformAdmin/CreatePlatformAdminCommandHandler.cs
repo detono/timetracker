@@ -25,6 +25,7 @@ public class CreatePlatformAdminCommandHandler(
 
         var admin = User.CreatePlatformAdmin(
             request.FirstName, request.LastName, request.Email, passwordHasher.Hash(request.Password));
+        admin.RequirePasswordChange();
 
         await unitOfWork.Users.AddAsync(admin, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,40 +1,39 @@
 using MediatR;
+using TimeTracker.Application.Auth.Dtos;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Models;
 using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.Auth.Commands.ChangePassword;
 
-public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
-{
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly ICurrentUserService _currentUser;
-    private readonly IPasswordHasher _passwordHasher;
-
-    public ChangePasswordCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUser, IPasswordHasher passwordHasher)
-    {
-        _unitOfWork = unitOfWork;
-        _currentUser = currentUser;
-        _passwordHasher = passwordHasher;
-    }
-
-    public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
-    {
-        var user = await _unitOfWork.Users.GetByIdAsync(_currentUser.UserId, cancellationToken);
-        if (user is null)
-        {
-            return Result.Failure("User was not found.", ResultErrorType.NotFound);
+public class ChangePasswordCommandHandler(
+    IUnitOfWork unitOfWork,
+    ICurrentUserService currentUser,
+    IPasswordHasher passwordHasher,
+    ITokenService tokenService
+) : IRequestHandler<ChangePasswordCommand, Result<AuthResultDto>> {
+    public async Task<Result<AuthResultDto>> Handle(ChangePasswordCommand request, CancellationToken cancellationToken) {
+        var user = await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken);
+        if (user is null) {
+            return Result<AuthResultDto>.Failure("User was not found.", ResultErrorType.NotFound);
         }
 
-        if (!_passwordHasher.Verify(request.CurrentPassword, user.PasswordHash))
-        {
-            return Result.Failure("Current password is incorrect.", ResultErrorType.Validation);
+        // Someone who just signed in with a temporary password already proved they know it.
+        if (!user.MustChangePassword &&
+            (string.IsNullOrEmpty(request.CurrentPassword) || !passwordHasher.Verify(request.CurrentPassword, user.PasswordHash))) {
+            return Result<AuthResultDto>.Failure("Current password is incorrect.", ResultErrorType.Validation);
         }
 
-        user.ChangePassword(_passwordHasher.Hash(request.NewPassword));
-        _unitOfWork.Users.Update(user);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if (passwordHasher.Verify(request.NewPassword, user.PasswordHash)) {
+            return Result<AuthResultDto>.Failure(
+                "New password must be different from the current password.", ResultErrorType.Validation);
+        }
 
-        return Result.Success();
+        user.ChangePassword(passwordHasher.Hash(request.NewPassword));
+        unitOfWork.Users.Update(user);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var tenant = user.TenantId is { } tenantId ? await unitOfWork.Tenants.GetByIdAsync(tenantId, cancellationToken) : null;
+        return Result<AuthResultDto>.Success(AuthResults.Create(user, tenant?.Name, tokenService));
     }
 }

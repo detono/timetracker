@@ -6,10 +6,8 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
 {
     public ChangePasswordCommandValidator()
     {
-        RuleFor(x => x.CurrentPassword).NotEmpty();
+        // The current password is checked by the handler: it isn't needed while a temporary password must be replaced.
         RuleFor(x => x.NewPassword).NotEmpty().MinimumLength(8)
             .WithMessage("New password must be at least 8 characters long.");
-        RuleFor(x => x.NewPassword).NotEqual(x => x.CurrentPassword)
-            .WithMessage("New password must be different from the current password.");
     }
 }

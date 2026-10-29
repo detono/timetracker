@@ -1,8 +1,15 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createTenant, getTenants, setTenantActive, type CreateTenantPayload } from "../api/tenantsApi";
+import {
+  createTenant,
+  getTenantEmployers,
+  getTenants,
+  resetEmployerPassword,
+  setTenantActive,
+  type CreateTenantPayload
+} from "../api/tenantsApi";
 import { extractErrorMessage } from "../api/client";
-import type { Tenant } from "../types";
+import type { Tenant, TenantEmployer } from "../types";
 
 const emptyForm: CreateTenantPayload = {
   name: "",
@@ -68,6 +75,8 @@ export function TenantsPage() {
       setBusyTenantId(null);
     }
   }
+
+  const [resetTenant, setResetTenant] = useState<Tenant | null>(null);
 
   return (
     <div className="page">
@@ -137,6 +146,10 @@ export function TenantsPage() {
 
       {error && <p className="form__error">{error}</p>}
 
+      {resetTenant && (
+        <ResetEmployerPasswordPanel key={resetTenant.id} tenant={resetTenant} onClose={() => setResetTenant(null)} />
+      )}
+
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>
       ) : tenants.length === 0 ? (
@@ -164,6 +177,9 @@ export function TenantsPage() {
                   </span>
                 </td>
                 <td className="list-view__actions">
+                  <button className="btn btn--ghost btn--sm" onClick={() => setResetTenant(tenant)}>
+                    {t('tenants.resetEmployerPassword')}
+                  </button>
                   <button
                     className={tenant.isActive ? "btn btn--ghost btn--sm btn--danger" : "btn btn--ghost btn--sm"}
                     onClick={() => handleToggleActive(tenant)}
@@ -177,6 +193,95 @@ export function TenantsPage() {
           </tbody>
         </table>
       )}
+    </div>
+  );
+}
+
+/**
+ * For when a company's employer is locked out: pick one of its employers and give them a
+ * temporary password, which they must replace at their next login.
+ */
+function ResetEmployerPasswordPanel({ tenant, onClose }: { tenant: Tenant; onClose: () => void }) {
+  const { t } = useTranslation();
+  const [employers, setEmployers] = useState<TenantEmployer[] | null>(null);
+  const [employerId, setEmployerId] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [doneFor, setDoneFor] = useState<string | null>(null);
+
+  useEffect(() => {
+    getTenantEmployers(tenant.id)
+      .then((list) => {
+        setEmployers(list);
+        const first = list.find((e) => e.isActive) ?? list[0];
+        setEmployerId(first?.id ?? "");
+      })
+      .catch((err) => setError(extractErrorMessage(err)));
+  }, [tenant.id]);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setDoneFor(null);
+    setBusy(true);
+    try {
+      await resetEmployerPassword(tenant.id, employerId, password);
+      setDoneFor(employers?.find((e) => e.id === employerId)?.fullName ?? "");
+      setPassword("");
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="panel">
+      <h2>{t('tenants.resetEmployerPasswordFor', { name: tenant.name })}</h2>
+      <p className="form__hint">{t('tenants.resetEmployerPasswordHint')}</p>
+
+      {employers === null ? (
+        !error && <p className="empty-state">{t('common.loading')}</p>
+      ) : employers.length === 0 ? (
+        <p className="empty-state">{t('tenants.noEmployers')}</p>
+      ) : (
+        <form className="form" onSubmit={handleSubmit}>
+          <div className="form__row">
+            <label className="form__field">
+              <span>{t('tenants.employer')}</span>
+              <select value={employerId} onChange={(e) => setEmployerId(e.target.value)} required>
+                {employers.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.fullName} ({e.email}){e.isActive ? "" : ` – ${t('employees.statusDeactivated')}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="form__field">
+              <span>{t('employees.newTempPassword')}</span>
+              <input
+                type="text"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                minLength={8}
+                placeholder={t('employees.min8chars')}
+                required
+              />
+            </label>
+          </div>
+          {doneFor !== null && <p className="form__success">{t('tenants.resetEmployerPasswordDone', { name: doneFor })}</p>}
+          <div className="form__actions">
+            <button className="btn btn--primary" type="submit" disabled={busy || !employerId}>
+              {busy ? t('employees.saving') : t('employees.setNewPassword')}
+            </button>
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {doneFor !== null ? t('common.close') : t('common.cancel')}
+            </button>
+          </div>
+        </form>
+      )}
+      {error && <p className="form__error">{error}</p>}
     </div>
   );
 }

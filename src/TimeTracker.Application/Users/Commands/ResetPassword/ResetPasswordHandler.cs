@@ -19,7 +19,7 @@ public class ResetPasswordCommandHandler(
         if (user is null)
             return Result.Failure("User was not found.", ResultErrorType.NotFound);
 
-        user.ChangePassword(passwordHasher.Hash(request.NewPassword));
+        user.SetTemporaryPassword(passwordHasher.Hash(request.NewPassword));
         unitOfWork.Users.Update(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

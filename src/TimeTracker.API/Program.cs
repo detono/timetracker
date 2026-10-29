@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using TimeTracker.API.Middleware;
 using TimeTracker.API.Services;
 using TimeTracker.Application;
 using TimeTracker.Application.Common.Interfaces;
+using TimeTracker.Application.Common.Security;
 using TimeTracker.Infrastructure;
 using TimeTracker.Infrastructure.Identity;
 using TimeTracker.Infrastructure.Persistence;
@@ -24,7 +26,9 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<CurrentUserService>());
+builder.Services.AddScoped<ITenantScope>(sp => sp.GetRequiredService<CurrentUserService>());
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => {
@@ -82,6 +86,25 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
             ClockSkew = TimeSpan.FromMinutes(1)
         };
+
+        // Deactivating someone (or their company) or resetting their password signs them out
+        // on their next request, not only when the token expires.
+        options.Events = new JwtBearerEvents {
+            OnTokenValidated = async context => {
+                var principal = context.Principal!;
+                if (!Guid.TryParse(principal.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)) {
+                    context.Fail("The token has no user.");
+                    return;
+                }
+
+                // Tokens from before session versions existed count as version 0.
+                var version = int.TryParse(principal.FindFirstValue(SessionClaimTypes.SessionVersion), out var v) ? v : 0;
+                var validator = context.HttpContext.RequestServices.GetRequiredService<ISessionValidator>();
+                if (!await validator.IsValidAsync(userId, version, context.HttpContext.RequestAborted)) {
+                    context.Fail("This sign-in is no longer valid.");
+                }
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options => options.AddTenantPolicies());
@@ -101,6 +124,7 @@ if (app.Environment.IsDevelopment()) {
 app.UseSerilogRequestLogging();
 app.UseCors("Frontend");
 app.UseAuthentication();
+app.UseMiddleware<PasswordChangeRequiredMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

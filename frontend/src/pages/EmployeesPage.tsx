@@ -208,6 +208,7 @@ export function EmployeesPage() {
       {resettingUser && (
         <div className="panel">
           <h2>{t('employees.resetPasswordFor', { name: `${resettingUser.firstName} ${resettingUser.lastName}` })}</h2>
+          <p className="form__hint">{t('employees.resetPasswordHint')}</p>
           <form className="form" onSubmit={handleResetPassword}>
             <label className="form__field">
               <span>{t('employees.newTempPassword')}</span>

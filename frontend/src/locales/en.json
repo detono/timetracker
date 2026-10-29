@@ -9,7 +9,8 @@
     "running": "Running…",
     "signingIn": "Signing in…",
     "saving": "Saving…",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "close": "Close"
   },
   "planBoard": {
     "emptyState": "No hours logged for this period yet."
@@ -88,7 +89,8 @@
     "reactivate": "Reactivate",
     "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in, but their logged hours are kept.",
     "tracksHoursFor": "Compare {{name}}'s logged hours with their work schedule",
-    "tracksHoursHint": "Switch off for people who don't log their hours, e.g. an owner. They're then left out of the worked vs. expected overview."
+    "tracksHoursHint": "Switch off for people who don't log their hours, e.g. an owner. They're then left out of the worked vs. expected overview.",
+    "resetPasswordHint": "They're signed out right away and choose their own password when they next sign in."
   },
   "dashboard": {
     "title": "My hours",
@@ -107,7 +109,7 @@
     "confirmPassword": "Confirm new password",
     "updateBtn": "Update password",
     "updating": "Updating…",
-    "successMessage": "Password updated.",
+    "successMessage": "Password updated. You've been signed out on your other devices.",
     "errorMismatch": "New password and confirmation don't match.",
     "languageTitle": "Language",
     "languageLabel": "Language",
@@ -147,7 +149,10 @@
     "tagline": "Log hours. See the whole team. No guesswork at payroll time.",
     "email": "Email",
     "password": "Password",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "sessionEnded": "You've been signed out. Sign in again to continue.",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordAskEmployer": "Forgot your password? Ask your employer to reset it."
   },
   "reports": {
     "title": "Reports",
@@ -249,7 +254,13 @@
       "users": "Users",
       "created": "Created"
     },
-    "confirmDeactivate": "Deactivate {{name}}? Nobody in this company will be able to log in, but all their data is kept."
+    "confirmDeactivate": "Deactivate {{name}}? Nobody in this company will be able to log in, but all their data is kept.",
+    "resetEmployerPassword": "Reset employer password",
+    "resetEmployerPasswordFor": "Reset an employer password for {{name}}",
+    "resetEmployerPasswordHint": "For when an employer is locked out. Give them the temporary password yourself; they're signed out right away and choose their own when they next sign in.",
+    "resetEmployerPasswordDone": "Done. Give {{name}} the temporary password; they'll choose their own when they sign in.",
+    "noEmployers": "This company has no employer accounts.",
+    "employer": "Employer"
   },
   "platformAdmins": {
     "title": "Platform admins",
@@ -441,5 +452,23 @@
     "holidayNamePlaceholder": "Company day off",
     "addHoliday": "Add day",
     "confirmDeleteHoliday": "Remove {{name}}? People will be expected to work that day."
+  },
+  "choosePassword": {
+    "title": "Choose your own password",
+    "intro": "Welcome, {{name}}. Your current password was set by someone else, so choose your own before you continue.",
+    "submit": "Save and continue",
+    "signOut": "Sign out"
+  },
+  "forgotPassword": {
+    "title": "Reset your password",
+    "intro": "Enter your email address and we'll email you a code to choose a new password.",
+    "sendCode": "Email me a code",
+    "sending": "Sending…",
+    "sent": "If {{email}} has an account and your company has email set up, a code is on its way. It works for 1 hour.",
+    "code": "Code from the email",
+    "setPassword": "Set new password",
+    "noEmail": "No email after a few minutes? Check your spam folder, or ask your employer to reset your password.",
+    "sendNewCode": "Send a new code",
+    "backToSignIn": "Back to sign in"
   }
 }

@@ -14,5 +14,9 @@
   "leaveCancelled.subject": "Je verlof is geannuleerd: {period}",
   "leaveCancelled.body": "{reviewer} annuleerde je verlof ({type}) voor {period}.",
   "testEmail.subject": "Testmail van TimeTracker",
-  "testEmail.body": "Dit is een testmail van TimeTracker, verstuurd met de {provider}-instellingen van je bedrijf. Kun je dit lezen, dan werkt uitgaande e-mail."
+  "testEmail.body": "Dit is een testmail van TimeTracker, verstuurd met de {provider}-instellingen van je bedrijf. Kun je dit lezen, dan werkt uitgaande e-mail.",
+  "passwordReset.subject": "Je code om je TimeTracker-wachtwoord te herstellen",
+  "passwordReset.body": "Iemand heeft gevraagd om het wachtwoord van {email} te herstellen. Vul deze code in op de aanmeldpagina van TimeTracker om een nieuw wachtwoord te kiezen:",
+  "passwordReset.expiry": "De code werkt {minutes} minuten.",
+  "passwordReset.ignore": "Heb je dit niet gevraagd? Dan kun je deze e-mail negeren; je wachtwoord blijft hetzelfde."
 }

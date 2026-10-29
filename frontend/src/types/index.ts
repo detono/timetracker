@@ -9,6 +9,8 @@ export interface AuthResult {
   tenantName: string | null;
   /** The language the user picked; null if they haven't yet. */
   language: string | null;
+  /** True when someone else set the password; the user must choose their own first. */
+  mustChangePassword: boolean;
 }
 
 export interface Tenant {
@@ -17,6 +19,14 @@ export interface Tenant {
   isActive: boolean;
   userCount: number;
   createdAtUtc: string;
+}
+
+/** An employer of a company, as a platform admin sees it. */
+export interface TenantEmployer {
+  id: string;
+  fullName: string;
+  email: string;
+  isActive: boolean;
 }
 
 export interface UserAccount {

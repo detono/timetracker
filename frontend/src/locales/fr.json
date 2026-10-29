@@ -9,7 +9,8 @@
     "running": "En cours…",
     "signingIn": "Connexion…",
     "saving": "Enregistrement…",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "close": "Fermer"
   },
   "projects": {
     "title": "Projets",
@@ -81,7 +82,10 @@
     "tagline": "Enregistrez les heures. Voyez toute l'équipe. Plus de devinettes à la paie.",
     "email": "E-mail",
     "password": "Mot de passe",
-    "signIn": "Se connecter"
+    "signIn": "Se connecter",
+    "sessionEnded": "Vous avez été déconnecté. Reconnectez-vous pour continuer.",
+    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPasswordAskEmployer": "Mot de passe oublié ? Demandez à votre employeur de le réinitialiser."
   },
   "employees": {
     "title": "Gérer les employés",
@@ -118,7 +122,8 @@
     "reactivate": "Réactiver",
     "confirmDeactivate": "Désactiver {{name}} ? Ils ne pourront plus se connecter, mais leurs heures enregistrées seront conservées.",
     "tracksHoursFor": "Comparer les heures encodées de {{name}} à son horaire",
-    "tracksHoursHint": "Désactivez pour les personnes qui n'encodent pas leurs heures, p. ex. un gérant. Elles n'apparaissent alors plus dans l'aperçu prestées vs. prévues."
+    "tracksHoursHint": "Désactivez pour les personnes qui n'encodent pas leurs heures, p. ex. un gérant. Elles n'apparaissent alors plus dans l'aperçu prestées vs. prévues.",
+    "resetPasswordHint": "Cette personne est déconnectée immédiatement et choisira son propre mot de passe à sa prochaine connexion."
   },
   "dashboard": {
     "title": "Mes heures",
@@ -137,7 +142,7 @@
     "confirmPassword": "Confirmer le nouveau mot de passe",
     "updateBtn": "Mettre à jour le mot de passe",
     "updating": "Mise à jour…",
-    "successMessage": "Mot de passe mis à jour.",
+    "successMessage": "Mot de passe mis à jour. Vous avez été déconnecté de vos autres appareils.",
     "errorMismatch": "Le nouveau mot de passe et la confirmation ne correspondent pas.",
     "languageTitle": "Langue",
     "languageLabel": "Langue",
@@ -249,7 +254,13 @@
       "users": "Utilisateurs",
       "created": "Créée le"
     },
-    "confirmDeactivate": "Désactiver {{name}} ? Plus personne de cette entreprise ne pourra se connecter, mais toutes les données sont conservées."
+    "confirmDeactivate": "Désactiver {{name}} ? Plus personne de cette entreprise ne pourra se connecter, mais toutes les données sont conservées.",
+    "resetEmployerPassword": "Réinitialiser le mot de passe de l'employeur",
+    "resetEmployerPasswordFor": "Réinitialiser le mot de passe d'un employeur de {{name}}",
+    "resetEmployerPasswordHint": "Pour un employeur qui ne peut plus se connecter. Transmettez-lui vous-même le mot de passe temporaire ; il est déconnecté immédiatement et choisira le sien à sa prochaine connexion.",
+    "resetEmployerPasswordDone": "C'est fait. Transmettez le mot de passe temporaire à {{name}} ; il choisira le sien à la connexion.",
+    "noEmployers": "Cette entreprise n'a aucun compte employeur.",
+    "employer": "Employeur"
   },
   "platformAdmins": {
     "title": "Administrateurs de la plateforme",
@@ -441,5 +452,23 @@
     "holidayNamePlaceholder": "Jour de fermeture",
     "addHoliday": "Ajouter le jour",
     "confirmDeleteHoliday": "Supprimer {{name}} ? Tout le monde sera alors censé travailler ce jour-là."
+  },
+  "choosePassword": {
+    "title": "Choisissez votre propre mot de passe",
+    "intro": "Bienvenue, {{name}}. Votre mot de passe actuel a été choisi par quelqu'un d'autre : choisissez le vôtre avant de continuer.",
+    "submit": "Enregistrer et continuer",
+    "signOut": "Se déconnecter"
+  },
+  "forgotPassword": {
+    "title": "Réinitialiser votre mot de passe",
+    "intro": "Saisissez votre adresse e-mail : nous vous enverrons un code pour choisir un nouveau mot de passe.",
+    "sendCode": "M'envoyer un code",
+    "sending": "Envoi…",
+    "sent": "Si {{email}} a un compte et que votre entreprise a configuré l'e-mail, un code est en route. Il est valable 1 heure.",
+    "code": "Code reçu par e-mail",
+    "setPassword": "Définir le nouveau mot de passe",
+    "noEmail": "Pas d'e-mail après quelques minutes ? Vérifiez vos spams, ou demandez à votre employeur de réinitialiser votre mot de passe.",
+    "sendNewCode": "Envoyer un nouveau code",
+    "backToSignIn": "Retour à la connexion"
   }
 }

@@ -35,6 +35,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
         var hash = _passwordHasher.Hash(request.Password);
         var user = User.Create(request.FirstName, request.LastName, request.Email, hash, request.Role, tenantId);
+        user.RequirePasswordChange();
 
         await _unitOfWork.Users.AddAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

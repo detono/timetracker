@@ -14,8 +14,27 @@ public static class TestApi {
 
     public record CreatedTenant(TenantDto Tenant, string EmployerEmail);
 
+    /// <summary>
+    /// Signs in. New accounts must replace their first password before anything else; this
+    /// does that (and changes it back), so tests can keep using <paramref name="password"/>.
+    /// </summary>
     public static async Task<string> LoginAsync(HttpClient client, string email, string password) {
         var response = await client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = password });
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = (await response.Content.ReadFromJsonAsync<AuthResultDto>())!;
+        if (!result.MustChangePassword) {
+            return result.Token;
+        }
+
+        const string interim = "Interim-Password-1";
+        var token = await ChangePasswordAsync(client, result.Token, null, interim);
+        return await ChangePasswordAsync(client, token, interim, password);
+    }
+
+    private static async Task<string> ChangePasswordAsync(HttpClient client, string token, string? current, string next) {
+        using var request = Authorized(HttpMethod.Post, "/api/auth/change-password", token);
+        request.Content = JsonContent.Create(new { CurrentPassword = current, NewPassword = next });
+        var response = await client.SendAsync(request);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         return (await response.Content.ReadFromJsonAsync<AuthResultDto>())!.Token;
     }
