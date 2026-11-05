@@ -219,6 +219,7 @@
       "difference": "Différence"
     },
     "downloadBalanceCsv": "Télécharger prestées vs. prévues (CSV)",
+    "downloadEntriesCsv": "Télécharger toutes les prestations (CSV)",
     "balanceTitle": "Heures prestées vs. prévues",
     "balanceHint": "Heures encodées face à l'horaire de chacun, avec les mêmes règles que Mes heures : jusqu'à hier (aujourd'hui dès qu'il est encodé), sans les jours fériés. Les personnes qui ne suivent pas leurs heures ne sont pas listées."
   },

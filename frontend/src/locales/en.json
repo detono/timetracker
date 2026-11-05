@@ -189,6 +189,7 @@
       "difference": "Difference"
     },
     "downloadBalanceCsv": "Download worked vs. expected (CSV)",
+    "downloadEntriesCsv": "Download all entries (CSV)",
     "balanceTitle": "Worked vs. expected",
     "balanceHint": "Logged hours against each person's work schedule, with the same rules as My hours: up to yesterday (today once it's logged), without public holidays. People who don't track hours aren't listed."
   },

@@ -8,6 +8,15 @@ Database migrations run automatically when the API starts, unless a release says
 
 ## [Unreleased]
 
+### Added
+
+- *Reports* has *Download all entries (CSV)*: every entry in the dates, one row each, with
+  start and end time, break, hour type, project, location, notes, and when it was recorded
+  and last changed.
+- `GET /api/info` tells apps, without signing in, that this is a TimeTracker server and which
+  API version it speaks.
+- The README says who's responsible for the personal data in an installation.
+
 ### Changed
 
 - **New look**: the menu moved to a sidebar with icons, with the employer pages grouped under

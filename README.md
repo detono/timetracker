@@ -188,8 +188,12 @@ and schedules every time, so there's no balance to manage or correct.
   Tracks hours*; they're then left out of the overview.
 
 *Reports* shows the same comparison per person per day, week or month for any dates, and
-*Download worked vs. expected (CSV)* exports it. Names in CSV files are made safe for
-spreadsheets, so a name like `=HYPERLINK(...)` isn't run as a formula.
+*Download worked vs. expected (CSV)* exports it. *Download all entries (CSV)* exports every
+entry in the dates instead, one row each: date, start and end time, break, hours, hour type,
+project, location, notes, and when it was recorded and last changed (UTC). That's the
+working-time record to hand over when someone asks when people worked, not only how much.
+Like the reports, employers get everyone, others themself and their team. Names in CSV files
+are made safe for spreadsheets, so a name like `=HYPERLINK(...)` isn't run as a formula.
 
 The app follows the operating system's light or dark mode.
 
@@ -222,6 +226,13 @@ and none of them need an account or key from us:
 Nothing else leaves your server: no analytics, tracking or update checks. Nager.Date can
 point to your own instance with `PublicHolidays__BaseUrl`. If the location lookup fails,
 the raw coordinates are kept instead.
+
+### Server info
+
+`GET /api/info` answers without signing in, with `{ "name": "TimeTracker", "apiVersion": 1 }`.
+Apps (like a phone app) use it to check that an address really is a TimeTracker server and
+that they can talk to it. `apiVersion` only goes up when the API changes in a way that breaks
+existing apps.
 
 ## Configuration (do this first)
 
@@ -317,6 +328,9 @@ volumes:
 - **Sign-ins** are checked on every request: deactivated people and companies are signed out
   right away, and a token can't claim a different role or company than its account has.
 - **Backups** contain the encryption keys for mail secrets, so protect them like the secrets.
+- **Personal data.** Whoever hosts an installation is responsible for the personal data in
+  it (names, email addresses, hours, and locations when people share them), including privacy
+  rules like the GDPR. TimeTracker keeps everything until you remove it.
 
 ### Branding (white-label)
 

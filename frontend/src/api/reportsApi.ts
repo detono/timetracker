@@ -33,7 +33,7 @@ export async function downloadHoursReportCsv(
   grouping: ReportGrouping,
   userId?: string
 ): Promise<void> {
-  await downloadCsv("hours/csv", `hours-report-${from}-${to}.csv`, from, to, grouping, userId);
+  await downloadCsv("hours/csv", `hours-report-${from}-${to}.csv`, { from, to, grouping, userId });
 }
 
 /** The worked vs. expected table as a CSV file. */
@@ -43,19 +43,23 @@ export async function downloadHoursBalanceCsv(
   grouping: ReportGrouping,
   userId?: string
 ): Promise<void> {
-  await downloadCsv("hours/balance/csv", `worked-vs-expected-${from}-${to}.csv`, from, to, grouping, userId);
+  await downloadCsv("hours/balance/csv", `worked-vs-expected-${from}-${to}.csv`, { from, to, grouping, userId });
+}
+
+/** Every entry in the range, one row each (date, start, end, break, type, project, ...), as a CSV file. */
+export async function downloadTimeEntriesCsv(from: string, to: string, userId?: string): Promise<void> {
+  await downloadCsv("entries/csv", `time-entries-${from}-${to}.csv`, { from, to, userId });
 }
 
 async function downloadCsv(
   path: string,
   fileName: string,
-  from: string,
-  to: string,
-  grouping: ReportGrouping,
-  userId?: string
+  query: Record<string, string | undefined>
 ): Promise<void> {
-  const params = new URLSearchParams({ from, to, grouping });
-  if (userId) params.set("userId", userId);
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value) params.set(key, value);
+  }
 
   const response = await fetch(`${API_BASE_URL}/reports/${path}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${getAuthToken() ?? ""}` }

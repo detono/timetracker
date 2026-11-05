@@ -219,6 +219,7 @@
       "difference": "Verschil"
     },
     "downloadBalanceCsv": "Gewerkt vs. verwacht downloaden (CSV)",
+    "downloadEntriesCsv": "Alle registraties downloaden (CSV)",
     "balanceTitle": "Gewerkt vs. verwacht",
     "balanceHint": "Geregistreerde uren tegenover ieders werkrooster, met dezelfde regels als bij Mijn uren: tot gisteren (vandaag zodra het geregistreerd is), zonder feestdagen. Wie geen uren bijhoudt, staat er niet bij."
   },

@@ -6,6 +6,7 @@ using TimeTracker.API.Authorization;
 using TimeTracker.Application.Reports.Dtos;
 using TimeTracker.Application.Reports.Queries.GetHoursBalance;
 using TimeTracker.Application.Reports.Queries.GetHoursReport;
+using TimeTracker.Application.Reports.Queries.GetTimeEntriesExport;
 
 namespace TimeTracker.API.Controllers;
 
@@ -104,6 +105,49 @@ public class ReportsController : ApiControllerBase
         var bytes = Encoding.UTF8.GetBytes(csv.ToString());
         return File(bytes, "text/csv", $"worked-vs-expected-{from:yyyyMMdd}-{to:yyyyMMdd}.csv");
     }
+
+    /// <summary>
+    /// Every entry in the range as a CSV file, one row each: date, start, end, break, hours,
+    /// hour type, project, location, notes, and when it was recorded and last changed (UTC).
+    /// </summary>
+    [HttpGet("entries/csv")]
+    public async Task<IActionResult> GetTimeEntriesCsv(
+        [FromQuery] DateOnly from,
+        [FromQuery] DateOnly to,
+        [FromQuery] Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await Mediator.Send(new GetTimeEntriesExportQuery(from, to, userId), cancellationToken);
+        if (!result.Succeeded || result.Value is null)
+        {
+            return HandleResult(result).Result!;
+        }
+
+        var csv = new StringBuilder();
+        csv.AppendLine("Employee,Date,Start,End,BreakMinutes,Hours,HourType,Project,Location,Notes,RecordedAtUtc,LastChangedAtUtc");
+        foreach (var line in result.Value)
+        {
+            csv.AppendLine(string.Join(',',
+                Escape(line.UserFullName),
+                line.WorkDate.ToString("yyyy-MM-dd"),
+                line.StartTime.ToString("HH:mm"),
+                line.EndTime.ToString("HH:mm"),
+                line.BreakMinutes,
+                line.Hours.ToString(CultureInfo.InvariantCulture),
+                Escape(line.HourTypeName),
+                Escape(line.ProjectName ?? ""),
+                Escape(line.Location ?? ""),
+                Escape(line.Notes ?? ""),
+                UtcStamp(line.RecordedAtUtc),
+                line.LastChangedAtUtc is { } changed ? UtcStamp(changed) : ""));
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(csv.ToString());
+        return File(bytes, "text/csv", $"time-entries-{from:yyyyMMdd}-{to:yyyyMMdd}.csv");
+    }
+
+    private static string UtcStamp(DateTime value) =>
+        DateTime.SpecifyKind(value, DateTimeKind.Utc).ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Makes a text safe for a CSV cell: quotes it when needed, and neutralises a leading

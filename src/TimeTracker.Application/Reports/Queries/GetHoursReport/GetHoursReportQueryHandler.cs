@@ -31,11 +31,6 @@ public class GetHoursReportQueryHandler(
 
         // Hour type names in the caller's language (e.g. in the CSV), else English, else any.
         var language = (await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken))?.Language ?? "en";
-        string TypeName(HourType? type) =>
-            type is null ? "Unknown"
-            : type.LocalizedNames.TryGetValue(language, out var name) ? name
-            : type.LocalizedNames.TryGetValue("en", out var en) ? en
-            : type.LocalizedNames.Values.FirstOrDefault() ?? "Unknown";
 
         var entries = userIds.Count == 0
             ? Array.Empty<TimeEntry>()
@@ -50,7 +45,7 @@ public class GetHoursReportQueryHandler(
                     g.Key.UserId,
                     userLookup.TryGetValue(g.Key.UserId, out var name) ? name : "Unknown",
                     g.Key.HourTypeId,
-                    TypeName(hourType),
+                    HourTypeNames.For(hourType, language),
                     hourType?.ColorHex ?? "#999999",
                     label,
                     start,

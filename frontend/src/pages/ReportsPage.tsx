@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format, startOfMonth } from "date-fns";
-import { downloadHoursBalanceCsv, downloadHoursReportCsv, getHoursBalance, getHoursReport } from "../api/reportsApi";
+import {
+  downloadHoursBalanceCsv,
+  downloadHoursReportCsv,
+  downloadTimeEntriesCsv,
+  getHoursBalance,
+  getHoursReport
+} from "../api/reportsApi";
 import { extractErrorMessage } from "../api/client";
 import { getLockedMonths, lockMonth, unlockMonth } from "../api/lockedMonthsApi";
 import { useAuth } from "../auth/AuthContext";
@@ -40,9 +46,9 @@ export function ReportsPage() {
     }
   }
 
-  async function handleDownload(download: typeof downloadHoursReportCsv) {
+  async function handleDownload(download: () => Promise<void>) {
     try {
-      await download(from, to, grouping);
+      await download();
     } catch (err) {
       setError(extractErrorMessage(err));
     }
@@ -81,11 +87,14 @@ export function ReportsPage() {
             </button>
             {report && (
               <>
-                <button className="btn btn--ghost" onClick={() => handleDownload(downloadHoursReportCsv)}>
+                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadHoursReportCsv(from, to, grouping))}>
                   {t('reports.downloadCsv')}
                 </button>
-                <button className="btn btn--ghost" onClick={() => handleDownload(downloadHoursBalanceCsv)}>
+                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadHoursBalanceCsv(from, to, grouping))}>
                   {t('reports.downloadBalanceCsv')}
+                </button>
+                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadTimeEntriesCsv(from, to))}>
+                  {t('reports.downloadEntriesCsv')}
                 </button>
               </>
             )}
