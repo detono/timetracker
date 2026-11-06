@@ -34,6 +34,14 @@ public class ChangePasswordCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var tenant = user.TenantId is { } tenantId ? await unitOfWork.Tenants.GetByIdAsync(tenantId, cancellationToken) : null;
-        return Result<AuthResultDto>.Success(AuthResults.Create(user, tenant?.Name, tokenService));
+        var result = AuthResults.Create(user, tenant?.Name, tokenService);
+        if (!request.IssueRefreshToken) {
+            return Result<AuthResultDto>.Success(result);
+        }
+
+        // The new password ended every earlier refresh token; this device gets a fresh one.
+        var refreshToken = await AuthResults.AddRefreshTokenAsync(unitOfWork, tokenService, user, Guid.NewGuid(), cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result<AuthResultDto>.Success(result with { RefreshToken = refreshToken });
     }
 }

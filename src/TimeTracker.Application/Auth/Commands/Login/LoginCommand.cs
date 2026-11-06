@@ -4,4 +4,8 @@ using TimeTracker.Application.Common.Models;
 
 namespace TimeTracker.Application.Auth.Commands.Login;
 
-public record LoginCommand(string Email, string Password) : IRequest<Result<AuthResultDto>>;
+/// <param name="IssueRefreshToken">
+/// True for clients that keep people signed in (the mobile app): the answer then includes a
+/// refresh token. The web app leaves it off.
+/// </param>
+public record LoginCommand(string Email, string Password, bool IssueRefreshToken = false) : IRequest<Result<AuthResultDto>>;

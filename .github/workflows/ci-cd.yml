@@ -118,6 +118,8 @@ jobs:
             ghcr.io/${{ github.repository }}/api
           tags: |
             type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build & push API image
@@ -141,6 +143,8 @@ jobs:
             ghcr.io/${{ github.repository }}/frontend
           tags: |
             type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build & push frontend image

@@ -1,8 +1,13 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { version } from "./package.json";
 
 export default defineConfig({
   plugins: [react()],
+  // The version shown in the app, from package.json: bump it there for each release.
+  define: {
+    __APP_VERSION__: JSON.stringify(version)
+  },
   server: {
     port: 5173,
     // `npm run dev` with VITE_API_BASE_URL=/api: the dev server passes API calls on to a local

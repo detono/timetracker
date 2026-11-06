@@ -422,6 +422,25 @@ button {
   color: var(--ink-soft);
 }
 
+.shell__version,
+.auth-card__version {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lines up with the avatar's left edge, just under the account block. */
+.shell__version {
+  margin: 0.1rem 0 0;
+  padding-left: 0.5rem;
+}
+
+.auth-card__version {
+  margin: 1rem 0 0;
+  text-align: center;
+}
+
 .shell__signout,
 .shell__menu-toggle {
   position: relative;

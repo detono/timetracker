@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -12,11 +13,28 @@ namespace TimeTracker.Infrastructure.Identity;
 public class TokenService : ITokenService
 {
     private readonly JwtSettings _settings;
+    private readonly IDateTimeProvider _clock;
 
-    public TokenService(IOptions<JwtSettings> settings)
+    public TokenService(IOptions<JwtSettings> settings, IDateTimeProvider clock)
     {
         _settings = settings.Value;
+        _clock = clock;
     }
+
+    public IssuedRefreshToken CreateRefreshToken(User user, Guid familyId)
+    {
+        // 256 random bits: far too many to guess, so a fast hash is enough to store it safely.
+        var token = Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
+        var entity = RefreshToken.Issue(
+            user, HashRefreshToken(token), familyId, _clock.UtcNow, TimeSpan.FromDays(_settings.RefreshTokenDays));
+        return new IssuedRefreshToken(token, entity);
+    }
+
+    public string HashRefreshToken(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token))).ToLowerInvariant();
+
+    private static string Base64UrlEncode(byte[] bytes) =>
+        Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
     public string GenerateToken(User user)
     {

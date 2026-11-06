@@ -26,6 +26,11 @@ public class JwtSettingsValidator(IHostEnvironment environment) : IValidateOptio
             : secret == DevelopmentSecret && !environment.IsDevelopment() ? "the development secret, which is public"
             : null;
 
+        if (problem is null && options.RefreshTokenDays < 1) {
+            return ValidateOptionsResult.Fail(
+                "Jwt__RefreshTokenDays must be at least 1 (how many days the mobile app stays signed in unused).");
+        }
+
         return problem is null
             ? ValidateOptionsResult.Success
             : ValidateOptionsResult.Fail(

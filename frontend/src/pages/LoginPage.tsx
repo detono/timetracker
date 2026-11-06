@@ -5,6 +5,7 @@ import { getPasswordResetAvailable, login } from "../api/authApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { appConfig } from "../config";
+import { appVersion } from "../version";
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -70,6 +71,7 @@ export function LoginPage() {
             <span>{t('login.forgotPasswordAskEmployer')}</span>
           )}
         </p>
+        <p className="auth-card__version">v{appVersion}</p>
       </div>
     </div>
   );

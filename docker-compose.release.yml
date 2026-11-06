@@ -43,12 +43,20 @@ services:
       Jwt__Secret: "${JWT_SECRET:?Set JWT_SECRET in a .env file - see .env.example}"
       Jwt__Issuer: "TimeTracker.API"
       Jwt__Audience: "TimeTracker.Client"
+      # Days the mobile app stays signed in without being opened (see README, "Mobile app sign-in").
+      Jwt__RefreshTokenDays: "${JWT_REFRESH_TOKEN_DAYS:-14}"
       Seed__AdminEmail: "${SEED_ADMIN_EMAIL:-}"
       Seed__AdminPassword: "${SEED_ADMIN_PASSWORD:-}"
       Seed__AdminFirstName: "${SEED_ADMIN_FIRST_NAME:-}"
       Seed__AdminLastName: "${SEED_ADMIN_LAST_NAME:-}"
       # Allow company email settings to use a mail server on an internal network (see README).
       Email__AllowInternalHosts: "${EMAIL_ALLOW_INTERNAL_HOSTS:-false}"
+      # Same branding as the frontend below, published on /api/info for the mobile app.
+      Branding__Title: "${APP_TITLE:-Shiftlog}"
+      Branding__ColorPrimary: "${COLOR_PRIMARY:-#932e4a}"
+      Branding__ColorOnPrimary: "${COLOR_ON_PRIMARY:-#ffffff}"
+      Branding__ColorSecondary: "${COLOR_SECONDARY:-#e4d1dc}"
+      Branding__ColorOnSecondary: "${COLOR_ON_SECONDARY:-#000000}"
     # ports:
     #   - "127.0.0.1:5067:8080"   # uncomment for local Swagger access at http://localhost:5067/swagger
 

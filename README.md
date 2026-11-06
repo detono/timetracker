@@ -104,6 +104,13 @@ can no longer log in.
 - **Signing out.** Deactivating a person or a company, resetting a password or changing it
   signs that person out everywhere on their next click, not only when their sign-in
   expires. Changing your own password keeps you signed in on the device you used.
+- **Mobile app sign-in.** The mobile app asks for a refresh token when it signs in, so people
+  don't type their password every day. Only a hash of it is stored. Each one works once and is
+  swapped for a new one; one that isn't used for `JWT_REFRESH_TOKEN_DAYS` days (default 14)
+  stops working. If an already-used token shows up again (after a short grace period for
+  retries on a bad connection), someone copied it, and that whole sign-in is ended. Signing
+  out in the app, changing or resetting the password, or deactivating the person or their
+  company ends it as well. The website doesn't use refresh tokens.
 - **Password guessing.** Five wrong passwords for one email address within 15 minutes block
   signing in with it for 15 minutes; resetting the password lifts the block. This works the
   same for addresses without an account, so it doesn't reveal which ones exist. On top of

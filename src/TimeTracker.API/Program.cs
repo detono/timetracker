@@ -26,6 +26,8 @@ builder.Host.UseSerilog((context, config) =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.Configure<BrandingSettings>(builder.Configuration.GetSection(BrandingSettings.SectionName));
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<CurrentUserService>());

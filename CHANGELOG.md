@@ -15,7 +15,16 @@ Database migrations run automatically when the API starts, unless a release says
   and last changed.
 - `GET /api/info` tells apps, without signing in, that this is a TimeTracker server and which
   API version it speaks.
+  It also gives the installation's name and colours (the same `APP_TITLE` and `COLOR_*`
+  settings as the website), so the mobile app can look the part before anyone signs in.
+- The mobile app stays signed in: when it signs in with `issueRefreshToken`, it gets a refresh
+  token it swaps at `POST /api/auth/refresh` for a new sign-in, and revokes at
+  `POST /api/auth/logout`. It works for `JWT_REFRESH_TOKEN_DAYS` (default 14) without being
+  used, works once, and a copied token that gets used twice ends that sign-in. Changing or
+  resetting a password, or deactivating someone or their company, ends it too. The website
+  doesn't use refresh tokens.
 - The README says who's responsible for the personal data in an installation.
+- The version (e.g. `v1.2.1`) shows in small print under the menu and on the sign-in page.
 
 ### Changed
 

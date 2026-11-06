@@ -29,6 +29,7 @@ public class ApplicationDbContext(
     public DbSet<PasswordResetCode> PasswordResetCodes => Set<PasswordResetCode>();
     public DbSet<LockedMonth> LockedMonths => Set<LockedMonth>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     /// <summary>
     /// The ASP.NET Core Data Protection key ring (used to encrypt mail secrets), kept in the

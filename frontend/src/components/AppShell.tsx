@@ -8,6 +8,7 @@ import { roleLabel } from "../utils/roles";
 import type { ShellContext } from "../utils/leave";
 import { Icon, type IconName } from "./Icon";
 import { initials } from "../utils/initials";
+import { appVersion } from "../version";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "shell__nav-link is-active" : "shell__nav-link");
 
@@ -130,6 +131,7 @@ export function AppShell() {
             <Icon name="logout" />
           </button>
         </div>
+        <p className="shell__version">v{appVersion}</p>
       </aside>
       {menuOpen && <div className="shell__backdrop" aria-hidden="true" onClick={() => setMenuOpen(false)} />}
 

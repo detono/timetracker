@@ -69,6 +69,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResu
             tenantName = tenant.Name;
         }
 
-        return Result<AuthResultDto>.Success(AuthResults.Create(user, tenantName, _tokenService));
+        var result = AuthResults.Create(user, tenantName, _tokenService);
+        if (!request.IssueRefreshToken)
+        {
+            return Result<AuthResultDto>.Success(result);
+        }
+
+        // Each sign-in on a device starts its own family of refresh tokens.
+        var refreshToken = await AuthResults.AddRefreshTokenAsync(
+            _unitOfWork, _tokenService, user, Guid.NewGuid(), cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result<AuthResultDto>.Success(result with { RefreshToken = refreshToken });
     }
 }

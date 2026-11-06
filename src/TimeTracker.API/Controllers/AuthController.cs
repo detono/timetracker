@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.RateLimiting;
 using TimeTracker.API.Authorization;
 using TimeTracker.Application.Auth.Commands.ChangePassword;
 using TimeTracker.Application.Auth.Commands.Login;
+using TimeTracker.Application.Auth.Commands.RefreshSession;
 using TimeTracker.Application.Auth.Commands.RequestPasswordReset;
 using TimeTracker.Application.Auth.Commands.ResetForgottenPassword;
 using TimeTracker.Application.Auth.Commands.SetLanguage;
+using TimeTracker.Application.Auth.Commands.SignOut;
 using TimeTracker.Application.Auth.Dtos;
 using TimeTracker.Application.Auth.Queries.GetPasswordResetAvailability;
 
@@ -28,6 +30,29 @@ public class AuthController : ApiControllerBase
     }
 
     /// <summary>Saves the signed-in user's language, used for the app and for the emails they get.</summary>
+    /// <summary>Swaps a refresh token (from login with issueRefreshToken) for a new sign-in and refresh token.</summary>
+    [HttpPost("refresh")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(AuthResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<AuthResultDto>> Refresh(RefreshSessionCommand command, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>Ends this device's sign-in by revoking its refresh token.</summary>
+    [HttpPost("logout")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> Logout(SignOutCommand command, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
     [HttpPut("language")]
     [Authorize]
     public async Task<ActionResult> SetLanguage(SetLanguageCommand command, CancellationToken cancellationToken)

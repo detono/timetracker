@@ -44,6 +44,42 @@ public class LoginCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WithIssueRefreshToken_StoresAndReturnsRefreshToken()
+    {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, _tenant.Id);
+        var refreshTokens = new Mock<IRefreshTokenRepository>();
+        _unitOfWork.SetupGet(u => u.RefreshTokens).Returns(refreshTokens.Object);
+        _userRepository.Setup(r => r.GetByEmailAsync("jane@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _passwordHasher.Setup(p => p.Verify("password", "hash")).Returns(true);
+        _tokenService.Setup(t => t.GenerateToken(user)).Returns("fake-jwt");
+        var entity = RefreshToken.Issue(user, "stored-hash", Guid.NewGuid(), DateTime.UtcNow, TimeSpan.FromDays(14));
+        _tokenService.Setup(t => t.CreateRefreshToken(user, It.IsAny<Guid>()))
+            .Returns(new IssuedRefreshToken("raw-refresh", entity));
+
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
+        var result = await handler.Handle(new LoginCommand("jane@doe.com", "password", IssueRefreshToken: true), CancellationToken.None);
+
+        result.Value!.RefreshToken.Should().Be("raw-refresh");
+        refreshTokens.Verify(r => r.AddAsync(entity, It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WithoutIssueRefreshToken_ReturnsNoRefreshToken()
+    {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, _tenant.Id);
+        _userRepository.Setup(r => r.GetByEmailAsync("jane@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
+        _passwordHasher.Setup(p => p.Verify("password", "hash")).Returns(true);
+        _tokenService.Setup(t => t.GenerateToken(user)).Returns("fake-jwt");
+
+        var handler = new LoginCommandHandler(_unitOfWork.Object, _passwordHasher.Object, _tokenService.Object, _throttle.Object);
+        var result = await handler.Handle(new LoginCommand("jane@doe.com", "password"), CancellationToken.None);
+
+        result.Value!.RefreshToken.Should().BeNull();
+        _tokenService.Verify(t => t.CreateRefreshToken(It.IsAny<User>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_UnknownEmail_ReturnsFailureWithoutRevealingReason()
     {
         _userRepository.Setup(r => r.GetByEmailAsync("missing@doe.com", It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
