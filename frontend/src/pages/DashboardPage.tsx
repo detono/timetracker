@@ -20,12 +20,14 @@ import { PlanBoard } from "../components/PlanBoard";
 import { HoursOverviewCards } from "../components/HoursOverviewCards";
 import { TimeEntryForm, type TimeEntryFormValues } from "../components/TimeEntryForm";
 import { WeekNavigator } from "../components/WeekNavigator";
+import { useConfirm } from "../components/ConfirmDialog";
 import { getWeekRange, hoursToHm } from "../utils/dateRange";
 import type { HourType, Project, TimeEntry, WorkSchedule } from "../types";
 import type { ShellContext } from "../utils/leave";
 
 export function DashboardPage() {
   const { t } = useTranslation();
+  const { confirm } = useConfirm();
   const { user } = useAuth();
   const [anchorDate, setAnchorDate] = useState(new Date());
   const [entries, setEntries] = useState<TimeEntry[]>([]);
@@ -116,7 +118,13 @@ export function DashboardPage() {
   }
 
   async function handleDelete(entry: TimeEntry) {
-    if (!confirm(t('dashboard.confirmDelete'))) return;
+    const confirmed = await confirm({
+      title: t('dashboard.confirmDeleteTitle'),
+      message: t('dashboard.confirmDelete'),
+      confirmLabel: t('common.delete'),
+      tone: "danger"
+    });
+    if (!confirmed) return;
     await deleteTimeEntry(entry.id);
     await loadEntries();
   }

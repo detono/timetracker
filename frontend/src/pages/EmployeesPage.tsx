@@ -15,6 +15,7 @@ import { useAuth } from "../auth/AuthContext";
 import { WorkScheduleEditor } from "../components/WorkScheduleEditor";
 import type { UserAccount, UserRole } from "../types";
 import { RowMenu } from "../components/RowMenu";
+import { useConfirm } from "../components/ConfirmDialog";
 
 const emptyForm = {
   firstName: "",
@@ -26,6 +27,7 @@ const emptyForm = {
 
 export function EmployeesPage() {
   const { t } = useTranslation();
+  const { confirm } = useConfirm();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,13 +73,22 @@ export function EmployeesPage() {
   }
 
   async function handleToggleActive(target: UserAccount) {
+    if (
+      target.isActive &&
+      !(await confirm({
+        title: t('employees.confirmDeactivateTitle', { name: `${target.firstName} ${target.lastName}` }),
+        message: t('employees.confirmDeactivate'),
+        confirmLabel: t('employees.deactivate'),
+        tone: "danger"
+      }))
+    ) {
+      return;
+    }
+
     setBusyUserId(target.id);
     setError(null);
     try {
       if (target.isActive) {
-        if (!confirm(t('employees.confirmDeactivate', { name: `${target.firstName} ${target.lastName}` }))) {
-          return;
-        }
         await deactivateUser(target.id);
       } else {
         await activateUser(target.id);

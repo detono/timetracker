@@ -127,7 +127,8 @@
     "cannotDeactivateSelf": "Vous ne pouvez pas désactiver votre propre compte",
     "deactivate": "Désactiver",
     "reactivate": "Réactiver",
-    "confirmDeactivate": "Désactiver {{name}} ? Ils ne pourront plus se connecter, mais leurs heures enregistrées seront conservées.",
+    "confirmDeactivateTitle": "Désactiver {{name}} ?",
+    "confirmDeactivate": "Cette personne ne pourra plus se connecter, mais ses heures enregistrées sont conservées. Vous pourrez la réactiver plus tard.",
     "tracksHoursFor": "Comparer les heures encodées de {{name}} à son horaire",
     "tracksHoursHint": "Désactivez pour les personnes qui n'encodent pas leurs heures, p. ex. un gérant. Elles n'apparaissent alors plus dans l'aperçu prestées vs. prévues.",
     "resetPasswordHint": "Cette personne est déconnectée immédiatement et choisira son propre mot de passe à sa prochaine connexion."
@@ -138,7 +139,8 @@
     "logHoursBtn": "+ Enregistrer des heures",
     "editEntry": "Modifier l'entrée",
     "logNewHours": "Enregistrer de nouvelles heures",
-    "confirmDelete": "Supprimer cette entrée de temps ?"
+    "confirmDeleteTitle": "Supprimer cette entrée de temps ?",
+    "confirmDelete": "Cette action est irréversible."
   },
   "account": {
     "title": "Mon compte",
@@ -276,7 +278,8 @@
       "users": "Utilisateurs",
       "created": "Créée le"
     },
-    "confirmDeactivate": "Désactiver {{name}} ? Plus personne de cette entreprise ne pourra se connecter, mais toutes les données sont conservées.",
+    "confirmDeactivateTitle": "Désactiver {{name}} ?",
+    "confirmDeactivate": "Plus personne de cette entreprise ne pourra se connecter, mais toutes les données sont conservées. Vous pourrez la réactiver plus tard.",
     "resetEmployerPassword": "Réinitialiser le mot de passe de l'employeur",
     "resetEmployerPasswordFor": "Réinitialiser le mot de passe d'un employeur de {{name}}",
     "resetEmployerPasswordHint": "Pour un employeur qui ne peut plus se connecter. Transmettez-lui vous-même le mot de passe temporaire ; il est déconnecté immédiatement et choisira le sien à sa prochaine connexion.",
@@ -288,7 +291,8 @@
     "title": "Administrateurs de la plateforme",
     "subtitle": "Les administrateurs gèrent les entreprises et les autres administrateurs. Ils ne voient ni les heures ni les personnes des entreprises.",
     "addNew": "Ajouter un administrateur",
-    "confirmDeactivate": "Désactiver {{name}} ? Cette personne ne pourra plus se connecter."
+    "confirmDeactivateTitle": "Désactiver {{name}} ?",
+    "confirmDeactivate": "Cette personne ne pourra plus se connecter. Vous pourrez la réactiver plus tard."
   },
   "emailSettings": {
     "title": "E-mail",
@@ -386,10 +390,14 @@
     "withdraw": "Annuler",
     "overBalance": "solde dépassé",
     "usedUp": "épuisé",
-    "confirmOverBalance": "Il reste {{remaining}} de congé à {{name}}, et cette demande fait {{hours}}. Approuver quand même ?",
-    "rejectReason": "Refuser la demande de {{name}} ? Vous pouvez indiquer une raison (facultatif).",
-    "revokeReason": "Révoquer le congé approuvé de {{name}} ? Les heures encodées sont supprimées. Vous pouvez indiquer une raison (facultatif).",
+    "confirmOverBalanceTitle": "Approuver un congé au-delà du solde ?",
+    "confirmOverBalance": "Il reste {{remaining}} de congé à {{name}}, et cette demande fait {{hours}}.",
+    "rejectTitle": "Refuser la demande de {{name}} ?",
+    "reasonLabel": "Raison (facultatif)",
+    "revokeTitle": "Révoquer le congé approuvé de {{name}} ?",
+    "revokeMessage": "Les heures encodées pour ce congé sont supprimées.",
     "confirmWithdraw": "Annuler cette demande de congé ?",
+    "keepRequest": "Conserver",
     "balancesTitle": "Soldes de congés {{year}}",
     "balancesHint": "Définissez le nombre d'heures de congé de chaque personne pour l'année. Les heures prises sont celles encodées sous des types déduits du solde.",
     "prevYear": "Année précédente",
@@ -482,7 +490,8 @@
     "holidayName": "Nom",
     "holidayNamePlaceholder": "Jour de fermeture",
     "addHoliday": "Ajouter le jour",
-    "confirmDeleteHoliday": "Supprimer {{name}} ? Tout le monde sera alors censé travailler ce jour-là."
+    "confirmDeleteHolidayTitle": "Supprimer {{name}} ?",
+    "confirmDeleteHoliday": "Tout le monde sera alors censé travailler ce jour-là."
   },
   "choosePassword": {
     "title": "Choisissez votre propre mot de passe",
@@ -510,7 +519,8 @@
     "open": "Ouvert",
     "locked": "Verrouillé",
     "lockedBy": "Verrouillé par {{name}} le {{date}}",
-    "confirmLock": "Verrouiller {{month}} ? Personne ne pourra modifier ses heures tant qu’il n’est pas déverrouillé.",
+    "confirmLockTitle": "Verrouiller {{month}} ?",
+    "confirmLock": "Plus personne ne peut ajouter, modifier ou supprimer des heures ce mois-ci, employeurs compris. Vous pourrez le déverrouiller plus tard pour corriger quelque chose.",
     "lockedHint": "Ce mois est verrouillé. Demandez à votre employeur de le déverrouiller pour modifier ceci.",
     "leaveLockedHint": "Une partie de ce congé tombe dans un mois verrouillé. Il peut être refusé, mais pas approuvé ni révoqué tant que le mois n'est pas déverrouillé.",
     "dateLocked": "Ce mois est verrouillé : on ne peut plus y ajouter ni modifier d'heures. Demandez à votre employeur si quelque chose doit être corrigé."

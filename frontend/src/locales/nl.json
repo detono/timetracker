@@ -118,7 +118,8 @@
     "cannotDeactivateSelf": "Je kunt je eigen account niet deactiveren",
     "deactivate": "Deactiveren",
     "reactivate": "Heractiveren",
-    "confirmDeactivate": "{{name}} deactiveren? Deze persoon kan niet meer inloggen, maar de geregistreerde uren blijven bewaard.",
+    "confirmDeactivateTitle": "{{name}} deactiveren?",
+    "confirmDeactivate": "Deze persoon kan niet meer inloggen, maar de geregistreerde uren blijven bewaard. Je kunt de account later weer activeren.",
     "tracksHoursFor": "Gelogde uren van {{name}} vergelijken met het uurrooster",
     "tracksHoursHint": "Zet uit voor wie geen uren registreert, bv. een zaakvoerder. Die persoon valt dan weg uit het overzicht gewerkt vs. verwacht.",
     "resetPasswordHint": "Deze persoon wordt meteen uitgelogd en kiest bij de volgende aanmelding een eigen wachtwoord."
@@ -129,7 +130,8 @@
     "logHoursBtn": "+ Uren registreren",
     "editEntry": "Registratie bewerken",
     "logNewHours": "Nieuwe uren registreren",
-    "confirmDelete": "Deze urenregistratie verwijderen?"
+    "confirmDeleteTitle": "Deze urenregistratie verwijderen?",
+    "confirmDelete": "Dit kan niet ongedaan worden gemaakt."
   },
   "account": {
     "title": "Mijn account",
@@ -276,7 +278,8 @@
       "users": "Gebruikers",
       "created": "Aangemaakt"
     },
-    "confirmDeactivate": "{{name}} deactiveren? Niemand van dit bedrijf kan nog inloggen, maar alle gegevens blijven bewaard.",
+    "confirmDeactivateTitle": "{{name}} deactiveren?",
+    "confirmDeactivate": "Niemand van dit bedrijf kan nog inloggen, maar alle gegevens blijven bewaard. Je kunt het bedrijf later weer activeren.",
     "resetEmployerPassword": "Wachtwoord werkgever herstellen",
     "resetEmployerPasswordFor": "Wachtwoord van een werkgever herstellen voor {{name}}",
     "resetEmployerPasswordHint": "Voor als een werkgever niet meer binnen kan. Geef het tijdelijke wachtwoord zelf door; de werkgever wordt meteen uitgelogd en kiest bij de volgende aanmelding een eigen wachtwoord.",
@@ -288,7 +291,8 @@
     "title": "Platformbeheerders",
     "subtitle": "Beheerders beheren bedrijven en andere beheerders. Ze zien geen uren of mensen van bedrijven.",
     "addNew": "Platformbeheerder toevoegen",
-    "confirmDeactivate": "{{name}} deactiveren? Deze persoon kan dan niet meer inloggen."
+    "confirmDeactivateTitle": "{{name}} deactiveren?",
+    "confirmDeactivate": "Deze persoon kan dan niet meer inloggen. Je kunt de account later weer activeren."
   },
   "emailSettings": {
     "title": "E-mail",
@@ -386,10 +390,14 @@
     "withdraw": "Annuleren",
     "overBalance": "boven saldo",
     "usedUp": "opgebruikt",
-    "confirmOverBalance": "{{name}} heeft nog {{remaining}} verlof, en deze aanvraag is {{hours}}. Toch goedkeuren?",
-    "rejectReason": "De aanvraag van {{name}} afwijzen? Je kunt een reden opgeven (optioneel).",
-    "revokeReason": "Het goedgekeurde verlof van {{name}} intrekken? De ingeboekte uren worden verwijderd. Je kunt een reden opgeven (optioneel).",
+    "confirmOverBalanceTitle": "Verlof boven het saldo goedkeuren?",
+    "confirmOverBalance": "{{name}} heeft nog {{remaining}} verlof, en deze aanvraag is {{hours}}.",
+    "rejectTitle": "De aanvraag van {{name}} afwijzen?",
+    "reasonLabel": "Reden (optioneel)",
+    "revokeTitle": "Het goedgekeurde verlof van {{name}} intrekken?",
+    "revokeMessage": "De uren die ervoor ingeboekt zijn, worden verwijderd.",
     "confirmWithdraw": "Deze verlofaanvraag annuleren?",
+    "keepRequest": "Behouden",
     "balancesTitle": "Verlofsaldo {{year}}",
     "balancesHint": "Stel per persoon het verlof voor het jaar in, in uren. Opgenomen uren zijn uren onder types die van het saldo afgaan.",
     "prevYear": "Vorig jaar",
@@ -482,7 +490,8 @@
     "holidayName": "Naam",
     "holidayNamePlaceholder": "Vrije dag bedrijf",
     "addHoliday": "Dag toevoegen",
-    "confirmDeleteHoliday": "{{name}} verwijderen? Dan wordt verwacht dat iedereen die dag werkt."
+    "confirmDeleteHolidayTitle": "{{name}} verwijderen?",
+    "confirmDeleteHoliday": "Dan wordt verwacht dat iedereen die dag werkt."
   },
   "choosePassword": {
     "title": "Kies je eigen wachtwoord",
@@ -510,7 +519,8 @@
     "open": "Open",
     "locked": "Vergrendeld",
     "lockedBy": "Vergrendeld door {{name}} op {{date}}",
-    "confirmLock": "{{month}} vergrendelen? Niemand kan de uren nog wijzigen tot de maand ontgrendeld is.",
+    "confirmLockTitle": "{{month}} vergrendelen?",
+    "confirmLock": "Niemand kan nog uren toevoegen, wijzigen of verwijderen in deze maand, ook werkgevers niet. Je kunt de maand later ontgrendelen om iets te corrigeren.",
     "lockedHint": "Deze maand is vergrendeld. Vraag je werkgever om ze te ontgrendelen als dit moet veranderen.",
     "leaveLockedHint": "Een deel van dit verlof valt in een vergrendelde maand. Afwijzen kan, goedkeuren of intrekken pas als de maand ontgrendeld is.",
     "dateLocked": "Deze maand is vergrendeld: er kunnen geen uren meer bij of veranderen. Vraag je werkgever als er iets recht moet worden gezet."

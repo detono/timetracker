@@ -38,6 +38,9 @@ Database migrations run automatically when the API starts, unless a release says
 - On phones, your hours, leave and the employee list show as cards instead of wide tables.
 - The *Company* page is split into tabs: General, Working hours, Public holidays, Email and
   Activity. `/email` opens the Email tab.
+- Questions like *Lock this month?*, *Deactivate this person?* or *Delete this entry?* open in
+  the app's own dialog instead of the browser's popup, with a short explanation of what happens.
+  Rejecting or revoking leave asks for the optional reason in the same dialog.
 
 ### Fixed
 

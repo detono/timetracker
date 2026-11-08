@@ -1,6 +1,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HourTypeBadge } from "../components/HourTypeBadge";
+import { useConfirm } from "../components/ConfirmDialog";
 import { useOutletContext } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { extractErrorMessage } from "../api/client";
@@ -57,6 +58,7 @@ function StatusLabel({ request }: { request: LeaveRequest }) {
 
 export function LeavePage() {
   const { t } = useTranslation();
+  const { confirm, askReason } = useConfirm();
   const { user } = useAuth();
   const { refreshPendingLeaveCount } = useOutletContext<ShellContext>();
   const isEmployer = user?.role === "Employer";
@@ -113,31 +115,53 @@ export function LeavePage() {
     }
   }
 
-  function handleApprove(request: LeaveRequest) {
+  async function handleApprove(request: LeaveRequest) {
     if (request.exceedsBalance) {
-      const message = t('leave.confirmOverBalance', {
-        name: request.userFullName,
-        remaining: signedHours(request.remainingBalanceHours ?? 0),
-        hours: hoursToHm(request.hours)
+      const confirmed = await confirm({
+        title: t('leave.confirmOverBalanceTitle'),
+        message: t('leave.confirmOverBalance', {
+          name: request.userFullName,
+          remaining: signedHours(request.remainingBalanceHours ?? 0),
+          hours: hoursToHm(request.hours)
+        }),
+        confirmLabel: t('leave.approve')
       });
-      if (!confirm(message)) return;
+      if (!confirmed) return;
     }
     runAction(request.id, () => approveLeaveRequest(request.id, null));
   }
 
-  function handleReject(request: LeaveRequest) {
-    const reason = prompt(t('leave.rejectReason', { name: request.userFullName }));
+  async function handleReject(request: LeaveRequest) {
+    const reason = await askReason({
+      title: t('leave.rejectTitle', { name: request.userFullName }),
+      reasonLabel: t('leave.reasonLabel'),
+      confirmLabel: t('leave.reject'),
+      tone: "danger"
+    });
     if (reason === null) return;
-    runAction(request.id, () => rejectLeaveRequest(request.id, reason.trim() || null));
+    runAction(request.id, () => rejectLeaveRequest(request.id, reason || null));
   }
 
-  function handleCancel(request: LeaveRequest) {
+  async function handleCancel(request: LeaveRequest) {
     if (request.status === "Approved") {
-      const reason = prompt(t('leave.revokeReason', { name: request.userFullName }));
+      const reason = await askReason({
+        title: t('leave.revokeTitle', { name: request.userFullName }),
+        message: t('leave.revokeMessage'),
+        reasonLabel: t('leave.reasonLabel'),
+        confirmLabel: t('leave.revoke'),
+        tone: "danger"
+      });
       if (reason === null) return;
-      runAction(request.id, () => cancelLeaveRequest(request.id, reason.trim() || null));
+      runAction(request.id, () => cancelLeaveRequest(request.id, reason || null));
     } else {
-      if (!confirm(t('leave.confirmWithdraw'))) return;
+      const confirmed = await confirm({
+        title: t('leave.confirmWithdraw'),
+        confirmLabel: t('leave.withdraw'),
+        // "Withdraw" and "Cancel" are the same word in Dutch and French.
+        cancelLabel: t('leave.keepRequest'),
+        tone: "danger"
+      });
+      if (!confirmed) return;
       runAction(request.id, () => cancelLeaveRequest(request.id, null));
     }
   }

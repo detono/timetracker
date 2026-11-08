@@ -88,7 +88,8 @@
     "cannotDeactivateSelf": "You cannot deactivate your own account",
     "deactivate": "Deactivate",
     "reactivate": "Reactivate",
-    "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in, but their logged hours are kept.",
+    "confirmDeactivateTitle": "Deactivate {{name}}?",
+    "confirmDeactivate": "They can no longer sign in, but their logged hours are kept. You can reactivate them later.",
     "tracksHoursFor": "Compare {{name}}'s logged hours with their work schedule",
     "tracksHoursHint": "Switch off for people who don't log their hours, e.g. an owner. They're then left out of the worked vs. expected overview.",
     "resetPasswordHint": "They're signed out right away and choose their own password when they next sign in."
@@ -99,7 +100,8 @@
     "logHoursBtn": "+ Log hours",
     "editEntry": "Edit entry",
     "logNewHours": "Log new hours",
-    "confirmDelete": "Delete this time entry?"
+    "confirmDeleteTitle": "Delete this time entry?",
+    "confirmDelete": "This can't be undone."
   },
   "account": {
     "title": "My account",
@@ -276,7 +278,8 @@
       "users": "Users",
       "created": "Created"
     },
-    "confirmDeactivate": "Deactivate {{name}}? Nobody in this company will be able to log in, but all their data is kept.",
+    "confirmDeactivateTitle": "Deactivate {{name}}?",
+    "confirmDeactivate": "Nobody in this company can sign in any more, but all its data is kept. You can reactivate it later.",
     "resetEmployerPassword": "Reset employer password",
     "resetEmployerPasswordFor": "Reset an employer password for {{name}}",
     "resetEmployerPasswordHint": "For when an employer is locked out. Give them the temporary password yourself; they're signed out right away and choose their own when they next sign in.",
@@ -288,7 +291,8 @@
     "title": "Platform admins",
     "subtitle": "Admins manage companies and other admins. They can't see any company's hours or people.",
     "addNew": "Add a platform admin",
-    "confirmDeactivate": "Deactivate {{name}}? They will no longer be able to log in."
+    "confirmDeactivateTitle": "Deactivate {{name}}?",
+    "confirmDeactivate": "They can no longer sign in. You can reactivate them later."
   },
   "emailSettings": {
     "title": "Email",
@@ -386,10 +390,14 @@
     "withdraw": "Withdraw",
     "overBalance": "over balance",
     "usedUp": "used up",
-    "confirmOverBalance": "{{name}} has {{remaining}} of leave left, and this request is {{hours}}. Approve anyway?",
-    "rejectReason": "Reject the request of {{name}}? You can add a reason (optional).",
-    "revokeReason": "Revoke the approved leave of {{name}}? The booked hours are removed. You can add a reason (optional).",
+    "confirmOverBalanceTitle": "Approve leave over the balance?",
+    "confirmOverBalance": "{{name}} has {{remaining}} of leave left, and this request is {{hours}}.",
+    "rejectTitle": "Reject the request of {{name}}?",
+    "reasonLabel": "Reason (optional)",
+    "revokeTitle": "Revoke the approved leave of {{name}}?",
+    "revokeMessage": "The hours booked for it are removed.",
     "confirmWithdraw": "Withdraw this leave request?",
+    "keepRequest": "Keep it",
     "balancesTitle": "Leave balances {{year}}",
     "balancesHint": "Set each person's leave allowance for the year in hours. Used hours are hours logged under types that use up the balance.",
     "prevYear": "Previous year",
@@ -482,7 +490,8 @@
     "holidayName": "Name",
     "holidayNamePlaceholder": "Company day off",
     "addHoliday": "Add day",
-    "confirmDeleteHoliday": "Remove {{name}}? People will be expected to work that day."
+    "confirmDeleteHolidayTitle": "Remove {{name}}?",
+    "confirmDeleteHoliday": "People will be expected to work that day."
   },
   "choosePassword": {
     "title": "Choose your own password",
@@ -510,7 +519,8 @@
     "open": "Open",
     "locked": "Locked",
     "lockedBy": "Locked by {{name}} on {{date}}",
-    "confirmLock": "Lock {{month}}? Nobody can change its hours until it is unlocked.",
+    "confirmLockTitle": "Lock {{month}}?",
+    "confirmLock": "Nobody can add, change or delete hours in this month, employers included. You can unlock it later to make a correction.",
     "lockedHint": "This month is locked. Ask your employer to unlock it to change this.",
     "leaveLockedHint": "Part of this leave is in a locked month. It can be rejected, but not approved or revoked until the month is unlocked.",
     "dateLocked": "This month is locked: hours in it can no longer be added or changed. Ask your employer if something needs fixing."

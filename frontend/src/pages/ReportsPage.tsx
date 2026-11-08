@@ -14,6 +14,7 @@ import { useAuth } from "../auth/AuthContext";
 import { monthKey } from "../utils/lockedMonths";
 import { formatDayLabel } from "../utils/dateRange";
 import { HourTypeBadge } from "../components/HourTypeBadge";
+import { useConfirm } from "../components/ConfirmDialog";
 import type { HoursBalanceLine, HoursReport, LockedMonth, ReportGrouping } from "../types";
 import { hoursToHm } from "../utils/dateRange";
 import { signedHm } from "../utils/hoursOverview";
@@ -200,6 +201,7 @@ const MONTHS_SHOWN = 12;
  */
 function ClosedMonthsPanel() {
   const { t, i18n } = useTranslation();
+  const { confirm } = useConfirm();
   const [locked, setLocked] = useState<Map<string, LockedMonth>>(new Map());
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -227,7 +229,16 @@ function ClosedMonthsPanel() {
   async function toggle(year: number, month: number, date: Date) {
     const key = monthKey(year, month);
     const isLocked = locked.has(key);
-    if (!isLocked && !confirm(t('lockedMonths.confirmLock', { month: monthName(date) }))) return;
+    if (
+      !isLocked &&
+      !(await confirm({
+        title: t('lockedMonths.confirmLockTitle', { month: monthName(date) }),
+        message: t('lockedMonths.confirmLock'),
+        confirmLabel: t('lockedMonths.lock')
+      }))
+    ) {
+      return;
+    }
 
     setBusy(key);
     setError(null);

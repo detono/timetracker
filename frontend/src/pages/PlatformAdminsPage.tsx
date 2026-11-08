@@ -9,11 +9,13 @@ import {
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import type { UserAccount } from "../types";
+import { useConfirm } from "../components/ConfirmDialog";
 
 const emptyForm: CreatePlatformAdminPayload = { firstName: "", lastName: "", email: "", password: "" };
 
 export function PlatformAdminsPage() {
   const { t } = useTranslation();
+  const { confirm } = useConfirm();
   const { user: currentUser } = useAuth();
   const [admins, setAdmins] = useState<UserAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +57,15 @@ export function PlatformAdminsPage() {
 
   async function handleToggleActive(admin: UserAccount) {
     const name = `${admin.firstName} ${admin.lastName}`;
-    if (admin.isActive && !confirm(t('platformAdmins.confirmDeactivate', { name }))) {
+    if (
+      admin.isActive &&
+      !(await confirm({
+        title: t('platformAdmins.confirmDeactivateTitle', { name }),
+        message: t('platformAdmins.confirmDeactivate'),
+        confirmLabel: t('employees.deactivate'),
+        tone: "danger"
+      }))
+    ) {
       return;
     }
 

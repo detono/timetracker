@@ -11,6 +11,7 @@ import {
 import { extractErrorMessage } from "../api/client";
 import type { Tenant, TenantEmployer } from "../types";
 import { RowMenu } from "../components/RowMenu";
+import { useConfirm } from "../components/ConfirmDialog";
 
 const emptyForm: CreateTenantPayload = {
   name: "",
@@ -22,6 +23,7 @@ const emptyForm: CreateTenantPayload = {
 
 export function TenantsPage() {
   const { t, i18n } = useTranslation();
+  const { confirm } = useConfirm();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +63,15 @@ export function TenantsPage() {
   }
 
   async function handleToggleActive(tenant: Tenant) {
-    if (tenant.isActive && !confirm(t('tenants.confirmDeactivate', { name: tenant.name }))) {
+    if (
+      tenant.isActive &&
+      !(await confirm({
+        title: t('tenants.confirmDeactivateTitle', { name: tenant.name }),
+        message: t('tenants.confirmDeactivate'),
+        confirmLabel: t('employees.deactivate'),
+        tone: "danger"
+      }))
+    ) {
       return;
     }
 

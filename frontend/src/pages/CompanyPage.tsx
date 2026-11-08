@@ -13,6 +13,7 @@ import {
 } from "../api/companyApi";
 import { WorkScheduleEditor } from "../components/WorkScheduleEditor";
 import { ActivityLogPanel } from "../components/ActivityLogPanel";
+import { useConfirm } from "../components/ConfirmDialog";
 import { EmailSettingsPage } from "./EmailSettingsPage";
 import { formatDayLabel } from "../utils/dateRange";
 import type { Company, PublicHoliday } from "../types";
@@ -215,6 +216,7 @@ function CompanyDetailsForm({ company, onSaved }: { company: Company; onSaved: (
 
 function HolidaysPanel({ company }: { company: Company }) {
   const { t, i18n } = useTranslation();
+  const { confirm } = useConfirm();
   const [year, setYear] = useState(new Date().getFullYear());
   const [holidays, setHolidays] = useState<PublicHoliday[]>([]);
   const [loading, setLoading] = useState(true);
@@ -278,7 +280,13 @@ function HolidaysPanel({ company }: { company: Company }) {
   }
 
   async function handleDelete(holiday: PublicHoliday) {
-    if (!confirm(t('company.confirmDeleteHoliday', { name: holiday.name }))) return;
+    const confirmed = await confirm({
+      title: t('company.confirmDeleteHolidayTitle', { name: holiday.name }),
+      message: t('company.confirmDeleteHoliday'),
+      confirmLabel: t('common.delete'),
+      tone: "danger"
+    });
+    if (!confirmed) return;
     setBusy(true);
     setError(null);
     try {
