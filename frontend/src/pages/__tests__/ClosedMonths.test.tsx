@@ -15,6 +15,10 @@ vi.mock("../../api/lockedMonthsApi", () => ({
   unlockMonth: vi.fn().mockResolvedValue(undefined)
 }));
 
+vi.mock("../../api/projectsApi", () => ({
+  projectsApi: { getAll: vi.fn().mockResolvedValue([]) }
+}));
+
 describe("Closed months", () => {
   beforeEach(() => vi.mocked(lockMonth).mockClear());
 

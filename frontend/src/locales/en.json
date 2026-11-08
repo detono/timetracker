@@ -11,7 +11,8 @@
     "signingIn": "Signing in…",
     "saving": "Saving…",
     "signOut": "Sign out",
-    "close": "Close"
+    "close": "Close",
+    "saveChanges": "Save changes"
   },
   "planBoard": {
     "emptyState": "No hours logged for this period yet."
@@ -188,12 +189,23 @@
       "totalHours": "Total hours",
       "worked": "Worked",
       "expected": "Expected",
-      "difference": "Difference"
+      "difference": "Difference",
+      "project": "Project",
+      "client": "Client",
+      "billable": "Billable"
     },
     "downloadBalanceCsv": "Download worked vs. expected (CSV)",
     "downloadEntriesCsv": "Download all entries (CSV)",
     "balanceTitle": "Worked vs. expected",
-    "balanceHint": "Logged hours against each person's work schedule, with the same rules as My hours: up to yesterday (today once it's logged), without public holidays. People who don't track hours aren't listed."
+    "balanceHint": "Logged hours against each person's work schedule, with the same rules as My hours: up to yesterday (today once it's logged), without public holidays. People who don't track hours aren't listed.",
+    "project": "Project",
+    "allProjects": "All projects",
+    "projectsTitle": "Hours per project",
+    "downloadProjectsCsv": "Download hours per project (CSV)",
+    "billableSummary": "{{billable}} billable of {{total}} in total.",
+    "noProject": "No project",
+    "yes": "Yes",
+    "no": "No"
   },
   "projects": {
     "title": "Projects",
@@ -211,7 +223,8 @@
       "status": "Status",
       "actions": "Actions",
       "thisMonth": "This month",
-      "lifetime": "Lifetime"
+      "lifetime": "Lifetime",
+      "budget": "Budget"
     },
     "statusActive": "Active",
     "statusArchived": "Archived",
@@ -223,7 +236,19 @@
     "breakdownTitle": "Hours per person",
     "loadingBreakdown": "Loading…",
     "employee": "Employee",
-    "totalHours": "Total hours"
+    "totalHours": "Total hours",
+    "budgetHours": "Budget (hours)",
+    "billable": "Billable",
+    "whoCanLog": "Who can log hours on it",
+    "accessEveryone": "Everyone",
+    "accessMembers": "Only these people",
+    "pickMembers": "Choose at least one person, or let everyone log hours on it.",
+    "onlyPeople_one": "Only {{count}} person",
+    "onlyPeople_other": "Only {{count}} people",
+    "budgetUsed": "{{percent}}% of {{budget}}",
+    "allTime": "All time",
+    "noHoursYet": "No hours logged yet.",
+    "total": "Total"
   },
   "nav": {
     "planboard": "Planboard",

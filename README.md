@@ -177,6 +177,25 @@ set `PublicHolidays__BaseUrl` to use another instance. The holidays are stored w
 company, so an employer can remove days the company works anyway or add its own days off.
 Nobody is expected to work on them, and leave over them doesn't use up the balance.
 
+### Projects
+
+Employers manage projects on the *Projects* page. Besides a name and an optional client, a
+project can have:
+
+- **A budget** in hours. The list shows how much of it is used, e.g. "70% of 120h", in red
+  once it goes over. Every hour logged on the project counts, whenever it was logged.
+- **Billable**: whether its hours are charged to the client, so reports can tell them apart.
+- **Who can log hours on it**: everyone (the default), or only the people chosen. The others
+  don't see it when they log hours, and the API refuses it for them. Someone who's taken off a
+  project can still correct the hours they logged on it before.
+
+*View details* shows the hours per person, over all time or between two dates.
+
+*Reports* can be limited to one project (the hours report and *Download all entries (CSV)*;
+worked vs. expected stays about all hours). It also shows the hours per project in the dates,
+with how many are billable and a line for hours without a project, and
+*Download hours per project (CSV)* exports that table.
+
 ### Worked vs. expected
 
 *My hours* shows this week, this month and the year so far against your work schedule,

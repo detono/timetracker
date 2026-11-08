@@ -49,6 +49,14 @@ public class UpdateTimeEntryCommandHandler(
                 return Result<TimeEntryDto>.Failure("Project was not found.", ResultErrorType.Validation);
             }
 
+            // Only checked when the project changes, so someone taken off a project can still
+            // correct the hours they logged on it earlier.
+            if (request.ProjectId != entry.ProjectId && !project.IsOpenTo(entry.UserId)) {
+                return Result<TimeEntryDto>.Failure(
+                    $"Only the people chosen for the project '{project.Name}' can log hours on it.",
+                    ResultErrorType.Validation);
+            }
+
             projectName = project.Name;
         }
 

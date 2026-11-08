@@ -7,8 +7,6 @@ using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.Projects.Queries;
 
-
-
 public class GetProjectBreakdownQueryHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUserService
@@ -19,8 +17,11 @@ public class GetProjectBreakdownQueryHandler(
         if (currentUserService.Role != UserRole.Employer)
             return Result<IReadOnlyList<ProjectBreakdownDto>>.Failure("Forbidden", ResultErrorType.Forbidden);
 
-        // Fetch just the entries for this one project
-        var entries = await unitOfWork.TimeEntries.GetByProjectIdAsync(request.ProjectId, cancellationToken);
+        if (request.From > request.To)
+            return Result<IReadOnlyList<ProjectBreakdownDto>>.Failure("'To' date must not be before 'From' date.");
+
+        var entries = await unitOfWork.TimeEntries.GetByProjectIdAsync(
+            request.ProjectId, request.From, request.To, cancellationToken);
         
         var users = await unitOfWork.Users.GetAllAsync(cancellationToken);
         var userDict = users.ToDictionary(u => u.Id);

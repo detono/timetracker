@@ -24,8 +24,11 @@ public interface ITimeEntryRepository
         CancellationToken cancellationToken = default);
     
     Task<IReadOnlyList<TimeEntry>> GetAllWithProjectIdAsync(CancellationToken cancellationToken = default);
+    /// <summary>The project's entries, optionally only those from <paramref name="from"/> to <paramref name="to"/> (inclusive).</summary>
     Task<IReadOnlyList<TimeEntry>> GetByProjectIdAsync(
-        Guid projectId, 
+        Guid projectId,
+        DateOnly? from = null,
+        DateOnly? to = null,
         CancellationToken cancellationToken = default
     );
 

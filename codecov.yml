@@ -1,0 +1,5 @@
+# Coverage settings for Codecov (https://docs.codecov.com/docs/codecov-yaml).
+ignore:
+  # EF Core migrations are generated code. The tests use an in-memory database, so they never
+  # run, and at ~11k lines they would otherwise make Infrastructure look almost untested.
+  - "src/TimeTracker.Infrastructure/Migrations/**"

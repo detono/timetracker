@@ -7,6 +7,9 @@ using TimeTracker.Domain.Interfaces;
 
 namespace TimeTracker.Application.Projects.Queries;
 
+/// <summary>
+/// Employers get every project. Everyone else only gets the projects they may log hours on.
+/// </summary>
 public class GetProjectsQueryHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUserService
@@ -17,11 +20,11 @@ public class GetProjectsQueryHandler(
     ) {
         var isEmployer = currentUserService.Role == UserRole.Employer;
         var includeInactive = request.IncludeInactive && isEmployer;
+        var userId = currentUserService.UserId;
 
-        var projects = await unitOfWork.Projects.GetAllAsync(
-            includeInactive,
-            cancellationToken
-        );
+        var projects = (await unitOfWork.Projects.GetAllAsync(includeInactive, cancellationToken))
+            .Where(p => isEmployer || p.IsOpenTo(userId))
+            .ToList();
 
         var projectEntries = await unitOfWork.TimeEntries.GetAllWithProjectIdAsync(cancellationToken);
 
@@ -42,7 +45,11 @@ public class GetProjectsQueryHandler(
                 p.ClientName,
                 p.IsActive,
                 Math.Round(lifetime, 2),
-                Math.Round(thisMonth, 2)
+                Math.Round(thisMonth, 2),
+                p.BudgetHours,
+                p.IsBillable,
+                isEmployer ? p.Members.Select(m => m.UserId).ToList() : Array.Empty<Guid>(),
+                p.IsOpenTo(userId)
             );
         }).ToList();
 

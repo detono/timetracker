@@ -40,7 +40,12 @@ public class ProjectsController : ApiControllerBase {
     
     [HttpGet("{id:guid}/breakdown")]
     [Authorize(Roles = "Employer")]
-    public async Task<ActionResult<IReadOnlyList<ProjectBreakdownDto>>> GetBreakdown(Guid id, CancellationToken cancellationToken) {
-        return HandleResult(await Mediator.Send(new GetProjectBreakdownQuery(id), cancellationToken));
+    public async Task<ActionResult<IReadOnlyList<ProjectBreakdownDto>>> GetBreakdown(
+        Guid id,
+        [FromQuery] DateOnly? from = null,
+        [FromQuery] DateOnly? to = null,
+        CancellationToken cancellationToken = default
+    ) {
+        return HandleResult(await Mediator.Send(new GetProjectBreakdownQuery(id, from, to), cancellationToken));
     }
 }

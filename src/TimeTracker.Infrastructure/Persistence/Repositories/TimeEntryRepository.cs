@@ -40,10 +40,12 @@ public class TimeEntryRepository(ApplicationDbContext context) : ITimeEntryRepos
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TimeEntry>> GetByProjectIdAsync(Guid projectId,
-        CancellationToken cancellationToken = default) {
+    public async Task<IReadOnlyList<TimeEntry>> GetByProjectIdAsync(Guid projectId, DateOnly? from = null,
+        DateOnly? to = null, CancellationToken cancellationToken = default) {
         return await context.TimeEntries
             .Where(e => e.ProjectId == projectId)
+            .Where(e => from == null || e.WorkDate >= from)
+            .Where(e => to == null || e.WorkDate <= to)
             .ToListAsync(cancellationToken);
     }
 

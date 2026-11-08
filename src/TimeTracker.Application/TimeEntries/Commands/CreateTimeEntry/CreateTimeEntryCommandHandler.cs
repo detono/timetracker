@@ -51,9 +51,15 @@ public class CreateTimeEntryCommandHandler(
                 return Result<TimeEntryDto>.Failure("Project was not found.", ResultErrorType.Validation);
             }
 
+            if (!project.IsOpenTo(targetUserId)) {
+                return Result<TimeEntryDto>.Failure(
+                    $"Only the people chosen for the project '{project.Name}' can log hours on it.",
+                    ResultErrorType.Validation);
+            }
+
             projectName = project.Name;
         }
-        
+
 
         var entry = TimeEntry.Create(
             userId: targetUserId,

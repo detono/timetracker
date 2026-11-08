@@ -11,7 +11,8 @@
     "signingIn": "Connexion…",
     "saving": "Enregistrement…",
     "signOut": "Se déconnecter",
-    "close": "Fermer"
+    "close": "Fermer",
+    "saveChanges": "Enregistrer les modifications"
   },
   "projects": {
     "title": "Projets",
@@ -29,7 +30,8 @@
       "status": "Statut",
       "actions": "Actions",
       "thisMonth": "Ce mois-ci",
-      "lifetime": "Total"
+      "lifetime": "Total",
+      "budget": "Budget"
     },
     "statusActive": "Actif",
     "statusArchived": "Archivé",
@@ -41,7 +43,19 @@
     "breakdownTitle": "Heures par personne",
     "loadingBreakdown": "Chargement…",
     "employee": "Employé",
-    "totalHours": "Total d'heures"
+    "totalHours": "Total d'heures",
+    "budgetHours": "Budget (heures)",
+    "billable": "Facturable",
+    "whoCanLog": "Qui peut y encoder des heures",
+    "accessEveryone": "Tout le monde",
+    "accessMembers": "Seulement ces personnes",
+    "pickMembers": "Choisissez au moins une personne, ou laissez tout le monde y encoder des heures.",
+    "onlyPeople_one": "Seulement {{count}} personne",
+    "onlyPeople_other": "Seulement {{count}} personnes",
+    "budgetUsed": "{{percent}} % de {{budget}}",
+    "allTime": "Depuis le début",
+    "noHoursYet": "Aucune heure encodée.",
+    "total": "Total"
   },
   "timeEntryForm": {
     "errorSave": "Impossible d'enregistrer cette entrée.",
@@ -218,12 +232,23 @@
       "totalHours": "Total des heures",
       "worked": "Prestées",
       "expected": "Prévues",
-      "difference": "Différence"
+      "difference": "Différence",
+      "project": "Projet",
+      "client": "Client",
+      "billable": "Facturable"
     },
     "downloadBalanceCsv": "Télécharger prestées vs. prévues (CSV)",
     "downloadEntriesCsv": "Télécharger toutes les prestations (CSV)",
     "balanceTitle": "Heures prestées vs. prévues",
-    "balanceHint": "Heures encodées face à l'horaire de chacun, avec les mêmes règles que Mes heures : jusqu'à hier (aujourd'hui dès qu'il est encodé), sans les jours fériés. Les personnes qui ne suivent pas leurs heures ne sont pas listées."
+    "balanceHint": "Heures encodées face à l'horaire de chacun, avec les mêmes règles que Mes heures : jusqu'à hier (aujourd'hui dès qu'il est encodé), sans les jours fériés. Les personnes qui ne suivent pas leurs heures ne sont pas listées.",
+    "project": "Projet",
+    "allProjects": "Tous les projets",
+    "projectsTitle": "Heures par projet",
+    "downloadProjectsCsv": "Télécharger les heures par projet (CSV)",
+    "billableSummary": "{{billable}} facturables sur {{total}} au total.",
+    "noProject": "Sans projet",
+    "yes": "Oui",
+    "no": "Non"
   },
   "team": {
     "title": "Aperçu de l'équipe",
@@ -441,7 +466,7 @@
   },
   "hoursOverview": {
     "leaveLeft": "Congé restant",
-    "leavePending": "{{hours}} en attente d\u2019approbation",
+    "leavePending": "{{hours}} en attente d’approbation",
     "title": "Prestées vs. prévues",
     "thisWeek": "Cette semaine",
     "yearSoFar": "{{year}} jusqu'ici",

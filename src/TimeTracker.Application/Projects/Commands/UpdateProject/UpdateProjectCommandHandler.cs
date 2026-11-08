@@ -12,7 +12,7 @@ public class UpdateProjectCommandHandler(
 ) : IRequestHandler<UpdateProjectCommand, Result> {
     public async Task<Result> Handle(UpdateProjectCommand request, CancellationToken cancellationToken) {
         if (currentUserService.Role != UserRole.Employer) {
-            return Result<Guid>.Failure("Only employers can manage projects.", ResultErrorType.Forbidden);
+            return Result.Failure("Only employers can manage projects.", ResultErrorType.Forbidden);
         }
         
         var project = await unitOfWork.Projects.GetByIdAsync(request.Id, cancellationToken);
@@ -20,7 +20,13 @@ public class UpdateProjectCommandHandler(
             return Result.Failure("Project was not found.", ResultErrorType.NotFound);
         }
 
-        project.Update(request.Name, request.ClientName);
+        var members = await ProjectRules.ResolveMembersAsync(unitOfWork, request.MemberIds, cancellationToken);
+        if (!members.Succeeded) {
+            return Result.Failure(members.Error!, members.ErrorType);
+        }
+
+        project.Update(request.Name, request.ClientName, request.BudgetHours, request.IsBillable);
+        project.SetMembers(members.Value!);
 
         unitOfWork.Projects.Update(project);
         await unitOfWork.SaveChangesAsync(cancellationToken);

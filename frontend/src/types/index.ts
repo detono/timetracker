@@ -80,6 +80,31 @@ export interface Project {
   isActive: boolean;
   totalHoursLifetime: number;
   totalHoursThisMonth: number;
+  /** How many hours the project may take in total, if it has a budget. */
+  budgetHours: number | null;
+  isBillable: boolean;
+  /** Who may log hours on it; empty means everyone. Only filled in for employers. */
+  memberIds: string[];
+  /** Whether you may log your own hours on it. */
+  canLog: boolean;
+}
+
+export interface ProjectInput {
+  name: string;
+  clientName: string | null;
+  budgetHours: number | null;
+  isBillable: boolean;
+  memberIds: string[];
+}
+
+/** Hours on one project in a report; projectId is null for hours without a project. */
+export interface ProjectHoursLine {
+  projectId: string | null;
+  projectName: string | null;
+  clientName: string | null;
+  isBillable: boolean;
+  totalHours: number;
+  entryCount: number;
 }
 export interface ProjectBreakdown {
   userId: string;

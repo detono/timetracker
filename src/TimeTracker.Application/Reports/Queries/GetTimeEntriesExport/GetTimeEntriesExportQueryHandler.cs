@@ -35,6 +35,7 @@ public class GetTimeEntriesExportQueryHandler(
         var language = (await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken))?.Language ?? "en";
 
         IReadOnlyList<TimeEntryExportLineDto> lines = entries
+            .Where(e => request.ProjectId is null || e.ProjectId == request.ProjectId)
             .Select(e => new TimeEntryExportLineDto(
                 e.UserId,
                 names.TryGetValue(e.UserId, out var name) ? name : "Unknown",

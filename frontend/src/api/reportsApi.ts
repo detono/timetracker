@@ -1,14 +1,16 @@
 import { apiClient, API_BASE_URL, getAuthToken } from "./client";
-import type { HoursBalanceLine, HoursReport, ReportGrouping } from "../types";
+import type { HoursBalanceLine, HoursReport, ProjectHoursLine, ReportGrouping } from "../types";
 
+/** Hours per person, hour type and period; with a projectId, only the hours on that project. */
 export async function getHoursReport(
   from: string,
   to: string,
   grouping: ReportGrouping,
-  userId?: string
+  userId?: string,
+  projectId?: string
 ): Promise<HoursReport> {
   const { data } = await apiClient.get<HoursReport>("/reports/hours", {
-    params: { from, to, grouping, userId }
+    params: { from, to, grouping, userId, projectId }
   });
   return data;
 }
@@ -31,9 +33,10 @@ export async function downloadHoursReportCsv(
   from: string,
   to: string,
   grouping: ReportGrouping,
-  userId?: string
+  userId?: string,
+  projectId?: string
 ): Promise<void> {
-  await downloadCsv("hours/csv", `hours-report-${from}-${to}.csv`, { from, to, grouping, userId });
+  await downloadCsv("hours/csv", `hours-report-${from}-${to}.csv`, { from, to, grouping, userId, projectId });
 }
 
 /** The worked vs. expected table as a CSV file. */
@@ -47,8 +50,24 @@ export async function downloadHoursBalanceCsv(
 }
 
 /** Every entry in the range, one row each (date, start, end, break, type, project, ...), as a CSV file. */
-export async function downloadTimeEntriesCsv(from: string, to: string, userId?: string): Promise<void> {
-  await downloadCsv("entries/csv", `time-entries-${from}-${to}.csv`, { from, to, userId });
+export async function downloadTimeEntriesCsv(
+  from: string,
+  to: string,
+  userId?: string,
+  projectId?: string
+): Promise<void> {
+  await downloadCsv("entries/csv", `time-entries-${from}-${to}.csv`, { from, to, userId, projectId });
+}
+
+/** Hours per project in the dates (and a line for hours without a project). */
+export async function getProjectHours(from: string, to: string, userId?: string): Promise<ProjectHoursLine[]> {
+  const { data } = await apiClient.get<ProjectHoursLine[]>("/reports/projects", { params: { from, to, userId } });
+  return data;
+}
+
+/** The hours per project as a CSV file. */
+export async function downloadProjectHoursCsv(from: string, to: string, userId?: string): Promise<void> {
+  await downloadCsv("projects/csv", `hours-per-project-${from}-${to}.csv`, { from, to, userId });
 }
 
 async function downloadCsv(

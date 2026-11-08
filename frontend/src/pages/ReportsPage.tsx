@@ -4,10 +4,13 @@ import { format, startOfMonth } from "date-fns";
 import {
   downloadHoursBalanceCsv,
   downloadHoursReportCsv,
+  downloadProjectHoursCsv,
   downloadTimeEntriesCsv,
   getHoursBalance,
-  getHoursReport
+  getHoursReport,
+  getProjectHours
 } from "../api/reportsApi";
+import { projectsApi } from "../api/projectsApi";
 import { extractErrorMessage } from "../api/client";
 import { getLockedMonths, lockMonth, unlockMonth } from "../api/lockedMonthsApi";
 import { useAuth } from "../auth/AuthContext";
@@ -15,7 +18,7 @@ import { monthKey } from "../utils/lockedMonths";
 import { formatDayLabel } from "../utils/dateRange";
 import { HourTypeBadge } from "../components/HourTypeBadge";
 import { useConfirm } from "../components/ConfirmDialog";
-import type { HoursBalanceLine, HoursReport, LockedMonth, ReportGrouping } from "../types";
+import type { HoursBalanceLine, HoursReport, LockedMonth, Project, ProjectHoursLine, ReportGrouping } from "../types";
 import { hoursToHm } from "../utils/dateRange";
 import { signedHm } from "../utils/hoursOverview";
 
@@ -27,19 +30,33 @@ export function ReportsPage() {
   const [grouping, setGrouping] = useState<ReportGrouping>("Week");
   const [report, setReport] = useState<HoursReport | null>(null);
   const [balance, setBalance] = useState<HoursBalanceLine[]>([]);
+  const [projectHours, setProjectHours] = useState<ProjectHoursLine[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  /** "" for all hours, else only the hours on this project. */
+  const [projectId, setProjectId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Only for the project filter: without it the reports still work.
+    projectsApi.getAll(true).then(setProjects).catch(() => setProjects([]));
+  }, []);
+
+  const project = projectId || undefined;
 
   async function runReport() {
     setLoading(true);
     setError(null);
     try {
-      const [data, balanceData] = await Promise.all([
-        getHoursReport(from, to, grouping),
-        getHoursBalance(from, to, grouping)
+      const [data, balanceData, projectData] = await Promise.all([
+        getHoursReport(from, to, grouping, undefined, project),
+        // Worked vs. expected is about all of someone's hours, so not per project.
+        project ? Promise.resolve([]) : getHoursBalance(from, to, grouping),
+        getProjectHours(from, to)
       ]);
       setReport(data);
       setBalance(balanceData);
+      setProjectHours(projectData);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -82,19 +99,35 @@ export function ReportsPage() {
               <option value="Month">{t('reports.grouping.month')}</option>
             </select>
           </label>
+          {projects.length > 0 && (
+            <label className="form__field">
+              <span>{t('reports.project')}</span>
+              <select value={projectId} onChange={(e) => setProjectId(e.target.value)}>
+                <option value="">{t('reports.allProjects')}</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.clientName ? `${p.name} (${p.clientName})` : p.name}
+                    {p.isActive ? "" : ` – ${t('projects.statusArchived')}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <div className="form__actions form__actions--inline">
             <button className="btn btn--primary" onClick={runReport} disabled={loading}>
               {loading ? t('common.running') : t('reports.runReport')}
             </button>
             {report && (
               <>
-                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadHoursReportCsv(from, to, grouping))}>
+                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadHoursReportCsv(from, to, grouping, undefined, project))}>
                   {t('reports.downloadCsv')}
                 </button>
-                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadHoursBalanceCsv(from, to, grouping))}>
-                  {t('reports.downloadBalanceCsv')}
-                </button>
-                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadTimeEntriesCsv(from, to))}>
+                {!project && (
+                  <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadHoursBalanceCsv(from, to, grouping))}>
+                    {t('reports.downloadBalanceCsv')}
+                  </button>
+                )}
+                <button className="btn btn--ghost" onClick={() => handleDownload(() => downloadTimeEntriesCsv(from, to, undefined, project))}>
                   {t('reports.downloadEntriesCsv')}
                 </button>
               </>
@@ -148,6 +181,13 @@ export function ReportsPage() {
             </table>
           </div>
 
+          {projectHours.some((l) => l.projectId !== null) && (
+            <ProjectHoursSection
+              lines={projectHours}
+              onDownload={() => handleDownload(() => downloadProjectHoursCsv(from, to))}
+            />
+          )}
+
           {balance.length > 0 && (
             <>
               <h2 className="reports__section-title">{t('reports.balanceTitle')}</h2>
@@ -189,6 +229,51 @@ export function ReportsPage() {
 
       {user?.role === "Employer" && <ClosedMonthsPanel />}
     </div>
+  );
+}
+
+/** Hours per project in the dates, with how many of them are billable. */
+function ProjectHoursSection({ lines, onDownload }: { lines: ProjectHoursLine[]; onDownload: () => void }) {
+  const { t } = useTranslation();
+  const total = lines.reduce((sum, l) => sum + l.totalHours, 0);
+  const billable = lines.filter((l) => l.projectId && l.isBillable).reduce((sum, l) => sum + l.totalHours, 0);
+
+  return (
+    <>
+      <div className="reports__section-head">
+        <h2 className="reports__section-title">{t('reports.projectsTitle')}</h2>
+        <button className="btn btn--ghost btn--sm" onClick={onDownload}>
+          {t('reports.downloadProjectsCsv')}
+        </button>
+      </div>
+      <p className="form__hint">
+        {t('reports.billableSummary', { billable: hoursToHm(billable), total: hoursToHm(total) })}
+      </p>
+      <div className="table-scroll">
+        <table className="list-view">
+          <thead>
+            <tr>
+              <th>{t('reports.table.project')}</th>
+              <th>{t('reports.table.client')}</th>
+              <th>{t('reports.table.billable')}</th>
+              <th>{t('reports.table.entries')}</th>
+              <th>{t('reports.table.totalHours')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lines.map((line) => (
+              <tr key={line.projectId ?? "none"}>
+                <td>{line.projectName ?? <span className="list-view__notes">{t('reports.noProject')}</span>}</td>
+                <td>{line.clientName ?? <span className="list-view__notes">—</span>}</td>
+                <td>{line.projectId ? (line.isBillable ? t('reports.yes') : t('reports.no')) : <span className="list-view__notes">—</span>}</td>
+                <td>{line.entryCount}</td>
+                <td>{hoursToHm(line.totalHours)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 

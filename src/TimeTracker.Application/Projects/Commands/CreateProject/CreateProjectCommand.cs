@@ -3,4 +3,11 @@ using TimeTracker.Application.Common.Models;
 
 namespace TimeTracker.Application.Projects.Commands.CreateProject;
 
-public record CreateProjectCommand(string Name, string? ClientName) : IRequest<Result<Guid>>;
+/// <param name="MemberIds">Who may log hours on it. Empty or left out means everyone.</param>
+public record CreateProjectCommand(
+    string Name,
+    string? ClientName,
+    decimal? BudgetHours = null,
+    bool IsBillable = false,
+    IReadOnlyList<Guid>? MemberIds = null
+) : IRequest<Result<Guid>>;

@@ -136,6 +136,10 @@ export function TimeEntryForm({ initial, hourTypes, projects, onSubmit, onCancel
             onChange={(e) => setValues({ ...values, projectId: e.target.value })}
           >
             <option value="">{t('timeEntryForm.noProject')}</option>
+            {/* Keep an entry's project when it's archived or you were taken off it since. */}
+            {initial?.projectId && !projects.some((p) => p.id === initial.projectId) && (
+              <option value={initial.projectId}>{initial.projectName ?? "—"}</option>
+            )}
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}

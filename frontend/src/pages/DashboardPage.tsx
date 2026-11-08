@@ -67,7 +67,8 @@ export function DashboardPage() {
       setLockedMonths(lockedMonthKeys(lockedData));
       setEntries(entriesData);
       setHourTypes(hourTypesData);
-      setProjects(projectsData);
+      // Employers get every project; only offer the ones you may log on.
+      setProjects(projectsData.filter((p) => p.canLog));
       setOverviewKey((k) => k + 1);
     } catch (err) {
       setError(extractErrorMessage(err));

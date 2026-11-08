@@ -6,6 +6,7 @@ using TimeTracker.API.Authorization;
 using TimeTracker.Application.Reports.Dtos;
 using TimeTracker.Application.Reports.Queries.GetHoursBalance;
 using TimeTracker.Application.Reports.Queries.GetHoursReport;
+using TimeTracker.Application.Reports.Queries.GetProjectHours;
 using TimeTracker.Application.Reports.Queries.GetTimeEntriesExport;
 
 namespace TimeTracker.API.Controllers;
@@ -20,9 +21,10 @@ public class ReportsController : ApiControllerBase
         [FromQuery] DateOnly to,
         [FromQuery] ReportGrouping grouping = ReportGrouping.Week,
         [FromQuery] Guid? userId = null,
+        [FromQuery] Guid? projectId = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new GetHoursReportQuery(from, to, grouping, userId), cancellationToken);
+        var result = await Mediator.Send(new GetHoursReportQuery(from, to, grouping, userId, projectId), cancellationToken);
         return HandleResult(result);
     }
 
@@ -33,9 +35,10 @@ public class ReportsController : ApiControllerBase
         [FromQuery] DateOnly to,
         [FromQuery] ReportGrouping grouping = ReportGrouping.Week,
         [FromQuery] Guid? userId = null,
+        [FromQuery] Guid? projectId = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new GetHoursReportQuery(from, to, grouping, userId), cancellationToken);
+        var result = await Mediator.Send(new GetHoursReportQuery(from, to, grouping, userId, projectId), cancellationToken);
 
         if (!result.Succeeded || result.Value is null)
         {
@@ -115,9 +118,10 @@ public class ReportsController : ApiControllerBase
         [FromQuery] DateOnly from,
         [FromQuery] DateOnly to,
         [FromQuery] Guid? userId = null,
+        [FromQuery] Guid? projectId = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new GetTimeEntriesExportQuery(from, to, userId), cancellationToken);
+        var result = await Mediator.Send(new GetTimeEntriesExportQuery(from, to, userId, projectId), cancellationToken);
         if (!result.Succeeded || result.Value is null)
         {
             return HandleResult(result).Result!;
@@ -144,6 +148,47 @@ public class ReportsController : ApiControllerBase
 
         var bytes = Encoding.UTF8.GetBytes(csv.ToString());
         return File(bytes, "text/csv", $"time-entries-{from:yyyyMMdd}-{to:yyyyMMdd}.csv");
+    }
+
+    /// <summary>Hours per project in the range; hours without a project get a line without one.</summary>
+    [HttpGet("projects")]
+    public async Task<ActionResult<IReadOnlyList<ProjectHoursLineDto>>> GetProjectHours(
+        [FromQuery] DateOnly from,
+        [FromQuery] DateOnly to,
+        [FromQuery] Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        return HandleResult(await Mediator.Send(new GetProjectHoursQuery(from, to, userId), cancellationToken));
+    }
+
+    /// <summary>Same as <see cref="GetProjectHours"/>, as a CSV file.</summary>
+    [HttpGet("projects/csv")]
+    public async Task<IActionResult> GetProjectHoursCsv(
+        [FromQuery] DateOnly from,
+        [FromQuery] DateOnly to,
+        [FromQuery] Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await Mediator.Send(new GetProjectHoursQuery(from, to, userId), cancellationToken);
+        if (!result.Succeeded || result.Value is null)
+        {
+            return HandleResult(result).Result!;
+        }
+
+        var csv = new StringBuilder();
+        csv.AppendLine("Project,Client,Billable,Hours,Entries");
+        foreach (var line in result.Value)
+        {
+            csv.AppendLine(string.Join(',',
+                Escape(line.ProjectName ?? ""),
+                Escape(line.ClientName ?? ""),
+                line.ProjectId is null ? "" : line.IsBillable ? "yes" : "no",
+                line.TotalHours.ToString(CultureInfo.InvariantCulture),
+                line.EntryCount));
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(csv.ToString());
+        return File(bytes, "text/csv", $"hours-per-project-{from:yyyyMMdd}-{to:yyyyMMdd}.csv");
     }
 
     private static string UtcStamp(DateTime value) =>

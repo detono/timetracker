@@ -333,6 +333,10 @@ namespace TimeTracker.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal?>("BudgetHours")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
                     b.Property<string>("ClientName")
                         .HasColumnType("text");
 
@@ -341,6 +345,11 @@ namespace TimeTracker.Infrastructure.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("IsBillable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -821,6 +830,32 @@ namespace TimeTracker.Infrastructure.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.OwnsMany("TimeTracker.Domain.Entities.ProjectMember", "Members", b1 =>
+                        {
+                            b1.Property<Guid>("ProjectId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("ProjectId", "UserId");
+
+                            b1.HasIndex("UserId");
+
+                            b1.ToTable("ProjectMembers", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProjectId");
+
+                            b1.HasOne("TimeTracker.Domain.Entities.User", null)
+                                .WithMany()
+                                .HasForeignKey("UserId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+                        });
+
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("TimeTracker.Domain.Entities.PublicHoliday", b =>

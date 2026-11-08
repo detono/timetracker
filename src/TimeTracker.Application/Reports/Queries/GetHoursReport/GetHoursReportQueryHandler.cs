@@ -37,6 +37,7 @@ public class GetHoursReportQueryHandler(
             : await unitOfWork.TimeEntries.GetForUsersAsync(userIds, request.From, request.To, cancellationToken);
 
         var lines = entries
+            .Where(e => request.ProjectId is null || e.ProjectId == request.ProjectId)
             .GroupBy(e => new { e.UserId, e.HourTypeId, Period = ReportPeriods.Key(e.WorkDate, request.Grouping) })
             .Select(g => {
                 var (start, end, label) = ReportPeriods.Bounds(g.Key.Period, request.Grouping);

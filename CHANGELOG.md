@@ -25,6 +25,14 @@ Database migrations run automatically when the API starts, unless a release says
   doesn't use refresh tokens.
 - The README says who's responsible for the personal data in an installation.
 - The version (e.g. `v1.2.1`) shows in small print under the menu and on the sign-in page.
+- **Projects** can have a budget in hours, shown as how much of it is used, and be marked
+  billable. They can be limited to certain people: only they see the project when logging hours,
+  and the API refuses it for anyone else.
+- A project's hours per person can be shown for a date range instead of only over all time
+  (`GET /api/projects/{id}/breakdown?from=&to=`).
+- *Reports* can be limited to one project, and show the hours per project in the dates with how
+  many are billable, also as a CSV file (`GET /api/reports/projects`, `/api/reports/projects/csv`).
+  The hours report and the entries CSV take an optional `projectId`.
 
 ### Changed
 
@@ -41,6 +49,8 @@ Database migrations run automatically when the API starts, unless a release says
 - Questions like *Lock this month?*, *Deactivate this person?* or *Delete this entry?* open in
   the app's own dialog instead of the browser's popup, with a short explanation of what happens.
   Rejecting or revoking leave asks for the optional reason in the same dialog.
+- `GET /api/projects` only gives employees the projects they may log hours on. Each project now
+  also has `budgetHours`, `isBillable`, `memberIds` (filled in for employers) and `canLog`.
 
 ### Fixed
 

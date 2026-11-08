@@ -16,7 +16,13 @@ public class CreateProjectCommandHandler(
             return Result<Guid>.Failure("Only employers can manage projects.", ResultErrorType.Forbidden);
         }
         
-        var project = Project.Create(request.Name, request.ClientName);
+        var members = await ProjectRules.ResolveMembersAsync(unitOfWork, request.MemberIds, cancellationToken);
+        if (!members.Succeeded) {
+            return Result<Guid>.Failure(members.Error!, members.ErrorType);
+        }
+
+        var project = Project.Create(request.Name, request.ClientName, request.BudgetHours, request.IsBillable);
+        project.SetMembers(members.Value!);
 
         await unitOfWork.Projects.AddAsync(project, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
