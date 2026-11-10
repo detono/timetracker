@@ -16,24 +16,32 @@ namespace TimeTracker.Application.Leave;
 /// </summary>
 public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender, IAppBranding branding) {
     /// <summary>
-    /// Tells the requester's supervisor, or every active employer if they have none. With
-    /// <c>APP_URL</c> set, the email has Approve and Reject buttons that open the request on the Leave page, where the approver signs in (if
+    /// Tells whoever approves the request: the requester's supervisor if they approve leave,
+    /// else every active employer. When the company asks for it, employers also get a copy of
+    /// requests a supervisor handles. With <c>APP_URL</c> set, the email has Approve and Reject
+    /// buttons that open the request on the Leave page, where the approver signs in (if
     /// needed) and confirms.
     /// </summary>
     public async Task RequestSubmittedAsync(
         LeaveRequest request, User requester, HourType hourType, CancellationToken cancellationToken
     ) {
-        var recipients = await ApproversOfAsync(requester, cancellationToken);
+        var (approvers, supervisor) = await ApproversOfAsync(requester, cancellationToken);
         var name = $"{requester.FirstName} {requester.LastName}";
 
-        // One email per language, so everyone reads it in their own.
-        foreach (var group in recipients.GroupBy(r => EmailTexts.For(r.Language).Language)) {
-            var texts = EmailTexts.For(group.Key);
+        // One email per language and kind, so everyone reads it in their own language.
+        var emails = approvers.Select(u => (User: u, IsCopy: supervisor is not null && u.Id != supervisor.Id))
+            .GroupBy(r => (EmailTexts.For(r.User.Language).Language, r.IsCopy));
+        foreach (var group in emails) {
+            var texts = EmailTexts.For(group.Key.Language);
             var period = Period(request, texts);
             var type = TypeName(hourType, texts.Language);
             var hours = request.Hours.ToString("0.##", texts.Culture);
             var body = texts.Get("leaveSubmitted.body", ("name", name), ("type", type), ("period", period), ("hours", hours));
             var comment = request.Comment is null ? null : texts.Get("comment", ("comment", request.Comment));
+            var copyNote = group.Key.IsCopy
+                ? texts.Get("leaveSubmitted.copyNote",
+                    ("supervisor", $"{supervisor!.FirstName} {supervisor.LastName}"), ("firstName", requester.FirstName))
+                : null;
 
             var content = EmailHtml.Paragraphs(texts.Get("leaveSubmitted.intro", ("name", name)))
                           + Details(texts, type, period, hours, request.Comment);
@@ -46,15 +54,16 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
                 content += EmailHtml.Buttons(
                     new EmailButton(approve, approveUrl, branding.ColorPrimary, branding.ColorOnPrimary),
                     new EmailButton(reject, rejectUrl, branding.ColorSecondary, branding.ColorOnSecondary));
-                text = Text(body, comment, $"{approve}: {approveUrl}\n{reject}: {rejectUrl}");
+                text = Text(body, comment, copyNote, $"{approve}: {approveUrl}\n{reject}: {rejectUrl}");
             } else {
                 var action = texts.Get("leaveSubmitted.action", ("app", branding.Title));
                 content += EmailHtml.Paragraphs(action);
-                text = Text(body, comment, action);
+                text = Text(body, comment, copyNote, action);
             }
 
+            content += EmailHtml.Note(copyNote);
             await emailSender.SendAsync(new EmailMessage(
-                group.Select(r => r.Email).ToList(),
+                group.Select(r => r.User.Email).ToList(),
                 texts.Get("leaveSubmitted.subject", ("name", name), ("period", period)),
                 EmailHtml.Document(branding, texts.Get("leaveSubmitted.heading"), content, Footer(texts)),
                 text), cancellationToken);
@@ -100,17 +109,29 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
             Text(greeting, body, comment)), cancellationToken);
     }
 
-    private async Task<IReadOnlyList<User>> ApproversOfAsync(User requester, CancellationToken cancellationToken) {
-        if (requester.SupervisorId is { } supervisorId) {
-            var supervisor = await unitOfWork.Users.GetByIdAsync(supervisorId, cancellationToken);
-            if (supervisor is { IsActive: true }) {
-                return new[] { supervisor };
-            }
-        }
-
-        return (await unitOfWork.Users.GetAllAsync(cancellationToken))
+    /// <summary>
+    /// Who gets a new request: the supervisor (returned too) if they approve leave, plus the
+    /// employers when the company wants copies; otherwise the employers.
+    /// </summary>
+    private async Task<(IReadOnlyList<User> Recipients, User? Supervisor)> ApproversOfAsync(
+        User requester, CancellationToken cancellationToken
+    ) {
+        async Task<List<User>> EmployersAsync() =>
+            (await unitOfWork.Users.GetAllAsync(cancellationToken))
             .Where(u => u.Role == UserRole.Employer && u.IsActive && u.Id != requester.Id)
             .ToList();
+
+        if (requester.LeaveApproverId is { } approverId &&
+            await unitOfWork.Users.GetByIdAsync(approverId, cancellationToken) is { IsActive: true } supervisor) {
+            var tenant = requester.TenantId is { } tenantId
+                ? await unitOfWork.Tenants.GetByIdAsync(tenantId, cancellationToken)
+                : null;
+            return tenant is { CopyEmployersOnLeaveRequests: true }
+                ? ([supervisor, .. await EmployersAsync()], supervisor)
+                : ([supervisor], supervisor);
+        }
+
+        return (await EmployersAsync(), null);
     }
 
     private string Details(EmailTexts texts, string type, string period, string hours, string? comment) =>

@@ -471,6 +471,9 @@ namespace TimeTracker.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<bool>("CopyEmployersOnLeaveRequests")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("CountryCode")
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)");
@@ -699,6 +702,11 @@ namespace TimeTracker.Infrastructure.Migrations
 
                     b.Property<int>("SessionVersion")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("SupervisorApprovesLeave")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<Guid?>("SupervisorId")
                         .HasColumnType("uuid");

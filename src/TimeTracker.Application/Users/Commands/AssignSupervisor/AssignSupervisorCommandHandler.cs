@@ -51,7 +51,7 @@ public class AssignSupervisorCommandHandler : IRequestHandler<AssignSupervisorCo
             }
         }
 
-        employee.AssignSupervisor(request.SupervisorId);
+        employee.AssignSupervisor(request.SupervisorId, request.ApprovesLeave);
         _unitOfWork.Users.Update(employee);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

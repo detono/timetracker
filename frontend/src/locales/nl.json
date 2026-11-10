@@ -140,7 +140,8 @@
     "externalId": "Externe ID",
     "externalIdButton": "Externe ID",
     "externalIdTitle": "Externe ID van {{name}}",
-    "externalIdHint": "Hun nummer in een ander systeem, zoals de loonadministratie. Het wordt meegestuurd in webhooks. Laat leeg om het te verwijderen."
+    "externalIdHint": "Hun nummer in een ander systeem, zoals de loonadministratie. Het wordt meegestuurd in webhooks. Laat leeg om het te verwijderen.",
+    "approvesLeave": "Keurt ook verlof goed"
   },
   "dashboard": {
     "title": "Mijn uren",
@@ -528,7 +529,10 @@
     "holidayNamePlaceholder": "Vrije dag bedrijf",
     "addHoliday": "Dag toevoegen",
     "confirmDeleteHolidayTitle": "{{name}} verwijderen?",
-    "confirmDeleteHoliday": "Dan wordt verwacht dat iedereen die dag werkt."
+    "confirmDeleteHoliday": "Dan wordt verwacht dat iedereen die dag werkt.",
+    "leaveRequestsTitle": "Verlofaanvragen",
+    "copyEmployers": "Werkgevers krijgen ook verlofaanvragen die een leidinggevende behandelt",
+    "copyEmployersHint": "Verlofaanvragen gaan naar de leidinggevende als die verlof goedkeurt, anders naar de werkgevers. Staat dit aan, dan krijgen werkgevers ook zelf een kopie en kunnen ze de aanvraag ook goedkeuren of afwijzen."
   },
   "choosePassword": {
     "title": "Kies je eigen wachtwoord",

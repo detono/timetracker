@@ -4,11 +4,15 @@ using TimeTracker.Application.Company.Dtos;
 
 namespace TimeTracker.Application.Company.Commands.UpdateCompany;
 
-/// <summary>Employer-only: renames the company and sets its address.</summary>
+/// <summary>
+/// Employer-only: renames the company and sets its address, and whether employers get a copy
+/// of leave requests a supervisor handles (left out: unchanged).
+/// </summary>
 public record UpdateCompanyCommand(
     string Name,
     string? Street,
     string? PostalCode,
     string? City,
     string? CountryCode,
-    string? Region) : IRequest<Result<CompanyDto>>;
+    string? Region,
+    bool? CopyEmployersOnLeaveRequests = null) : IRequest<Result<CompanyDto>>;

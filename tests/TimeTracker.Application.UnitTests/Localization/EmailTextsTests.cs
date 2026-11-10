@@ -110,8 +110,11 @@ public class EmailTextsTests {
             users.Setup(u => u.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Guid id, CancellationToken _) => Users.SingleOrDefault(u => u.Id == id));
             users.Setup(u => u.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => Users.ToList());
+            var tenants = new Mock<ITenantRepository>();
+            tenants.Setup(t => t.GetByIdAsync(Tenant.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Tenant);
             var unitOfWork = new Mock<IUnitOfWork>();
             unitOfWork.SetupGet(u => u.Users).Returns(users.Object);
+            unitOfWork.SetupGet(u => u.Tenants).Returns(tenants.Object);
             var sender = new Mock<IEmailSender>();
             sender.Setup(s => s.SendAsync(Capture.In(Sent), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(EmailSendResult.Sent());
@@ -135,6 +138,43 @@ public class EmailTextsTests {
         await RequestAsync(company, requester);
 
         company.Sent.Should().ContainSingle().Which.To.Should().Equal("marcella@co.com");
+    }
+
+    [Fact]
+    public async Task LeaveRequest_GoesToTheEmployers_WhenTheSupervisorDoesntApproveLeave() {
+        var company = new FakeCompany();
+        company.Add("Boss", "Owner", UserRole.Employer);
+        var supervisor = company.Add("Marcella", "Lead", UserRole.Employee);
+        var requester = company.Add("Luz", "Junior", UserRole.Employee);
+        requester.AssignSupervisor(supervisor.Id, approvesLeave: false);
+
+        await RequestAsync(company, requester);
+
+        var email = company.Sent.Should().ContainSingle().Subject;
+        email.To.Should().Equal("boss@co.com");
+        email.TextBody.Should().NotContain("copy");
+    }
+
+    [Fact]
+    public async Task LeaveRequest_CopiesTheEmployers_InTheirOwnLanguage_WhenTheCompanyAsks() {
+        var company = new FakeCompany();
+        company.Tenant.SetCopyEmployersOnLeaveRequests(true);
+        company.Add("Boss", "Owner", UserRole.Employer, "nl");
+        company.Add("Partner", "Two", UserRole.Employer, "fr");
+        var supervisor = company.Add("Marcella", "Lead", UserRole.Employee);
+        var requester = company.Add("Luz", "Junior", UserRole.Employee);
+        requester.AssignSupervisor(supervisor.Id);
+
+        await RequestAsync(company, requester);
+
+        company.Sent.Should().HaveCount(3);
+        var toSupervisor = company.Sent.Single(e => e.To.Contains("marcella@co.com"));
+        toSupervisor.To.Should().ContainSingle();
+        toSupervisor.TextBody.Should().NotContain("copy");
+        company.Sent.Single(e => e.To.SequenceEqual(new[] { "boss@co.com" })).HtmlBody.Should()
+            .Contain("Je krijgt een kopie: Marcella Lead behandelt het verlof van Luz").And.Contain(">Goedkeuren</a>");
+        company.Sent.Single(e => e.To.SequenceEqual(new[] { "partner@co.com" })).TextBody.Should()
+            .Contain("Vous recevez une copie");
     }
 
     [Fact]

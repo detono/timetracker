@@ -30,6 +30,12 @@ leaves out.
 - **Leave for a few hours**, e.g. for the dentist: choose *A few hours* as the part of the day
   and give a start and end time within your working day. Approving it books just those hours.
   Several short leaves can share a day, as long as their times don't overlap.
+- A supervisor doesn't have to approve leave: untick **Also approves leave** under their name
+  on the *Employees* page. They still see the person's hours, but leave requests go to the
+  employers.
+- **Company → Employers also get leave requests that a supervisor handles**: employers get
+  their own copy of those requests, in their own language, and can approve or reject them
+  too.
 
 ### Changed
 
@@ -54,6 +60,9 @@ leaves out.
 - Leave requests have a new day part, `Hours`, with `startTime` and `endTime` (`"14:00"`). They
   are in the request body, the `preview` query, the leave request answers and webhook calls;
   for other day parts they're `null`.
+- `POST /api/users/{id}/supervisor` takes `?approvesLeave=true|false`; users have
+  `supervisorApprovesLeave`. The company has `copyEmployersOnLeaveRequests`; leaving it out of
+  `PUT /api/company` keeps it.
 
 ## [1.3.2] - 2026-11-08
 

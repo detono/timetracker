@@ -29,6 +29,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(u => u.TenantId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Existing supervisors keep approving leave, as before this setting existed.
+        builder.Property(u => u.SupervisorApprovesLeave).HasDefaultValue(true);
+
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(u => u.SupervisorId)

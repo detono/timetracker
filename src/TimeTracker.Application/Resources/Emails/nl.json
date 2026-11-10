@@ -29,6 +29,7 @@
   "label.comment": "Opmerking",
   "leaveSubmitted.heading": "Nieuwe verlofaanvraag",
   "leaveSubmitted.intro": "{name} wil graag verlof nemen.",
+  "leaveSubmitted.copyNote": "Je krijgt een kopie: {supervisor} behandelt het verlof van {firstName}, maar jij kunt het ook goedkeuren of afwijzen.",
   "leaveApproved.heading": "Je verlof is goedgekeurd",
   "leaveRejected.heading": "Je verlofaanvraag is afgewezen",
   "leaveCancelled.heading": "Je verlof is geannuleerd",

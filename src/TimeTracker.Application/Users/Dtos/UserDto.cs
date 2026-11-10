@@ -9,4 +9,5 @@ public record UserDto(
     Guid? SupervisorId,
     bool IsActive,
     bool TracksHours = true,
-    string? ExternalId = null);
+    string? ExternalId = null,
+    bool SupervisorApprovesLeave = true);

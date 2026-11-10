@@ -51,6 +51,26 @@ public class UserTests
     }
 
     [Fact]
+    public void AssignSupervisor_ANewSupervisorApprovesLeave_TheSameOneKeepsTheSetting()
+    {
+        var user = User.Create("Jane", "Doe", "jane@doe.com", "hash", UserRole.Employee, Guid.NewGuid());
+        var lead = Guid.NewGuid();
+
+        user.AssignSupervisor(lead, approvesLeave: false);
+        user.LeaveApproverId.Should().BeNull("the lead sees the hours but doesn't approve leave");
+
+        user.AssignSupervisor(lead);
+        user.SupervisorApprovesLeave.Should().BeFalse();
+
+        user.AssignSupervisor(Guid.NewGuid());
+        user.SupervisorApprovesLeave.Should().BeTrue();
+
+        user.AssignSupervisor(null, approvesLeave: false);
+        user.SupervisorApprovesLeave.Should().BeTrue("without a supervisor there's nothing to turn off");
+        user.LeaveApproverId.Should().BeNull();
+    }
+
+    [Fact]
     public void CanViewHoursOf_Employer_CanViewAnyone()
     {
         var employer = User.Create("Alice", "Boss", "alice@co.com", "hash", UserRole.Employer, Guid.NewGuid());

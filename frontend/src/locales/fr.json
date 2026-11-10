@@ -149,7 +149,8 @@
     "externalId": "ID externe",
     "externalIdButton": "ID externe",
     "externalIdTitle": "ID externe de {{name}}",
-    "externalIdHint": "Son numéro dans un autre système, comme la paie. Il est envoyé dans les webhooks. Laissez vide pour le supprimer."
+    "externalIdHint": "Son numéro dans un autre système, comme la paie. Il est envoyé dans les webhooks. Laissez vide pour le supprimer.",
+    "approvesLeave": "Approuve aussi les congés"
   },
   "dashboard": {
     "title": "Mes heures",
@@ -528,7 +529,10 @@
     "holidayNamePlaceholder": "Jour de fermeture",
     "addHoliday": "Ajouter le jour",
     "confirmDeleteHolidayTitle": "Supprimer {{name}} ?",
-    "confirmDeleteHoliday": "Tout le monde sera alors censé travailler ce jour-là."
+    "confirmDeleteHoliday": "Tout le monde sera alors censé travailler ce jour-là.",
+    "leaveRequestsTitle": "Demandes de congé",
+    "copyEmployers": "Les employeurs reçoivent aussi les demandes de congé gérées par un responsable",
+    "copyEmployersHint": "Les demandes de congé vont au responsable de la personne s'il approuve les congés, sinon aux employeurs. Si c'est activé, les employeurs en reçoivent aussi une copie et peuvent aussi l'approuver ou la refuser."
   },
   "choosePassword": {
     "title": "Choisissez votre propre mot de passe",

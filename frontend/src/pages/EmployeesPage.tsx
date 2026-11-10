@@ -102,11 +102,11 @@ export function EmployeesPage() {
     }
   }
 
-  async function handleSupervisorChange(target: UserAccount, supervisorId: string) {
+  async function handleSupervisorChange(target: UserAccount, supervisorId: string, approvesLeave?: boolean) {
     setBusyUserId(target.id);
     setError(null);
     try {
-      await assignSupervisor(target.id, supervisorId || null);
+      await assignSupervisor(target.id, supervisorId || null, approvesLeave);
       await loadUsers();
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -335,6 +335,17 @@ export function EmployeesPage() {
                       </select>
                     ) : (
                       <span className="list-view__notes">—</span>
+                    )}
+                    {u.role === "Employee" && u.supervisorId && (
+                      <label className="check-field employees__approves-leave">
+                        <input
+                          type="checkbox"
+                          checked={u.supervisorApprovesLeave ?? true}
+                          onChange={(e) => handleSupervisorChange(u, u.supervisorId ?? "", e.target.checked)}
+                          disabled={busyUserId === u.id}
+                        />
+                        <span>{t('employees.approvesLeave')}</span>
+                      </label>
                     )}
                   </td>
                   <td data-label={t('employees.table.tracksHours')}>

@@ -1899,3 +1899,12 @@ button {
   align-items: center;
   gap: 0.5rem;
 }
+
+/* "Also approves leave", under the supervisor choice on the Employees page. */
+.employees__approves-leave {
+  display: flex;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}

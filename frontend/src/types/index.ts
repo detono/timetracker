@@ -36,6 +36,8 @@ export interface UserAccount {
   email: string;
   role: UserRole;
   supervisorId: string | null;
+  /** Whether the supervisor also approves their leave; when not, employers do. Defaults to true. */
+  supervisorApprovesLeave?: boolean;
   isActive: boolean;
   /** Whether their logged hours are compared with their work schedule. */
   tracksHours: boolean;
@@ -321,6 +323,8 @@ export interface Company {
   countryCode: string | null;
   /** ISO 3166-2, e.g. "DE-BY", for countries where holidays differ per region. */
   region: string | null;
+  /** Employers also get an email about leave requests a supervisor handles. */
+  copyEmployersOnLeaveRequests?: boolean;
 }
 
 export interface PublicHoliday {

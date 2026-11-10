@@ -138,6 +138,7 @@ function CompanyDetailsForm({ company, onSaved }: { company: Company; onSaved: (
         postalCode: form.postalCode?.trim() || null,
         city: form.city?.trim() || null,
         countryCode: form.countryCode || null,
+        copyEmployersOnLeaveRequests: form.copyEmployersOnLeaveRequests ?? false,
         region: form.region?.trim().toUpperCase() || null
       });
       setForm(updated);
@@ -204,6 +205,17 @@ function CompanyDetailsForm({ company, onSaved }: { company: Company; onSaved: (
         </label>
       </div>
       <p className="form__hint">{t('company.regionHint')}</p>
+
+      <h3>{t('company.leaveRequestsTitle')}</h3>
+      <label className="check-field">
+        <input
+          type="checkbox"
+          checked={form.copyEmployersOnLeaveRequests ?? false}
+          onChange={(e) => update("copyEmployersOnLeaveRequests", e.target.checked)}
+        />
+        <span>{t('company.copyEmployers')}</span>
+      </label>
+      <p className="form__hint">{t('company.copyEmployersHint')}</p>
 
       {error && <p className="form__error">{error}</p>}
       {saved && <p className="form__success">{t('company.saved')}</p>}

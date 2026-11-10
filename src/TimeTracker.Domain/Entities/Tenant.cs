@@ -24,6 +24,12 @@ public class Tenant : BaseEntity {
     /// </summary>
     public string? Region { get; private set; }
 
+    /// <summary>
+    /// Whether employers also get an email about leave requests that a supervisor approves,
+    /// so they know about them and can approve them too.
+    /// </summary>
+    public bool CopyEmployersOnLeaveRequests { get; private set; }
+
     private Tenant() {
         // EF Core
     }
@@ -59,6 +65,11 @@ public class Tenant : BaseEntity {
         City = Normalize(city);
         CountryCode = country;
         Region = subdivision;
+        MarkUpdated();
+    }
+
+    public void SetCopyEmployersOnLeaveRequests(bool copy) {
+        CopyEmployersOnLeaveRequests = copy;
         MarkUpdated();
     }
 

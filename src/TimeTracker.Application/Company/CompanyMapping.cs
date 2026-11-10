@@ -5,5 +5,6 @@ namespace TimeTracker.Application.Company;
 
 internal static class CompanyMapping {
     public static CompanyDto ToCompanyDto(this Tenant tenant) =>
-        new(tenant.Name, tenant.Street, tenant.PostalCode, tenant.City, tenant.CountryCode, tenant.Region);
+        new(tenant.Name, tenant.Street, tenant.PostalCode, tenant.City, tenant.CountryCode, tenant.Region,
+            tenant.CopyEmployersOnLeaveRequests);
 }

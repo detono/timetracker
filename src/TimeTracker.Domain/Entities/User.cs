@@ -27,6 +27,15 @@ public class User : BaseEntity
     /// </summary>
     public Guid? SupervisorId { get; private set; }
 
+    /// <summary>
+    /// Whether the supervisor also approves this user's leave. When not, they still see the
+    /// hours, but leave requests go to the employers. Only meaningful with a supervisor.
+    /// </summary>
+    public bool SupervisorApprovesLeave { get; private set; } = true;
+
+    /// <summary>Who approves this user's leave besides the employers: their supervisor, if they do.</summary>
+    public Guid? LeaveApproverId => SupervisorApprovesLeave ? SupervisorId : null;
+
     public bool IsActive { get; private set; } = true;
 
     /// <summary>
@@ -179,13 +188,19 @@ public class User : BaseEntity
         MarkUpdated();
     }
 
-    public void AssignSupervisor(Guid? supervisorId)
+    /// <summary>
+    /// Sets the supervisor and whether they approve leave. Without <paramref name="approvesLeave"/>,
+    /// a new supervisor approves leave and the same supervisor keeps what was set.
+    /// </summary>
+    public void AssignSupervisor(Guid? supervisorId, bool? approvesLeave = null)
     {
         if (supervisorId == Id)
         {
             throw new DomainException("A user cannot supervise themselves.");
         }
 
+        SupervisorApprovesLeave = supervisorId is null
+            || (approvesLeave ?? (supervisorId != SupervisorId || SupervisorApprovesLeave));
         SupervisorId = supervisorId;
         MarkUpdated();
     }

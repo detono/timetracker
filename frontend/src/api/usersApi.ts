@@ -27,11 +27,20 @@ export async function activateUser(userId: string): Promise<void> {
   await apiClient.post(`/users/${userId}/activate`);
 }
 
-export async function assignSupervisor(employeeId: string, supervisorId: string | null): Promise<void> {
+/**
+ * Sets someone's supervisor. `approvesLeave` says whether that supervisor also approves their
+ * leave; left out, a new supervisor does and the same one keeps what was set.
+ */
+export async function assignSupervisor(
+  employeeId: string,
+  supervisorId: string | null,
+  approvesLeave?: boolean
+): Promise<void> {
   // The API takes a bare JSON value ("<id>" or null). Axios would send a plain string
   // unquoted as form data, which the API rejects as an unsupported format.
   await apiClient.post(`/users/${employeeId}/supervisor`, JSON.stringify(supervisorId), {
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
+    params: approvesLeave === undefined ? undefined : { approvesLeave }
   });
 }
 

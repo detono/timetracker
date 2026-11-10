@@ -29,6 +29,7 @@
   "label.comment": "Comment",
   "leaveSubmitted.heading": "New leave request",
   "leaveSubmitted.intro": "{name} would like to take time off.",
+  "leaveSubmitted.copyNote": "You're getting a copy: {supervisor} handles {firstName}'s leave, but you can approve or reject it too.",
   "leaveApproved.heading": "Your leave was approved",
   "leaveRejected.heading": "Your leave request was rejected",
   "leaveCancelled.heading": "Your leave was cancelled",

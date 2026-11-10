@@ -97,7 +97,8 @@
     "externalId": "External ID",
     "externalIdButton": "External ID",
     "externalIdTitle": "External ID for {{name}}",
-    "externalIdHint": "Their number in another system, like payroll. It's sent along in webhooks. Leave it empty to remove it."
+    "externalIdHint": "Their number in another system, like payroll. It's sent along in webhooks. Leave it empty to remove it.",
+    "approvesLeave": "Also approves leave"
   },
   "dashboard": {
     "title": "My hours",
@@ -528,7 +529,10 @@
     "holidayNamePlaceholder": "Company day off",
     "addHoliday": "Add day",
     "confirmDeleteHolidayTitle": "Remove {{name}}?",
-    "confirmDeleteHoliday": "People will be expected to work that day."
+    "confirmDeleteHoliday": "People will be expected to work that day.",
+    "leaveRequestsTitle": "Leave requests",
+    "copyEmployers": "Employers also get leave requests that a supervisor handles",
+    "copyEmployersHint": "Leave requests go to the person's supervisor if they approve leave, otherwise to the employers. With this on, employers get their own copy as well, and can approve or reject it too."
   },
   "choosePassword": {
     "title": "Choose your own password",

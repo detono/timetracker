@@ -55,11 +55,15 @@ public class UsersController : ApiControllerBase
         return HandleResult(result);
     }
 
-    /// <summary>Grants an employee supervisory authority over another employee's hours.</summary>
+    /// <summary>
+    /// Lets an employee see another employee's hours, and approve their leave unless
+    /// <paramref name="approvesLeave"/> is false. Leave it out to keep what was set.
+    /// </summary>
     [HttpPost("{employeeId:guid}/supervisor")]
-    public async Task<ActionResult> AssignSupervisor(Guid employeeId, [FromBody] Guid? supervisorId, CancellationToken cancellationToken)
+    public async Task<ActionResult> AssignSupervisor(
+        Guid employeeId, [FromBody] Guid? supervisorId, [FromQuery] bool? approvesLeave, CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(new AssignSupervisorCommand(employeeId, supervisorId), cancellationToken);
+        var result = await Mediator.Send(new AssignSupervisorCommand(employeeId, supervisorId, approvesLeave), cancellationToken);
         return HandleResult(result);
     }
 

@@ -27,6 +27,9 @@ public class UpdateCompanyCommandHandler(
 
         tenant.Rename(request.Name);
         tenant.SetAddress(request.Street, request.PostalCode, request.City, request.CountryCode, request.Region);
+        if (request.CopyEmployersOnLeaveRequests is { } copy) {
+            tenant.SetCopyEmployersOnLeaveRequests(copy);
+        }
         unitOfWork.Tenants.Update(tenant);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

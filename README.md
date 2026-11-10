@@ -140,7 +140,10 @@ can no longer log in.
   the working day (the dentist from 14:00 to 16:00). Those hours count as they are, without a
   break, but never more than the day's scheduled hours. Several of these can share a day as
   long as their times don't overlap; a whole or half day still takes the whole day.
-- **Approval.** The requester's supervisor, or any employer, approves or rejects it. Approving
+- **Approval.** The requester's supervisor, or any employer, approves or rejects it. A
+  supervisor who shouldn't decide on leave (they coordinate the work, someone else handles
+  leave) can be set not to: untick *Also approves leave* under their name on the *Employees*
+  page. They still see the hours, and the requests go to the employers instead. Approving
   books one time entry per working day with that person's scheduled hours, so the leave
   shows up in the planning. Revoking approved leave removes those entries again.
 - **Balances.** Employers set a yearly allowance in hours per person (*Leave → Leave
@@ -149,9 +152,10 @@ can no longer log in.
   approval.
 - **Notifications.** Approvers see a count next to *Leave* and a banner on their dashboard.
   If the company's email is set up, the supervisor (or every employer, when there's no
-  supervisor) gets an email about new requests, and the requester gets one when it's
-  decided. Emails are in each recipient's language (see "Languages") and use the app's name
-  and colours (`APP_TITLE`, `COLOR_*`).
+  supervisor who approves leave) gets an email about new requests, and the requester gets
+  one when it's decided. With *Company → Employers also get leave requests that a supervisor
+  handles*, employers get their own copy too. Emails are in each recipient's language (see
+  "Languages") and use the app's name and colours (`APP_TITLE`, `COLOR_*`).
 
 ### Closed months
 

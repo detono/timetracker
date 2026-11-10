@@ -27,9 +27,12 @@ public record LeaveBalanceSnapshot(int Year, decimal? AllowanceHours, decimal Us
 /// worth for someone, and what their leave balance looks like.
 /// </summary>
 public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUser) {
-    /// <summary>An employer reviews everyone's requests; a supervisor those of the people they supervise.</summary>
+    /// <summary>
+    /// An employer reviews everyone's requests; a supervisor those of the people they supervise,
+    /// unless they were set not to approve that person's leave.
+    /// </summary>
     public bool CanReview(User requester) =>
-        currentUser.Role == UserRole.Employer || requester.SupervisorId == currentUser.UserId;
+        currentUser.Role == UserRole.Employer || requester.LeaveApproverId == currentUser.UserId;
 
     /// <summary>The users whose requests the caller reviews: null means everyone (employers).</summary>
     public async Task<IReadOnlyList<Guid>?> ReviewableUserIdsAsync(CancellationToken cancellationToken) {
@@ -38,7 +41,7 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
         }
 
         var supervisees = await unitOfWork.Users.GetSupervisedByAsync(currentUser.UserId, cancellationToken);
-        return supervisees.Select(u => u.Id).ToList();
+        return supervisees.Where(u => u.SupervisorApprovesLeave).Select(u => u.Id).ToList();
     }
 
     /// <summary>Someone's own schedule, else the company's, else the built-in Monday-to-Friday one.</summary>

@@ -29,6 +29,7 @@
   "label.comment": "Commentaire",
   "leaveSubmitted.heading": "Nouvelle demande de congé",
   "leaveSubmitted.intro": "{name} souhaite prendre congé.",
+  "leaveSubmitted.copyNote": "Vous recevez une copie : {supervisor} gère les congés de {firstName}, mais vous pouvez aussi l'approuver ou la refuser.",
   "leaveApproved.heading": "Votre congé a été approuvé",
   "leaveRejected.heading": "Votre demande de congé a été refusée",
   "leaveCancelled.heading": "Votre congé a été annulé",
