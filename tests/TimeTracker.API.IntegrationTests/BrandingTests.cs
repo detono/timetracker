@@ -57,11 +57,29 @@ public class UnbrandedInfoTests(CustomWebApplicationFactory factory) : IClassFix
     }
 }
 
-public class EmailBrandingTests {
+public class AppUrlTests {
+    [Theory]
+    [InlineData("https://hours.example.com", "https://hours.example.com")]
+    [InlineData("  https://hours.example.com/ ", "https://hours.example.com")]
+    [InlineData("http://localhost:8080/timetracker/", "http://localhost:8080/timetracker")]
+    [InlineData("", null)]
+    [InlineData(null, null)]
+    [InlineData("hours.example.com", null)]
+    [InlineData("javascript:alert(1)", null)]
+    [InlineData("https://hours.example.com/?x=1", null)]
+    public void AppUrl_IsAnAbsoluteWebAddressWithoutTrailingSlash_OrNull(string? configured, string? expected) {
+        new BrandingSettings { AppUrl = configured }.NormalizedAppUrl().Should().Be(expected);
+    }
+
     [Fact]
-    public void EmailBranding_FallsBackToTheDefaultName() {
-        var branding = new AppBranding(Microsoft.Extensions.Options.Options.Create(new BrandingSettings { Title = " " }));
+    public void EmailBranding_FallsBackToTheDefaults() {
+        var branding = new AppBranding(Microsoft.Extensions.Options.Options.Create(new BrandingSettings {
+            Title = " ", ColorPrimary = "red; x", ColorOnSecondary = "#FFF"
+        }));
 
         branding.Title.Should().Be("TimeTracker");
+        branding.ColorPrimary.Should().Be("#932e4a");
+        branding.ColorOnSecondary.Should().Be("#fff");
+        branding.AppUrl.Should().BeNull();
     }
 }

@@ -1,4 +1,4 @@
-using System.Net;
+using TimeTracker.Application.Common.Email;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Localization;
 using TimeTracker.Application.Common.Models;
@@ -14,7 +14,11 @@ namespace TimeTracker.Application.Leave;
 /// in the app.
 /// </summary>
 public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender, IAppBranding branding) {
-    /// <summary>Tells the requester's supervisor, or every active employer if they have none.</summary>
+    /// <summary>
+    /// Tells the requester's supervisor, or every active employer if they have none. With
+    /// <c>APP_URL</c> set, the email has Approve and Reject buttons that open the request on the Leave page, where the approver signs in (if
+    /// needed) and confirms.
+    /// </summary>
     public async Task RequestSubmittedAsync(
         LeaveRequest request, User requester, HourType hourType, CancellationToken cancellationToken
     ) {
@@ -26,16 +30,33 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
             var texts = EmailTexts.For(group.Key);
             var period = Period(request, texts);
             var type = TypeName(hourType, texts.Language);
-            var body = texts.Get("leaveSubmitted.body",
-                ("name", name), ("type", type), ("period", period), ("hours", request.Hours.ToString("0.##", texts.Culture)));
+            var hours = request.Hours.ToString("0.##", texts.Culture);
+            var body = texts.Get("leaveSubmitted.body", ("name", name), ("type", type), ("period", period), ("hours", hours));
             var comment = request.Comment is null ? null : texts.Get("comment", ("comment", request.Comment));
-            var action = texts.Get("leaveSubmitted.action", ("app", branding.Title));
+
+            var content = EmailHtml.Paragraphs(texts.Get("leaveSubmitted.intro", ("name", name)))
+                          + Details(texts, type, period, hours, request.Comment);
+            string text;
+            if (branding.AppUrl is { } appUrl) {
+                var approve = texts.Get("leaveSubmitted.approve");
+                var reject = texts.Get("leaveSubmitted.reject");
+                var approveUrl = $"{appUrl}/leave?review={request.Id}&decision=approve";
+                var rejectUrl = $"{appUrl}/leave?review={request.Id}&decision=reject";
+                content += EmailHtml.Buttons(
+                    new EmailButton(approve, approveUrl, branding.ColorPrimary, branding.ColorOnPrimary),
+                    new EmailButton(reject, rejectUrl, branding.ColorSecondary, branding.ColorOnSecondary));
+                text = Text(body, comment, $"{approve}: {approveUrl}\n{reject}: {rejectUrl}");
+            } else {
+                var action = texts.Get("leaveSubmitted.action", ("app", branding.Title));
+                content += EmailHtml.Paragraphs(action);
+                text = Text(body, comment, action);
+            }
 
             await emailSender.SendAsync(new EmailMessage(
                 group.Select(r => r.Email).ToList(),
                 texts.Get("leaveSubmitted.subject", ("name", name), ("period", period)),
-                Html(body, comment, action),
-                Text(body, comment, action)), cancellationToken);
+                EmailHtml.Document(branding, texts.Get("leaveSubmitted.heading"), content, Footer(texts)),
+                text), cancellationToken);
         }
     }
 
@@ -54,17 +75,27 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
         };
         var texts = EmailTexts.For(requester.Language);
         var period = Period(request, texts);
+        var type = TypeName(hourType, texts.Language);
         var greeting = texts.Get("greeting", ("firstName", requester.FirstName));
         var body = texts.Get($"{key}.body",
-            ("reviewer", $"{reviewer.FirstName} {reviewer.LastName}"),
-            ("type", TypeName(hourType, texts.Language)),
-            ("period", period));
+            ("reviewer", $"{reviewer.FirstName} {reviewer.LastName}"), ("type", type), ("period", period));
         var comment = request.ReviewComment is null ? null : texts.Get("comment", ("comment", request.ReviewComment));
+
+        var content = EmailHtml.Paragraphs(greeting, body)
+                      + Details(texts, type, period, request.Hours.ToString("0.##", texts.Culture), null);
+        if (request.ReviewComment is not null) {
+            content += EmailHtml.Paragraphs(comment);
+        }
+
+        if (branding.AppUrl is { } appUrl) {
+            content += EmailHtml.Buttons(new EmailButton(
+                texts.Get("openApp", ("app", branding.Title)), $"{appUrl}/leave", branding.ColorPrimary, branding.ColorOnPrimary));
+        }
 
         await emailSender.SendAsync(new EmailMessage(
             new[] { requester.Email },
             texts.Get($"{key}.subject", ("period", period)),
-            Html(greeting, body, comment),
+            EmailHtml.Document(branding, texts.Get($"{key}.heading"), content, Footer(texts)),
             Text(greeting, body, comment)), cancellationToken);
     }
 
@@ -80,6 +111,15 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
             .Where(u => u.Role == UserRole.Employer && u.IsActive && u.Id != requester.Id)
             .ToList();
     }
+
+    private string Details(EmailTexts texts, string type, string period, string hours, string? comment) =>
+        EmailHtml.Details(branding.ColorPrimary,
+            (texts.Get("label.type"), type),
+            (texts.Get("label.period"), period),
+            (texts.Get("label.hours"), hours),
+            (texts.Get("label.comment"), comment));
+
+    private string Footer(EmailTexts texts) => texts.Get("footer", ("app", branding.Title));
 
     private static string Period(LeaveRequest request, EmailTexts texts) {
         string Day(DateOnly date, DayPart part) =>
@@ -101,9 +141,6 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
         hourType.LocalizedNames.TryGetValue(language, out var name) ? name
         : hourType.LocalizedNames.TryGetValue(EmailTexts.DefaultLanguage, out var en) ? en
         : hourType.LocalizedNames.Values.FirstOrDefault() ?? "";
-
-    private static string Html(params string?[] paragraphs) =>
-        string.Concat(paragraphs.Where(p => p is not null).Select(p => $"<p>{WebUtility.HtmlEncode(p)}</p>"));
 
     private static string Text(params string?[] paragraphs) =>
         string.Join("\n\n", paragraphs.Where(p => p is not null));

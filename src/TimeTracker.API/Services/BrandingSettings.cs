@@ -16,6 +16,9 @@ public partial class BrandingSettings {
     public string? ColorSecondary { get; set; }
     public string? ColorOnSecondary { get; set; }
 
+    /// <summary>Where people open the web app (<c>APP_URL</c>), for links in emails.</summary>
+    public string? AppUrl { get; set; }
+
     /// <summary>
     /// The settings as clients see them: a blank title or a value that isn't a <c>#RGB</c> /
     /// <c>#RRGGBB</c> colour becomes null, so clients fall back to their own defaults.
@@ -27,7 +30,17 @@ public partial class BrandingSettings {
         Color(ColorSecondary),
         Color(ColorOnSecondary));
 
-    private static string? Color(string? value) {
+    /// <summary>An absolute http(s) address without a trailing slash, or null when it's blank or not one.</summary>
+    public string? NormalizedAppUrl() {
+        var trimmed = AppUrl?.Trim();
+        return Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+               && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp)
+               && string.IsNullOrEmpty(uri.Query) && string.IsNullOrEmpty(uri.Fragment)
+            ? uri.GetLeftPart(UriPartial.Path).TrimEnd('/')
+            : null;
+    }
+
+    internal static string? Color(string? value) {
         var trimmed = value?.Trim();
         return trimmed is not null && HexColor().IsMatch(trimmed) ? trimmed.ToLowerInvariant() : null;
     }

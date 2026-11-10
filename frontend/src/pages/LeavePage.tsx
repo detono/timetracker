@@ -1,8 +1,8 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HourTypeBadge } from "../components/HourTypeBadge";
 import { useConfirm } from "../components/ConfirmDialog";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { extractErrorMessage } from "../api/client";
 import { getHourTypes } from "../api/hourTypesApi";
@@ -36,6 +36,11 @@ function period(
   return request.startDate === request.endDate
     ? formatDayLabel(request.startDate) + part(request.firstDayPart)
     : `${formatDayLabel(request.startDate)}${part(request.firstDayPart)} – ${formatDayLabel(request.endDate)}${part(request.lastDayPart)}`;
+}
+
+/** "Eva Peeters · Wed 4 Nov (morning) · 3:45", for confirming a request opened from an email. */
+function requestSummary(request: LeaveRequest, t: TFunction): string {
+  return `${request.userFullName} · ${period(request, t)} · ${hoursToHm(request.hours)}`;
 }
 
 /** Hours that may be negative, e.g. a balance that ran out. */
@@ -72,6 +77,16 @@ export function LeavePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // The Approve and Reject buttons in a leave email link here with ?review=<id>&decision=...
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [emailLink] = useState(() => {
+    const id = searchParams.get("review");
+    const decision = searchParams.get("decision");
+    return id && (decision === "approve" || decision === "reject") ? { id, decision } : null;
+  });
+  const emailLinkHandled = useRef(false);
 
   const load = useCallback(async () => {
     setError(null);
@@ -115,7 +130,7 @@ export function LeavePage() {
     }
   }
 
-  async function handleApprove(request: LeaveRequest) {
+  async function handleApprove(request: LeaveRequest, askFirst = false) {
     if (request.exceedsBalance) {
       const confirmed = await confirm({
         title: t('leave.confirmOverBalanceTitle'),
@@ -127,13 +142,22 @@ export function LeavePage() {
         confirmLabel: t('leave.approve')
       });
       if (!confirmed) return;
+    } else if (askFirst) {
+      // Coming from an email, so the request hasn't been seen on this page yet.
+      const confirmed = await confirm({
+        title: t('leave.approveTitle', { name: request.userFullName }),
+        message: requestSummary(request, t),
+        confirmLabel: t('leave.approve')
+      });
+      if (!confirmed) return;
     }
     runAction(request.id, () => approveLeaveRequest(request.id, null));
   }
 
-  async function handleReject(request: LeaveRequest) {
+  async function handleReject(request: LeaveRequest, fromEmail = false) {
     const reason = await askReason({
       title: t('leave.rejectTitle', { name: request.userFullName }),
+      message: fromEmail ? requestSummary(request, t) : undefined,
       reasonLabel: t('leave.reasonLabel'),
       confirmLabel: t('leave.reject'),
       tone: "danger"
@@ -166,6 +190,34 @@ export function LeavePage() {
     }
   }
 
+  // Once the requests are loaded, open the dialog the email button asked for. Each link is
+  // used once: it's removed from the address so a reload doesn't ask again.
+  useEffect(() => {
+    if (!emailLink || loading || emailLinkHandled.current) return;
+    emailLinkHandled.current = true;
+    setSearchParams(
+      (params) => {
+        params.delete("review");
+        params.delete("decision");
+        return params;
+      },
+      { replace: true }
+    );
+
+    const request = toReview.find((r) => r.id === emailLink.id);
+    if (!request || request.status !== "Pending" || !request.canReview) {
+      setNotice(t('leave.emailLinkHandled'));
+    } else if (emailLink.decision === "reject") {
+      handleReject(request, true);
+    } else if (request.inLockedMonth) {
+      setNotice(t('lockedMonths.leaveLockedHint'));
+    } else {
+      handleApprove(request, true);
+    }
+    // The handlers are recreated every render; this should only run once, after loading.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [emailLink, loading, toReview]);
+
   const ownBalance = balances.find((b) => b.userId === user?.userId);
   const isReviewer = isEmployer || toReview.length > 0 || showAllReviews;
 
@@ -196,6 +248,14 @@ export function LeavePage() {
       {!isEmployer && <RequestLeaveForm leaveTypes={leaveTypes} onCreated={afterChange} />}
 
       {error && <p className="form__error">{error}</p>}
+      {notice && (
+        <div className="notice" role="status">
+          <span>{notice}</span>
+          <button className="btn btn--ghost btn--sm" onClick={() => setNotice(null)}>
+            {t('common.close')}
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>

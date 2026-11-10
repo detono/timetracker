@@ -424,6 +424,8 @@
     "confirmOverBalanceTitle": "Verlof boven het saldo goedkeuren?",
     "confirmOverBalance": "{{name}} heeft nog {{remaining}} verlof, en deze aanvraag is {{hours}}.",
     "rejectTitle": "De aanvraag van {{name}} afwijzen?",
+    "approveTitle": "De aanvraag van {{name}} goedkeuren?",
+    "emailLinkHandled": "Deze verlofaanvraag is al behandeld, of je kunt ze niet beoordelen.",
     "reasonLabel": "Reden (optioneel)",
     "revokeTitle": "Het goedgekeurde verlof van {{name}} intrekken?",
     "revokeMessage": "De uren die ervoor ingeboekt zijn, worden verwijderd.",

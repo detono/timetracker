@@ -147,7 +147,7 @@ can no longer log in.
   If the company's email is set up, the supervisor (or every employer, when there's no
   supervisor) gets an email about new requests, and the requester gets one when it's
   decided. Emails are in each recipient's language (see "Languages") and use the app's name
-  (`APP_TITLE`).
+  and colours (`APP_TITLE`, `COLOR_*`).
 
 ### Closed months
 
@@ -395,7 +395,11 @@ database backup therefore contains both the keys and the encrypted secrets: prot
 backups like you'd protect the secrets themselves. If the keys are ever lost, the app asks
 to re-enter the secret.
 
-Emails use the installation's `APP_TITLE` as the app's name.
+Emails use the installation's `APP_TITLE` as the app's name. Set `APP_URL` in `.env` to
+the address people open the app at (e.g. `https://hours.example.com`) and leave request
+emails get **Approve** and **Reject** buttons in the brand colours. They open the request
+on the Leave page, where the approver signs in if needed and confirms; nothing is decided
+from the email alone, so a mail scanner opening the links can't approve anything.
 
 For code: inject `IEmailSender` and call `SendAsync(new EmailMessage(to, subject, html, text))`.
 It uses the current user's company settings and returns `Sent`, `NotConfigured` or

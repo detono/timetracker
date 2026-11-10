@@ -16,6 +16,15 @@ Database migrations run automatically when the API starts, unless a release says
   shows recent calls with a *Send test* and *Send again*. See *Webhooks* in the README.
 - **External ID** for employees (*⋯* → *External ID*) and hour types: the ID another system
   knows them by, sent along in webhook calls.
+- Leave request emails have **Approve** and **Reject** buttons in the app's colours. They open
+  the request in the app (after signing in) and ask to confirm. They need the new `APP_URL`
+  setting, the address people open the app at; without it the email looks as before.
+
+### Changed
+
+- Emails have a new look in the app's colours, with the request's details at a glance.
+- After signing in you land on the page you were trying to open, e.g. from a link in an email,
+  instead of always on *My hours*.
 
 ### Fixed
 
@@ -26,8 +35,8 @@ Database migrations run automatically when the API starts, unless a release says
 
 - Users and hour types in the API have an `externalId`, set with
   `PUT /api/users/{id}/external-id` and in the hour type body.
-- New setting: `WEBHOOK_ALLOW_INTERNAL_HOSTS` (webhooks only call public addresses unless it's
-  `true`).
+- New settings: `APP_URL` (for the email buttons) and `WEBHOOK_ALLOW_INTERNAL_HOSTS` (webhooks
+  only call public addresses unless it's `true`).
 
 ## [1.3.2] - 2026-11-08
 

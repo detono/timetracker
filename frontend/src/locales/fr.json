@@ -424,6 +424,8 @@
     "confirmOverBalanceTitle": "Approuver un congé au-delà du solde ?",
     "confirmOverBalance": "Il reste {{remaining}} de congé à {{name}}, et cette demande fait {{hours}}.",
     "rejectTitle": "Refuser la demande de {{name}} ?",
+    "approveTitle": "Approuver la demande de {{name}} ?",
+    "emailLinkHandled": "Cette demande de congé a déjà été traitée, ou ce n'est pas à vous de l'examiner.",
     "reasonLabel": "Raison (facultatif)",
     "revokeTitle": "Révoquer le congé approuvé de {{name}} ?",
     "revokeMessage": "Les heures encodées pour ce congé sont supprimées.",

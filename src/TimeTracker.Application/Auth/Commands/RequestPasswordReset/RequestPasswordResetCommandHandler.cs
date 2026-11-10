@@ -1,3 +1,4 @@
+using TimeTracker.Application.Common.Email;
 using System.Net;
 using MediatR;
 using TimeTracker.Application.Common.Interfaces;
@@ -62,9 +63,10 @@ public class RequestPasswordResetCommandHandler(
             texts.Get("passwordReset.ignore")
         };
 
-        var html = string.Concat(paragraphs.Select(p => p == code
-            ? $"<p style=\"font-size:24px;font-weight:bold;letter-spacing:4px;font-family:monospace\">{code}</p>"
-            : $"<p>{WebUtility.HtmlEncode(p)}</p>"));
+        var html = EmailHtml.Document(branding, texts.Get("passwordReset.heading"),
+            EmailHtml.Paragraphs(paragraphs[0], paragraphs[1]) + EmailHtml.Code(code) +
+            EmailHtml.Paragraphs(paragraphs[3]) + EmailHtml.Note(paragraphs[4]),
+            texts.Get("footer", ("app", branding.Title)));
 
         // Delivery problems are logged by the sender; the response stays the same either way.
         await emailSender.SendAsync(new EmailMessage(

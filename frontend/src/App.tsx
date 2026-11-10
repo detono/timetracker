@@ -1,5 +1,6 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
+import { useAfterLoginPath } from "./auth/afterLogin";
 import { AppShell } from "./components/AppShell";
 import { LoginPage } from "./pages/LoginPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
@@ -18,7 +19,9 @@ import { CompanyPage } from "./pages/CompanyPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const location = useLocation();
+  // Remember where they were going (e.g. a link in an email), to go there after signing in.
+  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location }} />;
   // A password someone else set must be replaced before anything else (the API enforces this too).
   return user?.mustChangePassword ? <ChoosePasswordPage /> : children;
 }
@@ -39,12 +42,17 @@ function RequirePlatformAdmin({ children }: { children: JSX.Element }) {
   return user?.role === "PlatformAdmin" ? children : <Navigate to="/" replace />;
 }
 
+/** Sends a signed-in user on to the page they wanted before signing in, or home. */
+function AfterLogin() {
+  return <Navigate to={useAfterLoginPath()} replace />;
+}
+
 export default function App() {
   const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/login" element={isAuthenticated ? <AfterLogin /> : <LoginPage />} />
       <Route
         path="/forgot-password"
         element={isAuthenticated ? <Navigate to="/" replace /> : <ForgotPasswordPage />}

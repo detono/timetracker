@@ -7,6 +7,8 @@
   "leaveSubmitted.subject": "Verlofaanvraag van {name}: {period}",
   "leaveSubmitted.body": "{name} vroeg {type} aan voor {period} ({hours} uur).",
   "leaveSubmitted.action": "Open {app} en ga naar Verlof om de aanvraag goed te keuren of af te wijzen.",
+  "leaveSubmitted.approve": "Goedkeuren",
+  "leaveSubmitted.reject": "Afwijzen",
   "leaveApproved.subject": "Je verlofaanvraag is goedgekeurd: {period}",
   "leaveApproved.body": "{reviewer} keurde je aanvraag voor {type} voor {period} goed.",
   "leaveRejected.subject": "Je verlofaanvraag is afgewezen: {period}",
@@ -18,5 +20,18 @@
   "passwordReset.subject": "Je code om je {app}-wachtwoord te herstellen",
   "passwordReset.body": "Iemand heeft gevraagd om het wachtwoord van {email} te herstellen. Vul deze code in op de aanmeldpagina van {app} om een nieuw wachtwoord te kiezen:",
   "passwordReset.expiry": "De code werkt {minutes} minuten.",
-  "passwordReset.ignore": "Heb je dit niet gevraagd? Dan kun je deze e-mail negeren; je wachtwoord blijft hetzelfde."
+  "passwordReset.ignore": "Heb je dit niet gevraagd? Dan kun je deze e-mail negeren; je wachtwoord blijft hetzelfde.",
+  "footer": "Verstuurd door {app}.",
+  "openApp": "{app} openen",
+  "label.type": "Soort",
+  "label.period": "Wanneer",
+  "label.hours": "Uren",
+  "label.comment": "Opmerking",
+  "leaveSubmitted.heading": "Nieuwe verlofaanvraag",
+  "leaveSubmitted.intro": "{name} wil graag verlof nemen.",
+  "leaveApproved.heading": "Je verlof is goedgekeurd",
+  "leaveRejected.heading": "Je verlofaanvraag is afgewezen",
+  "leaveCancelled.heading": "Je verlof is geannuleerd",
+  "testEmail.heading": "Uitgaande e-mail werkt",
+  "passwordReset.heading": "Je wachtwoord herstellen"
 }

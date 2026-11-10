@@ -1,3 +1,4 @@
+using TimeTracker.Application.Common.Email;
 using System.Net;
 using MediatR;
 using TimeTracker.Application.Common.Exceptions;
@@ -37,7 +38,8 @@ public class SendTestEmailCommandHandler(
         var message = new EmailMessage(
             new[] { employer.Email },
             texts.Get("testEmail.subject", ("app", branding.Title)),
-            $"<p>{WebUtility.HtmlEncode(greeting)}</p><p>{WebUtility.HtmlEncode(body)}</p>",
+            EmailHtml.Document(branding, texts.Get("testEmail.heading"), EmailHtml.Paragraphs(greeting, body),
+                texts.Get("footer", ("app", branding.Title))),
             $"{greeting}\n\n{body}");
 
         try {

@@ -7,6 +7,8 @@
   "leaveSubmitted.subject": "Leave request from {name}: {period}",
   "leaveSubmitted.body": "{name} requested {type} for {period} ({hours} hours).",
   "leaveSubmitted.action": "Open {app} and go to Leave to approve or reject it.",
+  "leaveSubmitted.approve": "Approve",
+  "leaveSubmitted.reject": "Reject",
   "leaveApproved.subject": "Your leave request was approved: {period}",
   "leaveApproved.body": "{reviewer} approved your request for {type} for {period}.",
   "leaveRejected.subject": "Your leave request was rejected: {period}",
@@ -18,5 +20,18 @@
   "passwordReset.subject": "Your {app} password reset code",
   "passwordReset.body": "Someone asked to reset the password for {email}. Enter this code on the {app} login page to choose a new password:",
   "passwordReset.expiry": "The code works for {minutes} minutes.",
-  "passwordReset.ignore": "Didn't ask for this? Then you can ignore this email; your password stays the same."
+  "passwordReset.ignore": "Didn't ask for this? Then you can ignore this email; your password stays the same.",
+  "footer": "Sent by {app}.",
+  "openApp": "Open {app}",
+  "label.type": "Type",
+  "label.period": "When",
+  "label.hours": "Hours",
+  "label.comment": "Comment",
+  "leaveSubmitted.heading": "New leave request",
+  "leaveSubmitted.intro": "{name} would like to take time off.",
+  "leaveApproved.heading": "Your leave was approved",
+  "leaveRejected.heading": "Your leave request was rejected",
+  "leaveCancelled.heading": "Your leave was cancelled",
+  "testEmail.heading": "Outgoing email works",
+  "passwordReset.heading": "Reset your password"
 }

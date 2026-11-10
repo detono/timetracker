@@ -424,6 +424,8 @@
     "confirmOverBalanceTitle": "Approve leave over the balance?",
     "confirmOverBalance": "{{name}} has {{remaining}} of leave left, and this request is {{hours}}.",
     "rejectTitle": "Reject the request of {{name}}?",
+    "approveTitle": "Approve the request of {{name}}?",
+    "emailLinkHandled": "This leave request was already handled, or isn't yours to review.",
     "reasonLabel": "Reason (optional)",
     "revokeTitle": "Revoke the approved leave of {{name}}?",
     "revokeMessage": "The hours booked for it are removed.",

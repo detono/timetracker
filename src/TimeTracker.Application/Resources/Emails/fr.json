@@ -7,6 +7,8 @@
   "leaveSubmitted.subject": "Demande de congé de {name} : {period}",
   "leaveSubmitted.body": "{name} a demandé {type} pour {period} ({hours} heures).",
   "leaveSubmitted.action": "Ouvrez {app} et allez dans Congés pour l'approuver ou la refuser.",
+  "leaveSubmitted.approve": "Approuver",
+  "leaveSubmitted.reject": "Refuser",
   "leaveApproved.subject": "Votre demande de congé a été approuvée : {period}",
   "leaveApproved.body": "{reviewer} a approuvé votre demande de {type} pour {period}.",
   "leaveRejected.subject": "Votre demande de congé a été refusée : {period}",
@@ -18,5 +20,18 @@
   "passwordReset.subject": "Votre code de réinitialisation du mot de passe {app}",
   "passwordReset.body": "Quelqu'un a demandé à réinitialiser le mot de passe de {email}. Saisissez ce code sur la page de connexion de {app} pour choisir un nouveau mot de passe :",
   "passwordReset.expiry": "Le code est valable {minutes} minutes.",
-  "passwordReset.ignore": "Vous n'avez rien demandé ? Vous pouvez ignorer cet e-mail ; votre mot de passe reste le même."
+  "passwordReset.ignore": "Vous n'avez rien demandé ? Vous pouvez ignorer cet e-mail ; votre mot de passe reste le même.",
+  "footer": "Envoyé par {app}.",
+  "openApp": "Ouvrir {app}",
+  "label.type": "Type",
+  "label.period": "Quand",
+  "label.hours": "Heures",
+  "label.comment": "Commentaire",
+  "leaveSubmitted.heading": "Nouvelle demande de congé",
+  "leaveSubmitted.intro": "{name} souhaite prendre congé.",
+  "leaveApproved.heading": "Votre congé a été approuvé",
+  "leaveRejected.heading": "Votre demande de congé a été refusée",
+  "leaveCancelled.heading": "Votre congé a été annulé",
+  "testEmail.heading": "L'envoi d'e-mails fonctionne",
+  "passwordReset.heading": "Réinitialiser votre mot de passe"
 }

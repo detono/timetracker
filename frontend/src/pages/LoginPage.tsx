@@ -5,12 +5,14 @@ import { getPasswordResetAvailable, login } from "../api/authApi";
 import { extractErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { appConfig } from "../config";
+import { useAfterLoginPath } from "../auth/afterLogin";
 import { appVersion } from "../version";
 
 export function LoginPage() {
   const { t } = useTranslation();
   const auth = useAuth();
   const navigate = useNavigate();
+  const afterLoginPath = useAfterLoginPath();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export function LoginPage() {
     try {
       const result = await login(email, password);
       auth.login(result);
-      navigate("/");
+      navigate(afterLoginPath, { replace: true });
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
