@@ -42,6 +42,37 @@ public class EmailTextsTests {
     }
 
     [Fact]
+    public void NoTextHardcodesTheAppName() {
+        foreach (var (language, texts) in EmailTexts.Files) {
+            texts.Values.Should().NotContain(t => t.Contains("TimeTracker"), $"{language}.json should use {{app}}");
+        }
+    }
+
+    [Fact]
+    public async Task LeaveRequestEmail_TellsToOpenTheAppByItsName() {
+        var tenantId = Guid.NewGuid();
+        var supervisor = User.Create("Sam", "Lead", "sam@co.com", "hash", UserRole.Employee, tenantId);
+        var requester = User.Create("Eva", "Peeters", "eva@co.com", "hash", UserRole.Employee, tenantId);
+        requester.AssignSupervisor(supervisor.Id);
+
+        var users = new Mock<IUserRepository>();
+        users.Setup(u => u.GetByIdAsync(supervisor.Id, It.IsAny<CancellationToken>())).ReturnsAsync(supervisor);
+        var unitOfWork = new Mock<IUnitOfWork>();
+        unitOfWork.SetupGet(u => u.Users).Returns(users.Object);
+        var sent = new List<EmailMessage>();
+        var sender = new Mock<IEmailSender>();
+        sender.Setup(s => s.SendAsync(Capture.In(sent), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(EmailSendResult.Sent());
+        var type = HourType.Create(new Dictionary<string, string> { ["en"] = "Paid time off" }, "#2a7ab0", false);
+        var request = LeaveRequest.Create(requester.Id, type.Id, new DateOnly(2026, 11, 4), new DateOnly(2026, 11, 4), 7.5m, null);
+
+        await new LeaveNotifications(unitOfWork.Object, sender.Object, new TestBranding("Shiftlog"))
+            .RequestSubmittedAsync(request, requester, type, CancellationToken.None);
+
+        sent.Single().TextBody.Should().Contain("Open Shiftlog and go to Leave");
+    }
+
+    [Fact]
     public async Task LeaveEmails_GoOutInEachRecipientsLanguage() {
         var tenantId = Guid.NewGuid();
         var supervisor = User.Create("Sam", "Lead", "sam@co.com", "hash", UserRole.Employee, tenantId);
@@ -61,7 +92,7 @@ public class EmailTextsTests {
 
         var paidLeave = HourType.Create(new Dictionary<string, string> { ["en"] = "Paid time off", ["nl"] = "Verlof", ["fr"] = "Congé payé" }, "#2a7ab0", false);
         var request = LeaveRequest.Create(requester.Id, paidLeave.Id, new DateOnly(2026, 11, 4), new DateOnly(2026, 11, 4), 3.75m, null, DayPart.Morning);
-        var notifications = new LeaveNotifications(unitOfWork.Object, sender.Object);
+        var notifications = new LeaveNotifications(unitOfWork.Object, sender.Object, new TestBranding());
 
         await notifications.RequestSubmittedAsync(request, requester, paidLeave, CancellationToken.None);
         request.Approve(supervisor.Id, null, 3.75m, DateTime.UtcNow);

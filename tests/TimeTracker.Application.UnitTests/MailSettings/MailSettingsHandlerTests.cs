@@ -169,7 +169,7 @@ public class MailSettingsHandlerTests {
     public async Task SendTest_NothingSaved_Fails() {
         GivenSettings(null);
 
-        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employer(), _dispatcher.Object)
+        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employer(), _dispatcher.Object, new TestBranding())
             .Handle(new SendTestEmailCommand(), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -183,12 +183,12 @@ public class MailSettingsHandlerTests {
         var employer = User.Create("Kim", "Stevens", "kim@acme.test", "hash", UserRole.Employer, _tenantId);
         _users.Setup(u => u.GetByIdAsync(employer.Id, It.IsAny<CancellationToken>())).ReturnsAsync(employer);
 
-        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employer(employer.Id), _dispatcher.Object)
+        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employer(employer.Id), _dispatcher.Object, new TestBranding())
             .Handle(new SendTestEmailCommand(), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         _dispatcher.Verify(d => d.DispatchAsync(stored,
-            It.Is<EmailMessage>(m => m.To.SequenceEqual(new[] { "kim@acme.test" })),
+            It.Is<EmailMessage>(m => m.To.SequenceEqual(new[] { "kim@acme.test" }) && m.Subject == "Shiftlog test email"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -200,7 +200,7 @@ public class MailSettingsHandlerTests {
         _dispatcher.Setup(d => d.DispatchAsync(It.IsAny<TenantMailSettings>(), It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new EmailDeliveryException("The SMTP server rejected the username or password."));
 
-        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employer(employer.Id), _dispatcher.Object)
+        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employer(employer.Id), _dispatcher.Object, new TestBranding())
             .Handle(new SendTestEmailCommand(), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
@@ -210,7 +210,7 @@ public class MailSettingsHandlerTests {
 
     [Fact]
     public async Task SendTest_AsEmployee_IsForbidden() {
-        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employee(), _dispatcher.Object)
+        var result = await new SendTestEmailCommandHandler(_unitOfWork.Object, Employee(), _dispatcher.Object, new TestBranding())
             .Handle(new SendTestEmailCommand(), CancellationToken.None);
 
         result.ErrorType.Should().Be(ResultErrorType.Forbidden);

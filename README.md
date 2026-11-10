@@ -146,7 +146,8 @@ can no longer log in.
 - **Notifications.** Approvers see a count next to *Leave* and a banner on their dashboard.
   If the company's email is set up, the supervisor (or every employer, when there's no
   supervisor) gets an email about new requests, and the requester gets one when it's
-  decided. Emails are in each recipient's language (see "Languages").
+  decided. Emails are in each recipient's language (see "Languages") and use the app's name
+  (`APP_TITLE`).
 
 ### Closed months
 
@@ -392,6 +393,8 @@ field empty to keep it). The Data Protection key ring is stored in the same data
 database backup therefore contains both the keys and the encrypted secrets: protect
 backups like you'd protect the secrets themselves. If the keys are ever lost, the app asks
 to re-enter the secret.
+
+Emails use the installation's `APP_TITLE` as the app's name.
 
 For code: inject `IEmailSender` and call `SendAsync(new EmailMessage(to, subject, html, text))`.
 It uses the current user's company settings and returns `Sent`, `NotConfigured` or

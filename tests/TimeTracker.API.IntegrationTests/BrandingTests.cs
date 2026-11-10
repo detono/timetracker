@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using TimeTracker.API.Controllers;
+using TimeTracker.API.Services;
 using Xunit;
 
 namespace TimeTracker.API.IntegrationTests;
@@ -53,5 +54,14 @@ public class UnbrandedInfoTests(CustomWebApplicationFactory factory) : IClassFix
         var info = (await factory.CreateClient().GetFromJsonAsync<ServerInfoDto>("/api/info"))!;
 
         info.Branding.Should().BeEquivalentTo(new { Title = (string?)null, ColorPrimary = (string?)null });
+    }
+}
+
+public class EmailBrandingTests {
+    [Fact]
+    public void EmailBranding_FallsBackToTheDefaultName() {
+        var branding = new AppBranding(Microsoft.Extensions.Options.Options.Create(new BrandingSettings { Title = " " }));
+
+        branding.Title.Should().Be("TimeTracker");
     }
 }

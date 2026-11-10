@@ -13,7 +13,7 @@ namespace TimeTracker.Application.Leave;
 /// the request itself: when the company has no email set up, people still see everything
 /// in the app.
 /// </summary>
-public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender) {
+public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender, IAppBranding branding) {
     /// <summary>Tells the requester's supervisor, or every active employer if they have none.</summary>
     public async Task RequestSubmittedAsync(
         LeaveRequest request, User requester, HourType hourType, CancellationToken cancellationToken
@@ -29,7 +29,7 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
             var body = texts.Get("leaveSubmitted.body",
                 ("name", name), ("type", type), ("period", period), ("hours", request.Hours.ToString("0.##", texts.Culture)));
             var comment = request.Comment is null ? null : texts.Get("comment", ("comment", request.Comment));
-            var action = texts.Get("leaveSubmitted.action");
+            var action = texts.Get("leaveSubmitted.action", ("app", branding.Title));
 
             await emailSender.SendAsync(new EmailMessage(
                 group.Select(r => r.Email).ToList(),

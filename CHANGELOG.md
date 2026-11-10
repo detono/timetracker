@@ -10,6 +10,7 @@ Database migrations run automatically when the API starts, unless a release says
 
 ### Fixed
 
+- Emails said "TimeTracker" even when `APP_TITLE` gives the app another name.
 - Choosing a supervisor on the *Employees* page failed with an "unsupported format" error.
 
 ## [1.3.2] - 2026-11-08

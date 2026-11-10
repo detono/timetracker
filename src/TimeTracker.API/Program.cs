@@ -27,6 +27,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.Configure<BrandingSettings>(builder.Configuration.GetSection(BrandingSettings.SectionName));
+builder.Services.AddSingleton<IAppBranding, AppBranding>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();

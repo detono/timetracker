@@ -12,7 +12,8 @@ namespace TimeTracker.Application.MailSettings.Commands.SendTestEmail;
 public class SendTestEmailCommandHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
-    IMailDispatcher mailDispatcher
+    IMailDispatcher mailDispatcher,
+    IAppBranding branding
 ) : IRequestHandler<SendTestEmailCommand, Result> {
     public async Task<Result> Handle(SendTestEmailCommand request, CancellationToken cancellationToken) {
         if (currentUser.Role != UserRole.Employer) {
@@ -32,10 +33,10 @@ public class SendTestEmailCommandHandler(
         var provider = settings.Provider == MailProvider.MicrosoftGraph ? "Microsoft Graph" : "SMTP";
         var texts = EmailTexts.For(employer.Language);
         var greeting = texts.Get("greeting", ("firstName", employer.FirstName));
-        var body = texts.Get("testEmail.body", ("provider", provider));
+        var body = texts.Get("testEmail.body", ("app", branding.Title), ("provider", provider));
         var message = new EmailMessage(
             new[] { employer.Email },
-            texts.Get("testEmail.subject"),
+            texts.Get("testEmail.subject", ("app", branding.Title)),
             $"<p>{WebUtility.HtmlEncode(greeting)}</p><p>{WebUtility.HtmlEncode(body)}</p>",
             $"{greeting}\n\n{body}");
 

@@ -13,7 +13,8 @@ public class RequestPasswordResetCommandHandler(
     ITenantScope tenantScope,
     IPasswordHasher passwordHasher,
     IEmailSender emailSender,
-    IDateTimeProvider clock
+    IDateTimeProvider clock,
+    IAppBranding branding
 ) : IRequestHandler<RequestPasswordResetCommand, Result> {
     /// <summary>Limits how often one account can be sent a code, so nobody's mailbox gets flooded.</summary>
     public static readonly TimeSpan Cooldown = TimeSpan.FromMinutes(1);
@@ -55,7 +56,7 @@ public class RequestPasswordResetCommandHandler(
         var texts = EmailTexts.For(user.Language);
         var paragraphs = new[] {
             texts.Get("greeting", ("firstName", user.FirstName)),
-            texts.Get("passwordReset.body", ("email", user.Email)),
+            texts.Get("passwordReset.body", ("app", branding.Title), ("email", user.Email)),
             code,
             texts.Get("passwordReset.expiry", ("minutes", ((int)PasswordResetCode.Lifetime.TotalMinutes).ToString(texts.Culture))),
             texts.Get("passwordReset.ignore")
@@ -68,7 +69,7 @@ public class RequestPasswordResetCommandHandler(
         // Delivery problems are logged by the sender; the response stays the same either way.
         await emailSender.SendAsync(new EmailMessage(
             new[] { user.Email },
-            texts.Get("passwordReset.subject"),
+            texts.Get("passwordReset.subject", ("app", branding.Title)),
             html,
             string.Join("\n\n", paragraphs)), cancellationToken);
 
