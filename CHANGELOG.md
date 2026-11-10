@@ -6,6 +6,11 @@ All notable changes to TimeTracker are listed here. The format follows
 
 Database migrations run automatically when the API starts, unless a release says otherwise.
 
+After an update, everyone sees the notes of the releases they haven't seen yet in the app's
+*What's new* window. Write them for the people using the app; put what only matters to people
+who host or build on it (API changes, settings) under `### For developers`, which the window
+leaves out.
+
 ## [Unreleased]
 
 ### Added
@@ -21,6 +26,7 @@ Database migrations run automatically when the API starts, unless a release says
   setting, the address people open the app at; without it the email looks as before.
 - The planboard shows public holidays and company days off: the name under the date, and the
   day shaded.
+- After an update, a **What's new** window shows once what changed since you last looked.
 
 ### Changed
 
@@ -39,6 +45,9 @@ Database migrations run automatically when the API starts, unless a release says
   `PUT /api/users/{id}/external-id` and in the hour type body.
 - New settings: `APP_URL` (for the email buttons) and `WEBHOOK_ALLOW_INTERNAL_HOSTS` (webhooks
   only call public addresses unless it's `true`).
+- `GET /api/whats-new` gives the signed-in user the release notes they haven't seen, and
+  `POST /api/whats-new/seen` remembers they did. The notes come from this file, built into the
+  API image; `### For developers` sections are left out.
 
 ## [1.3.2] - 2026-11-08
 

@@ -641,5 +641,19 @@
     "testing": "Versturen…",
     "testOk": "Test afgeleverd: het adres antwoordde {{code}}.",
     "testFailed": "Test mislukt: {{error}}"
+  },
+  "whatsNew": {
+    "title": "Wat is er nieuw",
+    "intro": "De app is bijgewerkt. Dit is er veranderd sinds je laatste bezoek (in het Engels).",
+    "version": "Versie {{version}}",
+    "close": "Begrepen",
+    "sections": {
+      "added": "Nieuw",
+      "changed": "Gewijzigd",
+      "deprecated": "Verdwijnt binnenkort",
+      "removed": "Verwijderd",
+      "fixed": "Opgelost",
+      "security": "Beveiliging"
+    }
   }
 }

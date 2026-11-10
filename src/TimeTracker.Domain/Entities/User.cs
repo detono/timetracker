@@ -57,6 +57,12 @@ public class User : BaseEntity
     /// <summary>This person's id in another system, like payroll; see <see cref="ExternalIds"/>.</summary>
     public string? ExternalId { get; private set; }
 
+    /// <summary>
+    /// The newest release whose "What's new" notes this person has seen, e.g. "1.4.0".
+    /// Null until they close the notes for the first time.
+    /// </summary>
+    public string? LastSeenVersion { get; private set; }
+
     private readonly List<TimeEntry> _timeEntries = new();
     public IReadOnlyCollection<TimeEntry> TimeEntries => _timeEntries.AsReadOnly();
 
@@ -201,6 +207,20 @@ public class User : BaseEntity
         ExternalId = ExternalIds.Normalize(externalId);
         MarkUpdated();
     }
+
+    /// <summary>Records that the "What's new" notes up to this version were seen.</summary>
+    public void MarkVersionSeen(string version)
+    {
+        if (string.IsNullOrWhiteSpace(version) || version.Length > MaxVersionLength)
+        {
+            throw new DomainException($"A version must be 1 to {MaxVersionLength} characters.");
+        }
+
+        LastSeenVersion = version.Trim();
+        MarkUpdated();
+    }
+
+    public const int MaxVersionLength = 20;
 
     public void SetTracksHours(bool tracksHours)
     {

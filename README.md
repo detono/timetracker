@@ -262,6 +262,14 @@ Apps (like a phone app) use it to check that an address really is a TimeTracker 
 that they can talk to it. `apiVersion` only goes up when the API changes in a way that breaks
 existing apps.
 
+### What's new after an update
+
+The first time someone opens the app after an update, a *What's new* window shows the
+releases they haven't seen yet, straight from [CHANGELOG.md](CHANGELOG.md) (in English). It's
+remembered per account, so it shows once, on whichever device. New accounts only see it from
+the next release on. Notes under `### For developers` are left out, so put API changes and
+settings there.
+
 ## Configuration (do this first)
 
 Copy the environment template and fill in real values:

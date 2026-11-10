@@ -386,3 +386,19 @@ export interface WebhooksOverview {
   recentDeliveries: WebhookDelivery[];
 }
 
+/** One section ("Added", "Changed", "Fixed"…) of a release's notes. Items are short Markdown. */
+export interface ReleaseSection {
+  title: string;
+  items: string[];
+}
+
+export interface Release {
+  version: string;
+  date: string; // yyyy-MM-dd
+  sections: ReleaseSection[];
+}
+
+export interface WhatsNew {
+  /** Releases the user hasn't seen yet, newest first. */
+  releases: Release[];
+}

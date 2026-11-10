@@ -9,6 +9,7 @@ import type { ShellContext } from "../utils/leave";
 import { Icon, type IconName } from "./Icon";
 import { initials } from "../utils/initials";
 import { appVersion } from "../version";
+import { WhatsNewDialog } from "./WhatsNewDialog";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "shell__nav-link is-active" : "shell__nav-link");
 
@@ -138,6 +139,7 @@ export function AppShell() {
       <main className="shell__content">
         <Outlet context={shellContext} />
       </main>
+      <WhatsNewDialog />
     </div>
   );
 }

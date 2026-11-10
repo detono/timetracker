@@ -641,5 +641,19 @@
     "testing": "Sending…",
     "testOk": "Test delivered: the address answered {{code}}.",
     "testFailed": "Test failed: {{error}}"
+  },
+  "whatsNew": {
+    "title": "What's new",
+    "intro": "The app was updated. Here's what changed since you last looked.",
+    "version": "Version {{version}}",
+    "close": "Got it",
+    "sections": {
+      "added": "New",
+      "changed": "Changed",
+      "deprecated": "Going away",
+      "removed": "Removed",
+      "fixed": "Fixed",
+      "security": "Security"
+    }
   }
 }

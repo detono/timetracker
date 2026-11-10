@@ -16,6 +16,8 @@
   <ItemGroup>
     <!-- Email texts, one file per language (see README, "Adding a language"). -->
     <EmbeddedResource Include="Resources\Emails\*.json" LogicalName="Emails.%(Filename).json" />
+    <!-- The "What's new" notes people see after an update (see WhatsNew/ReleaseNotes.cs). -->
+    <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="CHANGELOG.md" Link="Resources\CHANGELOG.md" />
   </ItemGroup>
 
   <ItemGroup>

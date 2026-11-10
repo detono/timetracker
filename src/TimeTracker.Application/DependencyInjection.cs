@@ -27,6 +27,8 @@ public static class DependencyInjection {
         services.AddScoped<Webhooks.WebhookDeliveryProcessor>();
         services.AddScoped<LeaveRequests.LeaveRequestMapper>();
         services.AddScoped<HoursOverview.HoursOverviewLoader>();
+        // CHANGELOG.md, read once, for the "What's new" notes.
+        services.AddSingleton(_ => WhatsNew.ReleaseNotes.LoadEmbedded());
 
         return services;
     }

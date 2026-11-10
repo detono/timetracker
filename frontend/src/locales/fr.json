@@ -641,5 +641,19 @@
     "testing": "Envoi…",
     "testOk": "Test livré : l'adresse a répondu {{code}}.",
     "testFailed": "Échec du test : {{error}}"
+  },
+  "whatsNew": {
+    "title": "Quoi de neuf",
+    "intro": "L'application a été mise à jour. Voici ce qui a changé depuis votre dernière visite (en anglais).",
+    "version": "Version {{version}}",
+    "close": "Compris",
+    "sections": {
+      "added": "Nouveau",
+      "changed": "Modifié",
+      "deprecated": "Bientôt retiré",
+      "removed": "Retiré",
+      "fixed": "Corrigé",
+      "security": "Sécurité"
+    }
   }
 }

@@ -13,7 +13,8 @@ COPY ["src/TimeTracker.Infrastructure/TimeTracker.Infrastructure.csproj", "src/T
 COPY ["src/TimeTracker.API/TimeTracker.API.csproj", "src/TimeTracker.API/"]
 RUN dotnet restore "src/TimeTracker.API/TimeTracker.API.csproj"
 
-# Copy the rest of the source and publish
+# Copy the rest of the source and publish. CHANGELOG.md is built in for the "What's new" notes.
+COPY CHANGELOG.md ./
 COPY src/ src/
 RUN dotnet publish "src/TimeTracker.API/TimeTracker.API.csproj" -c Release -o /app/publish --no-restore
 

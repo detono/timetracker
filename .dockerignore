@@ -6,3 +6,5 @@
 .github/
 tests/
 *.md
+# Built into the API for the "What's new" notes.
+!CHANGELOG.md
