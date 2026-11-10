@@ -8,6 +8,7 @@ import { PlanBoard } from "../components/PlanBoard";
 import { WeekNavigator } from "../components/WeekNavigator";
 import { TeamHoursTable } from "../components/TeamHoursTable";
 import { getWeekRange } from "../utils/dateRange";
+import { usePublicHolidays } from "../utils/publicHolidays";
 import type { TimeEntry } from "../types";
 
 /**
@@ -23,6 +24,7 @@ export function TeamPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { from, to, days } = getWeekRange(anchorDate);
+  const holidays = usePublicHolidays(from, to);
 
   const loadEntries = useCallback(async () => {
     setLoading(true);
@@ -62,7 +64,7 @@ export function TeamPage() {
       ) : view === "list" ? (
         <ListView entries={entries} showEmployeeColumn />
       ) : (
-        <PlanBoard days={days} entries={entries} />
+        <PlanBoard days={days} entries={entries} holidays={holidays} />
       )}
     </div>
   );

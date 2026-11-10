@@ -9,6 +9,8 @@ interface Props {
   onEdit?: (entry: TimeEntry) => void;
   /** Entries in a locked month can't be opened for editing. */
   isLocked?: (entry: TimeEntry) => boolean;
+  /** Public holidays and company days off in view, as date → name. */
+  holidays?: Record<string, string>;
 }
 
 /**
@@ -16,14 +18,18 @@ interface Props {
  * one column per day, with a card per logged shift. Falls back to a single "You" row
  * when only the current user's entries are supplied.
  */
-export function PlanBoard({ days, entries, onEdit, isLocked }: Props) {
+export function PlanBoard({ days, entries, onEdit, isLocked, holidays = {} }: Props) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language.split('-')[0];
 
   const employeeNames = Array.from(new Set(entries.map((e) => e.userFullName))).sort();
 
-  if (employeeNames.length === 0) {
-    return <p className="empty-state">{t('planBoard.emptyState')}</p>;
+  const hasHolidays = days.some((day) => holidays[day]);
+  const empty = <p className="empty-state">{t('planBoard.emptyState')}</p>;
+
+  // Without hours there are no rows, but a holiday that week is still worth showing.
+  if (employeeNames.length === 0 && !hasHolidays) {
+    return empty;
   }
 
   return (
@@ -31,8 +37,16 @@ export function PlanBoard({ days, entries, onEdit, isLocked }: Props) {
       <div className="planboard__grid" style={{ gridTemplateColumns: `160px repeat(${days.length}, 1fr)` }}>
         <div className="planboard__corner" />
         {days.map((day) => (
-          <div className="planboard__day-header" key={day}>
+          <div
+            className={holidays[day] ? "planboard__day-header planboard__day-header--holiday" : "planboard__day-header"}
+            key={day}
+          >
             {formatDayLabel(day)}
+            {holidays[day] && (
+              <span className="planboard__holiday" title={holidays[day]}>
+                {holidays[day]}
+              </span>
+            )}
           </div>
         ))}
 
@@ -44,7 +58,10 @@ export function PlanBoard({ days, entries, onEdit, isLocked }: Props) {
             {days.map((day) => {
               const cellEntries = entries.filter((e) => e.userFullName === name && e.workDate === day);
               return (
-                <div className="planboard__cell" key={`${name}-${day}`}>
+                <div
+                  className={holidays[day] ? "planboard__cell planboard__cell--holiday" : "planboard__cell"}
+                  key={`${name}-${day}`}
+                >
                   {cellEntries.map((entry) => {
                     const locked = isLocked?.(entry) ?? false;
                     return (
@@ -78,6 +95,7 @@ export function PlanBoard({ days, entries, onEdit, isLocked }: Props) {
           </Fragment>
         ))}
       </div>
+      {employeeNames.length === 0 && empty}
     </div>
   );
 }

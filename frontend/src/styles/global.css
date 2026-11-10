@@ -1177,6 +1177,34 @@ button {
   gap: 4px;
 }
 
+/* Public holiday or company day off: nobody is expected to work. */
+.planboard__day-header--holiday {
+  color: var(--accent-ink);
+}
+
+.planboard__holiday {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planboard__cell--holiday {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--paper),
+    var(--paper) 6px,
+    var(--line) 6px,
+    var(--line) 7px
+  );
+}
+
 .planboard__shift {
   border: none;
   border-left: 3px solid var(--color-primary);

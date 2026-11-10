@@ -12,6 +12,7 @@ import { getHourTypes } from "../api/hourTypesApi";
 import { getLockedMonths } from "../api/lockedMonthsApi";
 import { getWorkSchedule } from "../api/leaveApi";
 import { isInLockedMonth, lockedMonthKeys } from "../utils/lockedMonths";
+import { usePublicHolidays } from "../utils/publicHolidays";
 import { projectsApi } from "../api/projectsApi"; // <-- 1. Added this import
 import { extractErrorMessage } from "../api/client";
 import { ViewToggle, type ViewMode } from "../components/ViewToggle";
@@ -52,6 +53,7 @@ export function DashboardPage() {
   const [overviewKey, setOverviewKey] = useState(0);
 
   const { from, to, days } = getWeekRange(anchorDate);
+  const holidays = usePublicHolidays(from, to);
 
   const loadEntries = useCallback(async () => {
     setLoading(true);
@@ -189,7 +191,7 @@ export function DashboardPage() {
       ) : view === "list" ? (
         <ListView entries={entries} onEdit={setEditing} onDelete={handleDelete} isLocked={isLocked} />
       ) : (
-        <PlanBoard days={days} entries={entries} onEdit={setEditing} isLocked={isLocked} />
+        <PlanBoard days={days} entries={entries} onEdit={setEditing} isLocked={isLocked} holidays={holidays} />
       )}
     </div>
   );

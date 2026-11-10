@@ -19,6 +19,8 @@ Database migrations run automatically when the API starts, unless a release says
 - Leave request emails have **Approve** and **Reject** buttons in the app's colours. They open
   the request in the app (after signing in) and ask to confirm. They need the new `APP_URL`
   setting, the address people open the app at; without it the email looks as before.
+- The planboard shows public holidays and company days off: the name under the date, and the
+  day shaded.
 
 ### Changed
 
