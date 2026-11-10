@@ -8,6 +8,10 @@ Database migrations run automatically when the API starts, unless a release says
 
 ## [Unreleased]
 
+### Fixed
+
+- Choosing a supervisor on the *Employees* page failed with an "unsupported format" error.
+
 ## [1.3.2] - 2026-11-08
 
 ### Added
