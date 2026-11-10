@@ -13,6 +13,7 @@ import {
 } from "../api/companyApi";
 import { WorkScheduleEditor } from "../components/WorkScheduleEditor";
 import { ActivityLogPanel } from "../components/ActivityLogPanel";
+import { WebhooksPanel } from "../components/WebhooksPanel";
 import { useConfirm } from "../components/ConfirmDialog";
 import { EmailSettingsPage } from "./EmailSettingsPage";
 import { formatDayLabel } from "../utils/dateRange";
@@ -25,7 +26,7 @@ const COUNTRY_CODES = [
   "SI", "EE", "LV", "LT", "US", "CA", "AU", "NZ"
 ];
 
-const TABS = ["general", "schedule", "holidays", "email", "activity"] as const;
+const TABS = ["general", "schedule", "holidays", "email", "webhooks", "activity"] as const;
 type CompanyTab = (typeof TABS)[number];
 
 const emptyCompany: Company = { name: "", street: null, postalCode: null, city: null, countryCode: null, region: null };
@@ -93,6 +94,7 @@ export function CompanyPage() {
             {tab === "schedule" && <WorkScheduleEditor userId={null} />}
             {tab === "holidays" && <HolidaysPanel company={company} />}
             {tab === "email" && <EmailSettingsPage embedded />}
+            {tab === "webhooks" && <WebhooksPanel />}
             {tab === "activity" && <ActivityLogPanel />}
           </div>
         </>

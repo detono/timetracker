@@ -43,18 +43,11 @@ public class CreateHourTypeCommandHandler(
         // Make sure your HourType.Create method in the domain accepts request.IsDefault!
         var hourType = HourType.Create(request.LocalizedNames, request.ColorHex, request.IsDefault);
         hourType.SetLeaveOptions(request.IsLeave, request.DeductsFromLeaveBalance);
+        hourType.SetExternalId(request.ExternalId);
 
         await unitOfWork.HourTypes.AddAsync(hourType, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<HourTypeDto>.Success(new HourTypeDto(
-            hourType.Id,
-            hourType.LocalizedNames,
-            hourType.ColorHex,
-            hourType.IsActive,
-            hourType.IsDefault,
-            hourType.IsLeave,
-            hourType.DeductsFromLeaveBalance
-        ));
+        return Result<HourTypeDto>.Success(HourTypeDto.From(hourType));
     }
 }

@@ -163,13 +163,13 @@ started can't be locked.
 
 The *Company* page shows employers who did what: locking and unlocking months, adding,
 changing or removing someone else's hours (with the hours before and after), password resets
-(also by a platform admin) and (de)activated accounts. Entries can't be changed or removed,
+(also by a platform admin), (de)activated accounts and added, changed or removed webhooks. Entries can't be changed or removed,
 and they're kept with the company's data.
 
 ### Company settings
 
 Employers manage company-wide settings on the *Company* page: name and address, the usual
-working hours, public holidays and outgoing email.
+working hours, public holidays, outgoing email and webhooks.
 
 **Public holidays.** The company's country (and, where holidays differ per region, a region
 like `DE-BY`) decides which official holidays apply. *Load official holidays* fetches them
@@ -249,6 +249,7 @@ and none of them need an account or key from us:
 | [OpenStreetMap Nominatim](https://nominatim.org) | The browser | Only when someone clicks *Use my location* on a time entry | The coordinates, to turn them into a street address |
 | [Nager.Date](https://date.nager.at) | The API | Only when an employer clicks *Load official holidays* | The country code and year |
 | Your SMTP server or Microsoft 365 | The API | Only when the company's email is set up and switched on | The emails being sent |
+| The company's webhook addresses | The API | Only for webhooks an employer added and switched on | The events they listen to (see [Webhooks](#webhooks-per-company)) |
 
 Nothing else leaves your server: no analytics, tracking or update checks. Nager.Date can
 point to your own instance with `PublicHolidays__BaseUrl`. If the location lookup fails,
@@ -438,6 +439,86 @@ usually has password-based SMTP turned off — use Microsoft Graph for it instea
 A 401/403 from the test email almost always means the permission is missing, is
 Delegated instead of Application, lacks admin consent, or the access policy doesn't
 include the mailbox. Policy changes can take up to an hour to apply.
+
+### Webhooks (per company)
+
+A webhook tells another system (payroll, HR, or a tool like n8n, Zapier, Make or Power
+Automate) when something happens here. An employer adds them under *Company → Webhooks*:
+an address, the events to send, and optionally an extra header such as
+`Authorization: Bearer …` for APIs that need a key. *Send test* sends a made-up event right
+away and shows the answer. *Recent calls* lists the last calls and how they went.
+
+**Events:** `leave.requested`, `leave.approved`, `leave.rejected` and `leave.cancelled`.
+
+**External IDs.** Give employees (*Manage employees → ⋯ → External ID*) and leave types
+(*Hour types → Edit*) the id they have in the other system, like a payroll number or an
+absence code. They're sent along, so the receiver knows who and what an event is about.
+
+Each event is a `POST` with a JSON body:
+
+```json
+{
+  "id": "21ff0941-1378-42c0-b5d8-f7b17112e9e8",
+  "event": "leave.approved",
+  "occurredAtUtc": "2026-11-09T14:27:52Z",
+  "actor": { "id": "…", "name": "Sam Lead" },
+  "employee": { "id": "…", "externalId": "EMP-0042", "firstName": "Jonathan", "lastName": "Peeters", "email": "jonathan@acme.test" },
+  "leave": {
+    "id": "…", "status": "Approved",
+    "type": { "id": "…", "externalId": "PTO", "names": { "en": "Paid time off", "nl": "Verlof" } },
+    "startDate": "2026-11-16", "endDate": "2026-11-20", "firstDayPart": "Full", "lastDayPart": "Full",
+    "hours": 37.5, "comment": "Family trip", "reviewComment": null,
+    "days": [
+      { "date": "2026-11-16", "startTime": "09:00:00", "endTime": "17:00:00" },
+      { "date": "2026-11-17", "startTime": "09:00:00", "endTime": "17:00:00" }
+    ]
+  }
+}
+```
+
+`days` lists the working days that were booked, each with its hours from the employee's work
+schedule (local time; weekends and public holidays are left out, half days have their own
+times). It's only on `leave.approved`, when they're booked; other events have `null`.
+
+Every event has `id`, `event`, `occurredAtUtc`, `actor` and `employee`, plus a block for what
+it's about (`leave` for now). New events add new blocks; existing fields don't change.
+
+**Delivery.** Events are saved together with the change they're about and sent in the
+background within a few seconds, so a slow or broken receiver never slows the app down. Any
+`2xx` answer counts as delivered. Otherwise the call is tried again after 1 minute, 5 minutes,
+30 minutes, 2 hours and 6 hours, then marked as failed; an employer can *Send again*. A `4xx`
+(except `408` and `429`) isn't retried, since waiting won't fix it. Redirects aren't followed.
+`id` stays the same on every retry, so use it to skip duplicates. Finished calls are kept 30 days.
+
+**Checking that a call is genuine.** Each webhook has a signing secret (*Show* in its form).
+Every call carries these headers:
+
+| Header | Value |
+| --- | --- |
+| `X-Webhook-Event` | The event, e.g. `leave.approved` |
+| `X-Webhook-Id` | The event's `id` |
+| `X-Webhook-Delivery` | This call's id (differs per webhook) |
+| `X-Webhook-Timestamp` | Unix time in seconds when it was sent |
+| `X-Webhook-Signature` | `sha256=` + hex HMAC-SHA256 of `{timestamp}.{body}`, keyed with the secret |
+
+Compute the HMAC over the raw body, compare in constant time, and reject old timestamps
+(say, older than 5 minutes) so a captured call can't be replayed. In Node.js:
+
+```js
+const crypto = require("crypto");
+const expected = "sha256=" + crypto.createHmac("sha256", secret)
+  .update(`${req.headers["x-webhook-timestamp"]}.${rawBody}`).digest("hex");
+const got = Buffer.from(req.headers["x-webhook-signature"] ?? "");
+const ok = got.length === expected.length && crypto.timingSafeEqual(Buffer.from(expected), got);
+```
+
+**Network.** Like mail servers, webhooks may only call public addresses by default, so an
+employer can't use them to reach services inside your server's network. If the receiver runs
+on your own network (e.g. your own n8n), set `WEBHOOK_ALLOW_INTERNAL_HOSTS=true` in `.env`.
+Secrets and header values are encrypted the same way as mail secrets.
+
+For code: to add an event, add its name to `WebhookEvents`, call `WebhookQueue.QueueAsync`
+before the handler's `SaveChanges`, and add a test.
 
 ## Languages
 

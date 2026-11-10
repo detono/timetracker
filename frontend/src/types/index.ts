@@ -39,6 +39,8 @@ export interface UserAccount {
   isActive: boolean;
   /** Whether their logged hours are compared with their work schedule. */
   tracksHours: boolean;
+  /** Their id in another system, like payroll; sent along in webhooks. */
+  externalId?: string | null;
 }
 
 export interface HourType {
@@ -51,6 +53,8 @@ export interface HourType {
   isLeave: boolean;
   /** Uses up the yearly leave balance. */
   deductsFromLeaveBalance: boolean;
+  /** Its code in another system, like payroll; sent along in webhooks. */
+  externalId?: string | null;
 }
 
 export interface TimeEntry {
@@ -345,3 +349,40 @@ export interface AuditEntry {
   /** Per action, e.g. "month", "entry", or "before" and "after". */
   details: Record<string, string>;
 }
+
+export interface Webhook {
+  id: string;
+  name: string;
+  url: string;
+  events: string[];
+  isEnabled: boolean;
+  /** An extra header sent with every call, e.g. "Authorization". Its value is never sent back. */
+  headerName: string | null;
+  hasHeaderValue: boolean;
+  createdAtUtc: string;
+}
+
+export type WebhookDeliveryStatus = "Pending" | "Succeeded" | "Failed";
+
+export interface WebhookDelivery {
+  id: string;
+  webhookId: string;
+  webhookName: string;
+  eventType: string;
+  /** Who and when it's about, e.g. "Eva Peeters · 2026-11-16 – 2026-11-20". */
+  summary: string;
+  status: WebhookDeliveryStatus;
+  attempts: number;
+  lastStatusCode: number | null;
+  lastError: string | null;
+  createdAtUtc: string;
+  lastAttemptAtUtc: string | null;
+  nextAttemptAtUtc: string | null;
+}
+
+export interface WebhooksOverview {
+  availableEvents: string[];
+  webhooks: Webhook[];
+  recentDeliveries: WebhookDelivery[];
+}
+

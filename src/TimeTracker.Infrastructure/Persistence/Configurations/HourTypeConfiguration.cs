@@ -34,5 +34,6 @@ public class HourTypeConfiguration : IEntityTypeConfiguration<HourType> {
         builder.Property(t => t.IsDefault).HasDefaultValue(false);
         builder.Property(t => t.IsLeave).HasDefaultValue(false);
         builder.Property(t => t.DeductsFromLeaveBalance).HasDefaultValue(false);
+        builder.Property(t => t.ExternalId).HasMaxLength(ExternalIds.MaxLength);
     }
 }

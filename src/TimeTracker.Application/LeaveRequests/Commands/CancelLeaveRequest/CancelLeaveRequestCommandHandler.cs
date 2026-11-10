@@ -4,6 +4,7 @@ using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
 using TimeTracker.Application.LockedMonths;
+using TimeTracker.Application.Webhooks;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
 
@@ -16,7 +17,8 @@ public class CancelLeaveRequestCommandHandler(
     LeaveService leave,
     MonthLocks monthLocks,
     LeaveRequestMapper mapper,
-    LeaveNotifications notifications
+    LeaveNotifications notifications,
+    WebhookQueue webhooks
 ) : IRequestHandler<CancelLeaveRequestCommand, Result<LeaveRequestDto>> {
     public async Task<Result<LeaveRequestDto>> Handle(CancelLeaveRequestCommand request, CancellationToken cancellationToken) {
         var leaveRequest = await unitOfWork.LeaveRequests.GetByIdAsync(request.Id, cancellationToken);
@@ -54,10 +56,15 @@ public class CancelLeaveRequestCommandHandler(
         }
 
         leaveRequest.Cancel(currentUser.UserId, request.Comment, clock.UtcNow);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var canceller = await unitOfWork.Users.GetByIdAsync(currentUser.UserId, cancellationToken);
         var hourType = await unitOfWork.HourTypes.GetByIdAsync(leaveRequest.HourTypeId, cancellationToken);
+        if (canceller is not null && hourType is not null) {
+            await webhooks.LeaveChangedAsync(leaveRequest, requester, hourType, canceller, null, cancellationToken);
+        }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         if (canceller is not null && hourType is not null) {
             await notifications.RequestReviewedAsync(
                 leaveRequest, requester, canceller, hourType, cancellationToken);

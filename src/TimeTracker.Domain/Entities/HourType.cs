@@ -25,6 +25,9 @@ public class HourType : TenantOwnedEntity {
 
     /// <summary>Whether hours of this type use up the yearly leave balance. Only applies to leave types.</summary>
     public bool DeductsFromLeaveBalance { get; private set; }
+
+    /// <summary>This type's code in another system, like payroll; see <see cref="ExternalIds"/>.</summary>
+    public string? ExternalId { get; private set; }
     
     private HourType() {
         // EF Core
@@ -70,6 +73,11 @@ public class HourType : TenantOwnedEntity {
     public void SetLeaveOptions(bool isLeave, bool deductsFromBalance) {
         IsLeave = isLeave;
         DeductsFromLeaveBalance = isLeave && deductsFromBalance;
+        MarkUpdated();
+    }
+
+    public void SetExternalId(string? externalId) {
+        ExternalId = ExternalIds.Normalize(externalId);
         MarkUpdated();
     }
 

@@ -20,6 +20,17 @@ interface LeaveOptions {
 
 const noLeave: LeaveOptions = { isLeave: false, deductsFromLeaveBalance: false };
 
+/** This type's code in another system, like payroll; sent along in webhooks. */
+function ExternalIdField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const { t } = useTranslation();
+  return (
+    <label className="form__field form__field--narrow" title={t('hourTypes.externalIdHint')}>
+      <span>{t('hourTypes.externalId')}</span>
+      <input className="mono" value={value} onChange={(e) => onChange(e.target.value)} maxLength={100} placeholder="PTO" />
+    </label>
+  );
+}
+
 /** The two leave checkboxes; "uses up the balance" only applies to leave types. */
 function LeaveOptionsFields({ value, onChange }: { value: LeaveOptions; onChange: (value: LeaveOptions) => void }) {
   const { t } = useTranslation();
@@ -120,6 +131,7 @@ export function HourTypesPage() {
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [isDefault, setIsDefault] = useState(false);
   const [leaveOptions, setLeaveOptions] = useState(noLeave);
+  const [externalId, setExternalId] = useState("");
   const [creating, setCreating] = useState(false);
 
   // Edit state
@@ -128,6 +140,7 @@ export function HourTypesPage() {
   const [editColor, setEditColor] = useState(DEFAULT_COLOR);
   const [editIsDefault, setEditIsDefault] = useState(false);
   const [editLeaveOptions, setEditLeaveOptions] = useState(noLeave);
+  const [editExternalId, setEditExternalId] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -171,12 +184,13 @@ export function HourTypesPage() {
         throw new Error("Please provide at least one valid language code and name.");
       }
 
-      await createHourType({ localizedNames: dictionary, colorHex: color, isDefault, ...leaveOptions });
+      await createHourType({ localizedNames: dictionary, colorHex: color, isDefault, ...leaveOptions, externalId: externalId.trim() || null });
 
       setNames([{ lang: "en", value: "" }, { lang: "nl", value: "" }, { lang: "fr", value: "" }]);
       setColor(DEFAULT_COLOR);
       setIsDefault(false);
       setLeaveOptions(noLeave);
+      setExternalId("");
       await load();
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -197,6 +211,7 @@ export function HourTypesPage() {
     setEditColor(type.colorHex);
     setEditIsDefault(type.isDefault);
     setEditLeaveOptions({ isLeave: type.isLeave, deductsFromLeaveBalance: type.deductsFromLeaveBalance });
+    setEditExternalId(type.externalId ?? "");
   }
 
   async function handleSaveEdit(e: FormEvent) {
@@ -214,7 +229,8 @@ export function HourTypesPage() {
         localizedNames: dictionary,
         colorHex: editColor,
         isDefault: editIsDefault,
-        ...editLeaveOptions
+        ...editLeaveOptions,
+        externalId: editExternalId.trim() || null
       });
       setEditingId(null);
       await load();
@@ -295,6 +311,8 @@ export function HourTypesPage() {
               />
               <span>{t('hourTypes.setAsDefault')}</span>
             </label>
+
+            <ExternalIdField value={externalId} onChange={setExternalId} />
           </div>
 
           <LeaveOptionsFields value={leaveOptions} onChange={setLeaveOptions} />
@@ -349,6 +367,8 @@ export function HourTypesPage() {
                                           />
                             <span>{t('hourTypes.setAsDefault')}</span>
                           </label>
+
+                          <ExternalIdField value={editExternalId} onChange={setEditExternalId} />
                         </div>
 
                         <LeaveOptionsFields value={editLeaveOptions} onChange={setEditLeaveOptions} />
@@ -372,6 +392,11 @@ export function HourTypesPage() {
                           <span className="badge" title={type.deductsFromLeaveBalance ? t('hourTypes.deductsFromBalance') : undefined}>
                             {type.deductsFromLeaveBalance ? t('hourTypes.leaveBadgeBalance') : t('hourTypes.leaveBadge')}
                           </span>
+                        )}
+                        {type.externalId && (
+                          <div className="list-view__notes" title={t('hourTypes.externalId')}>
+                            <span className="mono">{type.externalId}</span>
+                          </div>
                         )}
                       </td>
                       <td>

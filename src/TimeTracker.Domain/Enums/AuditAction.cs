@@ -12,5 +12,9 @@ public enum AuditAction
     /// <summary>A temporary password set by an employer or platform admin.</summary>
     PasswordReset,
     UserDeactivated,
-    UserActivated
+    UserActivated,
+    /// <summary>Webhooks send company data elsewhere, so who set them up is recorded.</summary>
+    WebhookCreated,
+    WebhookUpdated,
+    WebhookDeleted
 }

@@ -45,18 +45,11 @@ public class UpdateHourTypeCommandHandler(
         // Make sure this Update method accepts request.IsDefault!
         hourType.Update(request.LocalizedNames, request.ColorHex, request.IsDefault);
         hourType.SetLeaveOptions(request.IsLeave, request.DeductsFromLeaveBalance);
+        hourType.SetExternalId(request.ExternalId);
 
         unitOfWork.HourTypes.Update(hourType);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<HourTypeDto>.Success(new HourTypeDto(
-            hourType.Id,
-            hourType.LocalizedNames,
-            hourType.ColorHex,
-            hourType.IsActive,
-            hourType.IsDefault,
-            hourType.IsLeave,
-            hourType.DeductsFromLeaveBalance
-        ));
+        return Result<HourTypeDto>.Success(HourTypeDto.From(hourType));
     }
 }

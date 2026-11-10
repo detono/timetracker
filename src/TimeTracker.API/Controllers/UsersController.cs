@@ -6,6 +6,7 @@ using TimeTracker.Application.Users.Commands.AssignSupervisor;
 using TimeTracker.Application.Users.Commands.DeactivateUser;
 using TimeTracker.Application.Users.Commands.RegisterUser;
 using TimeTracker.Application.Users.Commands.ResetPassword;
+using TimeTracker.Application.Users.Commands.SetExternalId;
 using TimeTracker.Application.Users.Commands.SetTracksHours;
 using TimeTracker.Application.Users.Dtos;
 using TimeTracker.Application.Users.Queries.GetUsers;
@@ -73,6 +74,14 @@ public class UsersController : ApiControllerBase
         return HandleResult(result);
     }
 
+    /// <summary>Sets someone's id in another system (payroll, HR), sent along in webhooks. Empty clears it.</summary>
+    [HttpPut("{id:guid}/external-id")]
+    public async Task<ActionResult> SetExternalId(Guid id, [FromBody] SetExternalIdBody body, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(new SetExternalIdCommand(id, body.ExternalId), cancellationToken);
+        return HandleResult(result);
+    }
+
     /// <summary>Sets a new password for another user, without needing their current one.</summary>
     [HttpPost("{id:guid}/reset-password")]
     public async Task<ActionResult> ResetPassword(Guid id, [FromBody] ResetPasswordRequestBody body, CancellationToken cancellationToken)
@@ -85,3 +94,5 @@ public class UsersController : ApiControllerBase
 public record ResetPasswordRequestBody(string NewPassword);
 
 public record SetTracksHoursBody(bool TracksHours);
+
+public record SetExternalIdBody(string? ExternalId);

@@ -15,6 +15,10 @@ export interface ConfirmOptions {
 export interface ReasonOptions extends ConfirmOptions {
   /** Label of the optional text field. */
   reasonLabel: string;
+  /** What the field starts with, e.g. the current value when editing one. */
+  initialValue?: string;
+  /** A one-line field instead of a text area, for short values like an id. */
+  singleLine?: boolean;
 }
 
 interface ConfirmApi {
@@ -27,6 +31,7 @@ interface ConfirmApi {
 interface Request {
   options: ConfirmOptions;
   reasonLabel?: string;
+  singleLine?: boolean;
   resolve: (result: { confirmed: boolean; reason: string }) => void;
 }
 
@@ -44,29 +49,29 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
-  const reasonRef = useRef<HTMLTextAreaElement>(null);
+  const reasonRef = useRef<HTMLTextAreaElement & HTMLInputElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const pressedOnBackdrop = useRef(false);
   const titleId = useId();
   const messageId = useId();
   const reasonId = useId();
 
-  const open = useCallback((options: ConfirmOptions, reasonLabel?: string) => {
+  const open = useCallback((options: ConfirmOptions, reasonLabel?: string, initialValue = "", singleLine = false) => {
     return new Promise<{ confirmed: boolean; reason: string }>((resolve) => {
       setRequest((previous) => {
         // Only one question at a time: a new one cancels the one still open.
         previous?.resolve({ confirmed: false, reason: "" });
-        return { options, reasonLabel, resolve };
+        return { options, reasonLabel, singleLine, resolve };
       });
-      setReason("");
+      setReason(initialValue);
     });
   }, []);
 
   const api = useMemo<ConfirmApi>(
     () => ({
       confirm: async (options) => (await open(options)).confirmed,
-      askReason: async ({ reasonLabel, ...options }) => {
-        const result = await open(options, reasonLabel);
+      askReason: async ({ reasonLabel, initialValue, singleLine, ...options }) => {
+        const result = await open(options, reasonLabel, initialValue, singleLine);
         return result.confirmed ? result.reason.trim() : null;
       }
     }),
@@ -138,13 +143,17 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
             {request.reasonLabel !== undefined && (
               <div className="form__field confirm-dialog__reason">
                 <label htmlFor={reasonId}>{request.reasonLabel}</label>
-                <textarea
-                  id={reasonId}
-                  ref={reasonRef}
-                  rows={3}
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                />
+                {request.singleLine ? (
+                  <input id={reasonId} ref={reasonRef} value={reason} onChange={(e) => setReason(e.target.value)} />
+                ) : (
+                  <textarea
+                    id={reasonId}
+                    ref={reasonRef}
+                    rows={3}
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                  />
+                )}
               </div>
             )}
             <div className="confirm-dialog__actions">

@@ -10,6 +10,8 @@ using TimeTracker.Infrastructure.Identity;
 using TimeTracker.Infrastructure.Persistence;
 using TimeTracker.Infrastructure.Persistence.Repositories;
 using TimeTracker.Infrastructure.Services;
+using TimeTracker.Infrastructure.Webhooks;
+using Microsoft.Extensions.Options;
 
 namespace TimeTracker.Infrastructure;
 
@@ -40,6 +42,7 @@ public static class DependencyInjection {
         services.AddScoped<ILockedMonthRepository, LockedMonthRepository>();
         services.AddScoped<IAuditEntryRepository, AuditEntryRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IWebhookRepository, WebhookRepository>();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
@@ -59,6 +62,13 @@ public static class DependencyInjection {
         services.AddScoped<SmtpMailTransport>();
         services.AddScoped<IMailDispatcher, MailDispatcher>();
         services.AddScoped<IEmailSender, EmailSender>();
+
+        services.Configure<WebhookOptions>(configuration.GetSection(WebhookOptions.SectionName));
+        services.AddHttpClient(HttpWebhookSender.ClientName, client => client.Timeout = TimeSpan.FromSeconds(15))
+            .ConfigurePrimaryHttpMessageHandler(sp =>
+                HttpWebhookSender.CreateHandler(sp.GetRequiredService<IOptions<WebhookOptions>>().Value));
+        services.AddScoped<IWebhookSender, HttpWebhookSender>();
+        services.AddSingleton<WebhookDispatcher>();
 
         var holidayBaseUrl = configuration["PublicHolidays:BaseUrl"];
         services.AddHttpClient<IPublicHolidayProvider, NagerDatePublicHolidayProvider>(client => {

@@ -19,6 +19,7 @@ public interface IUnitOfWork
     ILockedMonthRepository LockedMonths { get; }
     IAuditEntryRepository AuditEntries { get; }
     IRefreshTokenRepository RefreshTokens { get; }
+    IWebhookRepository Webhooks { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

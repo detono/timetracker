@@ -8,4 +8,5 @@ public record UserDto(
     string Role,
     Guid? SupervisorId,
     bool IsActive,
-    bool TracksHours = true);
+    bool TracksHours = true,
+    string? ExternalId = null);

@@ -8,10 +8,26 @@ Database migrations run automatically when the API starts, unless a release says
 
 ## [Unreleased]
 
+### Added
+
+- **Webhooks** (*Company* → *Webhooks*): when leave is requested, approved, rejected or
+  cancelled, the app calls the addresses you choose, so another system (payroll, n8n, Zapier…)
+  can follow along. Each call is signed, failed calls are retried for about 8 hours, and the tab
+  shows recent calls with a *Send test* and *Send again*. See *Webhooks* in the README.
+- **External ID** for employees (*⋯* → *External ID*) and hour types: the ID another system
+  knows them by, sent along in webhook calls.
+
 ### Fixed
 
 - Emails said "TimeTracker" even when `APP_TITLE` gives the app another name.
 - Choosing a supervisor on the *Employees* page failed with an "unsupported format" error.
+
+### For developers
+
+- Users and hour types in the API have an `externalId`, set with
+  `PUT /api/users/{id}/external-id` and in the hour type body.
+- New setting: `WEBHOOK_ALLOW_INTERNAL_HOSTS` (webhooks only call public addresses unless it's
+  `true`).
 
 ## [1.3.2] - 2026-11-08
 

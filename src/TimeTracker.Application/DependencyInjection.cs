@@ -23,6 +23,8 @@ public static class DependencyInjection {
         services.AddScoped<LockedMonths.MonthLocks>();
         services.AddScoped<AuditLog.AuditTrail>();
         services.AddScoped<LeaveNotifications>();
+        services.AddScoped<Webhooks.WebhookQueue>();
+        services.AddScoped<Webhooks.WebhookDeliveryProcessor>();
         services.AddScoped<LeaveRequests.LeaveRequestMapper>();
         services.AddScoped<HoursOverview.HoursOverviewLoader>();
 

@@ -17,7 +17,8 @@ public class UnitOfWork(
     IPasswordResetCodeRepository passwordResetCodes,
     ILockedMonthRepository lockedMonths,
     IAuditEntryRepository auditEntries,
-    IRefreshTokenRepository refreshTokens
+    IRefreshTokenRepository refreshTokens,
+    IWebhookRepository webhooks
 ) : IUnitOfWork {
     public IUserRepository Users { get; } = users;
     public ITimeEntryRepository TimeEntries { get; } = timeEntries;
@@ -33,6 +34,7 @@ public class UnitOfWork(
     public ILockedMonthRepository LockedMonths { get; } = lockedMonths;
     public IAuditEntryRepository AuditEntries { get; } = auditEntries;
     public IRefreshTokenRepository RefreshTokens { get; } = refreshTokens;
+    public IWebhookRepository Webhooks { get; } = webhooks;
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         context.SaveChangesAsync(cancellationToken);

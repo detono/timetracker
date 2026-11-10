@@ -4,6 +4,7 @@ using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
 using TimeTracker.Application.LockedMonths;
+using TimeTracker.Application.Webhooks;
 using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
@@ -17,7 +18,8 @@ public class ReviewLeaveRequestCommandHandler(
     LeaveService leave,
     MonthLocks monthLocks,
     LeaveRequestMapper mapper,
-    LeaveNotifications notifications
+    LeaveNotifications notifications,
+    WebhookQueue webhooks
 ) : IRequestHandler<ReviewLeaveRequestCommand, Result<LeaveRequestDto>> {
     public async Task<Result<LeaveRequestDto>> Handle(ReviewLeaveRequestCommand request, CancellationToken cancellationToken) {
         var leaveRequest = await unitOfWork.LeaveRequests.GetByIdAsync(request.Id, cancellationToken);
@@ -44,6 +46,7 @@ public class ReviewLeaveRequestCommandHandler(
             return Result<LeaveRequestDto>.Failure("Reviewer or hour type was not found.", ResultErrorType.NotFound);
         }
 
+        IReadOnlyList<LeaveDay>? days = null;
         if (request.Decision == LeaveDecision.Approve) {
             // Approving books hours; rejecting doesn't touch any, so it's always allowed.
             if (await monthLocks.FindLockedAsync(leaveRequest.StartDate, leaveRequest.EndDate, cancellationToken) is { } locked) {
@@ -53,7 +56,7 @@ public class ReviewLeaveRequestCommandHandler(
             // Book what the schedule says now: it may have changed since the request was made.
             var schedule = await leave.GetScheduleAsync(requester.Id, cancellationToken);
             var holidays = await leave.GetHolidaysAsync(leaveRequest.StartDate, leaveRequest.EndDate, cancellationToken);
-            var days = LeavePlan.Plan(schedule, leaveRequest.StartDate, leaveRequest.EndDate,
+            days = LeavePlan.Plan(schedule, leaveRequest.StartDate, leaveRequest.EndDate,
                 leaveRequest.FirstDayPart, leaveRequest.LastDayPart, holidays);
             if (days.Count == 0) {
                 return Result<LeaveRequestDto>.Failure(
@@ -73,6 +76,7 @@ public class ReviewLeaveRequestCommandHandler(
             leaveRequest.Reject(reviewer.Id, request.Comment, clock.UtcNow);
         }
 
+        await webhooks.LeaveChangedAsync(leaveRequest, requester, hourType, reviewer, days, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await notifications.RequestReviewedAsync(
             leaveRequest, requester, reviewer, hourType, cancellationToken);

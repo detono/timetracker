@@ -145,7 +145,11 @@
     "confirmDeactivate": "Cette personne ne pourra plus se connecter, mais ses heures enregistrées sont conservées. Vous pourrez la réactiver plus tard.",
     "tracksHoursFor": "Comparer les heures encodées de {{name}} à son horaire",
     "tracksHoursHint": "Désactivez pour les personnes qui n'encodent pas leurs heures, p. ex. un gérant. Elles n'apparaissent alors plus dans l'aperçu prestées vs. prévues.",
-    "resetPasswordHint": "Cette personne est déconnectée immédiatement et choisira son propre mot de passe à sa prochaine connexion."
+    "resetPasswordHint": "Cette personne est déconnectée immédiatement et choisira son propre mot de passe à sa prochaine connexion.",
+    "externalId": "ID externe",
+    "externalIdButton": "ID externe",
+    "externalIdTitle": "ID externe de {{name}}",
+    "externalIdHint": "Son numéro dans un autre système, comme la paie. Il est envoyé dans les webhooks. Laissez vide pour le supprimer."
   },
   "dashboard": {
     "title": "Mes heures",
@@ -204,7 +208,9 @@
     "languageCode": "Langue",
     "removeLanguage": "Supprimer {{code}}",
     "addLanguage": "Ajouter une langue",
-    "setAsDefault": "Choisi par défaut lors de l'encodage des heures"
+    "setAsDefault": "Choisi par défaut lors de l'encodage des heures",
+    "externalId": "ID externe",
+    "externalIdHint": "Le code de ce type dans un autre système, comme la paie. Il est envoyé dans les webhooks."
   },
   "reports": {
     "title": "Rapports",
@@ -489,10 +495,11 @@
       "schedule": "Horaires",
       "holidays": "Jours fériés",
       "email": "E-mail",
+      "webhooks": "Webhooks",
       "activity": "Activité"
     },
     "title": "Entreprise",
-    "subtitle": "Paramètres de toute l'entreprise : coordonnées, heures de travail habituelles, jours fériés et e-mail.",
+    "subtitle": "Paramètres de toute l'entreprise : coordonnées, heures de travail habituelles, jours fériés, e-mail et webhooks.",
     "detailsTitle": "Coordonnées de l'entreprise",
     "name": "Nom de l'entreprise",
     "street": "Rue et numéro",
@@ -552,7 +559,7 @@
   },
   "activityLog": {
     "title": "Journal d'activité",
-    "hint": "Qui a verrouillé ou déverrouillé des mois, modifié les heures de quelqu'un d'autre, réinitialisé un mot de passe ou (dés)activé un compte. Les lignes ne peuvent être ni modifiées ni supprimées.",
+    "hint": "Qui a verrouillé ou déverrouillé des mois, modifié les heures de quelqu'un d'autre, réinitialisé un mot de passe, (dés)activé un compte ou modifié un webhook. Les lignes ne peuvent être ni modifiées ni supprimées.",
     "empty": "Rien d’enregistré pour l’instant.",
     "loadMore": "Afficher plus ancien",
     "platformAdmin": "{{name}} (administrateur de la plateforme)",
@@ -564,7 +571,73 @@
       "TimeEntryDeleted": "{{actor}} a supprimé des heures de {{subject}} : {{entry}}",
       "PasswordReset": "{{actor}} a réinitialisé le mot de passe de {{subject}}",
       "UserDeactivated": "{{actor}} a désactivé {{subject}}",
-      "UserActivated": "{{actor}} a réactivé {{subject}}"
+      "UserActivated": "{{actor}} a réactivé {{subject}}",
+      "WebhookCreated": "{{actor}} a ajouté le webhook {{name}}",
+      "WebhookUpdated": "{{actor}} a modifié le webhook {{name}}",
+      "WebhookDeleted": "{{actor}} a supprimé le webhook {{name}}"
     }
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "subtitle": "Prévenez un autre système quand quelque chose se passe ici, par exemple quand un congé est approuvé. L'application appelle l'adresse indiquée avec les détails en JSON.",
+    "add": "Ajouter un webhook",
+    "none": "Aucun webhook pour l'instant. Ajoutez-en un pour envoyer les congés à la paie, aux RH ou à un outil comme n8n, Zapier ou Power Automate.",
+    "table": {
+      "webhook": "Webhook",
+      "events": "Envoie",
+      "status": "Statut",
+      "when": "Quand",
+      "event": "Événement",
+      "result": "Résultat"
+    },
+    "on": "Activé",
+    "off": "Désactivé",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteMessage": "L'adresse ne reçoit plus d'appels, et son historique est supprimé.",
+    "recentTitle": "Appels récents",
+    "refresh": "Actualiser",
+    "noCalls": "Aucun appel pour l'instant. Ils apparaissent ici dès que quelque chose se passe.",
+    "events": {
+      "leave_requested": "Congé demandé",
+      "leave_approved": "Congé approuvé",
+      "leave_rejected": "Congé refusé",
+      "leave_cancelled": "Congé annulé"
+    },
+    "testEvent": "Test",
+    "delivered": "Livré ({{code}})",
+    "failed": "Échec",
+    "waiting": "En attente",
+    "retrying": "Nouvel essai prévu",
+    "nextTry_one": "{{count}} essai. Prochain essai {{time}}.",
+    "nextTry_other": "{{count}} essais. Prochain essai {{time}}.",
+    "sendAgain": "Renvoyer",
+    "addTitle": "Ajouter un webhook",
+    "editTitle": "Modifier {{name}}",
+    "name": "Nom",
+    "namePlaceholder": "Paie",
+    "url": "URL",
+    "sendWhen": "Envoyer quand",
+    "chooseEvent": "Choisissez au moins un événement.",
+    "headerName": "En-tête supplémentaire (facultatif)",
+    "headerValue": "Valeur de l'en-tête",
+    "headerValueKept": "Enregistrée. Laissez vide pour la garder",
+    "headerHint": "Pour les destinataires qui demandent une clé, comme Authorization: Bearer …. La valeur est stockée chiffrée et n'est plus jamais affichée.",
+    "secret": "Secret de signature",
+    "show": "Afficher",
+    "copy": "Copier",
+    "copied": "Copié",
+    "rotate": "Nouveau secret",
+    "rotateTitle": "Créer un nouveau secret de signature ?",
+    "rotateMessage": "Le secret actuel cesse de fonctionner immédiatement. Mettez-le aussi à jour chez le destinataire.",
+    "secretHint": "Chaque appel est signé avec ce secret, pour que le destinataire puisse vérifier qu'il vient bien de cette application.",
+    "enabled": "Activé",
+    "saved": "Webhook enregistré.",
+    "created": "Webhook ajouté. Copiez son secret de signature ci-dessous si le destinataire vérifie les signatures.",
+    "sendTest": "Envoyer un test",
+    "testing": "Envoi…",
+    "testOk": "Test livré : l'adresse a répondu {{code}}.",
+    "testFailed": "Échec du test : {{error}}"
   }
 }

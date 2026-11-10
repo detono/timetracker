@@ -57,6 +57,8 @@ services:
       Branding__ColorOnPrimary: "${COLOR_ON_PRIMARY:-#ffffff}"
       Branding__ColorSecondary: "${COLOR_SECONDARY:-#e4d1dc}"
       Branding__ColorOnSecondary: "${COLOR_ON_SECONDARY:-#000000}"
+      # Let webhooks call addresses on your own network, e.g. your own n8n (see README).
+      Webhooks__AllowInternalHosts: "${WEBHOOK_ALLOW_INTERNAL_HOSTS:-false}"
     ports:
       # Exposed for direct API/Swagger access during development (http://localhost:5067/swagger).
       # Host port 5000 collides with macOS AirPlay Receiver on many machines (it answers

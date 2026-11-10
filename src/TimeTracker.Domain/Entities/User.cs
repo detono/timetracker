@@ -54,6 +54,9 @@ public class User : BaseEntity
     /// </summary>
     public bool MustChangePassword { get; private set; }
 
+    /// <summary>This person's id in another system, like payroll; see <see cref="ExternalIds"/>.</summary>
+    public string? ExternalId { get; private set; }
+
     private readonly List<TimeEntry> _timeEntries = new();
     public IReadOnlyCollection<TimeEntry> TimeEntries => _timeEntries.AsReadOnly();
 
@@ -190,6 +193,12 @@ public class User : BaseEntity
         }
 
         Language = code;
+        MarkUpdated();
+    }
+
+    public void SetExternalId(string? externalId)
+    {
+        ExternalId = ExternalIds.Normalize(externalId);
         MarkUpdated();
     }
 

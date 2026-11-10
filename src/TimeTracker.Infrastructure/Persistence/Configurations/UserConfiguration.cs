@@ -18,6 +18,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
         builder.Property(u => u.TracksHours).HasDefaultValue(true);
         builder.Property(u => u.Language).HasMaxLength(10);
+        builder.Property(u => u.ExternalId).HasMaxLength(ExternalIds.MaxLength);
 
         // Globally unique (not per tenant): login finds the user, and with it their tenant, by email alone.
         builder.HasIndex(u => u.Email).IsUnique();

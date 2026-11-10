@@ -18,15 +18,7 @@ public class GetHourTypesQueryHandler(
         var types = await unitOfWork.HourTypes.GetAllAsync(includeInactive, cancellationToken);
 
         // Swapped t.Name for t.LocalizedNames, and added t.IsDefault
-        var dtos = types.Select(t => new HourTypeDto(
-            t.Id,
-            t.LocalizedNames,
-            t.ColorHex,
-            t.IsActive,
-            t.IsDefault,
-            t.IsLeave,
-            t.DeductsFromLeaveBalance
-        )).ToList();
+        var dtos = types.Select(HourTypeDto.From).ToList();
 
         return Result<IReadOnlyList<HourTypeDto>>.Success(dtos);
     }

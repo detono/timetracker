@@ -4,6 +4,7 @@ using TimeTracker.Application.Common.Models;
 using TimeTracker.Application.Leave;
 using TimeTracker.Application.LeaveRequests.Dtos;
 using TimeTracker.Application.LockedMonths;
+using TimeTracker.Application.Webhooks;
 using TimeTracker.Domain.Entities;
 using TimeTracker.Domain.Enums;
 using TimeTracker.Domain.Interfaces;
@@ -16,7 +17,8 @@ public class CreateLeaveRequestCommandHandler(
     LeaveService leave,
     MonthLocks monthLocks,
     LeaveRequestMapper mapper,
-    LeaveNotifications notifications
+    LeaveNotifications notifications,
+    WebhookQueue webhooks
 ) : IRequestHandler<CreateLeaveRequestCommand, Result<LeaveRequestDto>> {
     public async Task<Result<LeaveRequestDto>> Handle(CreateLeaveRequestCommand request, CancellationToken cancellationToken) {
         // Employers log their own time off directly as hours; there's nobody to approve it.
@@ -58,6 +60,7 @@ public class CreateLeaveRequestCommandHandler(
             requester.Id, hourType.Id, request.StartDate, request.EndDate, hours, request.Comment,
             request.FirstDayPart, request.LastDayPart);
         await unitOfWork.LeaveRequests.AddAsync(leaveRequest, cancellationToken);
+        await webhooks.LeaveChangedAsync(leaveRequest, requester, hourType, requester, null, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await notifications.RequestSubmittedAsync(leaveRequest, requester, hourType, cancellationToken);

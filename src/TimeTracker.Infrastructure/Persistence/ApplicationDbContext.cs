@@ -30,6 +30,8 @@ public class ApplicationDbContext(
     public DbSet<LockedMonth> LockedMonths => Set<LockedMonth>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Webhook> Webhooks => Set<Webhook>();
+    public DbSet<WebhookDelivery> WebhookDeliveries => Set<WebhookDelivery>();
 
     /// <summary>
     /// The ASP.NET Core Data Protection key ring (used to encrypt mail secrets), kept in the
@@ -54,6 +56,8 @@ public class ApplicationDbContext(
         ConfigureTenantOwned<PasswordResetCode>(modelBuilder);
         ConfigureTenantOwned<LockedMonth>(modelBuilder);
         ConfigureTenantOwned<AuditEntry>(modelBuilder);
+        ConfigureTenantOwned<Webhook>(modelBuilder);
+        ConfigureTenantOwned<WebhookDelivery>(modelBuilder);
 
         // Platform admins (TenantId null) only match each other here, never tenant users.
         modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == CurrentTenantId);

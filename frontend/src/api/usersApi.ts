@@ -35,6 +35,11 @@ export async function assignSupervisor(employeeId: string, supervisorId: string 
   });
 }
 
+/** Someone's id in another system (payroll, HR), sent along in webhooks. Empty clears it. */
+export async function setExternalId(userId: string, externalId: string): Promise<void> {
+  await apiClient.put(`/users/${userId}/external-id`, { externalId });
+}
+
 /** Whether someone's logged hours are compared with their work schedule. */
 export async function setTracksHours(userId: string, tracksHours: boolean): Promise<void> {
   await apiClient.put(`/users/${userId}/tracks-hours`, { tracksHours });

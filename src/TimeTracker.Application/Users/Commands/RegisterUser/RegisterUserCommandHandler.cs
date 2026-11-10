@@ -40,7 +40,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         await _unitOfWork.Users.AddAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var dto = new UserDto(user.Id, user.FirstName, user.LastName, user.Email, user.Role.ToString(), user.SupervisorId, user.IsActive, user.TracksHours);
+        var dto = new UserDto(user.Id, user.FirstName, user.LastName, user.Email, user.Role.ToString(), user.SupervisorId, user.IsActive, user.TracksHours, user.ExternalId);
         return Result<UserDto>.Success(dto);
     }
 }

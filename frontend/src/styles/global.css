@@ -832,6 +832,12 @@ button {
   white-space: normal;
 }
 
+/* Longer text, like an address or an error message, wraps instead of widening the table. */
+.list-view td.list-view__wrap {
+  white-space: normal;
+  min-width: 12rem;
+}
+
 .list-view th,
 .list-view td {
   text-align: left;
@@ -1771,4 +1777,37 @@ button {
   font-size: 0.8rem;
   font-weight: 400;
   color: var(--ink-soft);
+}
+
+/* ---- Webhooks (Company → Webhooks) ---- */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.webhook-editor {
+  margin: 0.5rem 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.webhook-editor__events {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.webhook-editor__checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.25rem 1rem;
+}
+
+.webhook-editor__secret {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
 }

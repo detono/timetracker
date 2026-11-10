@@ -10,5 +10,6 @@ public record CreateHourTypeCommand(
     string ColorHex,
     bool IsDefault,
     bool IsLeave = false,
-    bool DeductsFromLeaveBalance = false
+    bool DeductsFromLeaveBalance = false,
+    string? ExternalId = null
 ) : IRequest<Result<HourTypeDto>>;

@@ -12,6 +12,7 @@ export interface HourTypePayload {
   isDefault: boolean;
   isLeave: boolean;
   deductsFromLeaveBalance: boolean;
+  externalId?: string | null;
 }
 
 export async function createHourType(payload: HourTypePayload): Promise<HourType> {

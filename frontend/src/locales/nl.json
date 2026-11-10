@@ -136,7 +136,11 @@
     "confirmDeactivate": "Deze persoon kan niet meer inloggen, maar de geregistreerde uren blijven bewaard. Je kunt de account later weer activeren.",
     "tracksHoursFor": "Gelogde uren van {{name}} vergelijken met het uurrooster",
     "tracksHoursHint": "Zet uit voor wie geen uren registreert, bv. een zaakvoerder. Die persoon valt dan weg uit het overzicht gewerkt vs. verwacht.",
-    "resetPasswordHint": "Deze persoon wordt meteen uitgelogd en kiest bij de volgende aanmelding een eigen wachtwoord."
+    "resetPasswordHint": "Deze persoon wordt meteen uitgelogd en kiest bij de volgende aanmelding een eigen wachtwoord.",
+    "externalId": "Externe ID",
+    "externalIdButton": "Externe ID",
+    "externalIdTitle": "Externe ID van {{name}}",
+    "externalIdHint": "Hun nummer in een ander systeem, zoals de loonadministratie. Het wordt meegestuurd in webhooks. Laat leeg om het te verwijderen."
   },
   "dashboard": {
     "title": "Mijn uren",
@@ -204,7 +208,9 @@
     "languageCode": "Taal",
     "removeLanguage": "{{code}} verwijderen",
     "addLanguage": "Taal toevoegen",
-    "setAsDefault": "Standaard gekozen bij het registreren van uren"
+    "setAsDefault": "Standaard gekozen bij het registreren van uren",
+    "externalId": "Externe ID",
+    "externalIdHint": "De code van dit type in een ander systeem, zoals de loonadministratie. Het wordt meegestuurd in webhooks."
   },
   "reports": {
     "title": "Rapportages",
@@ -489,10 +495,11 @@
       "schedule": "Werkuren",
       "holidays": "Feestdagen",
       "email": "E-mail",
+      "webhooks": "Webhooks",
       "activity": "Activiteit"
     },
     "title": "Bedrijf",
-    "subtitle": "Instellingen voor het hele bedrijf: gegevens, gebruikelijke werkuren, feestdagen en e-mail.",
+    "subtitle": "Instellingen voor het hele bedrijf: gegevens, gebruikelijke werkuren, feestdagen, e-mail en webhooks.",
     "detailsTitle": "Bedrijfsgegevens",
     "name": "Bedrijfsnaam",
     "street": "Straat en nummer",
@@ -552,7 +559,7 @@
   },
   "activityLog": {
     "title": "Activiteitenlog",
-    "hint": "Wie maanden vergrendelde of ontgrendelde, uren van iemand anders wijzigde, een wachtwoord herstelde of een account (de)activeerde. Regels kunnen niet gewijzigd of verwijderd worden.",
+    "hint": "Wie maanden vergrendelde of ontgrendelde, uren van iemand anders wijzigde, een wachtwoord herstelde, een account (de)activeerde of een webhook wijzigde. Regels kunnen niet gewijzigd of verwijderd worden.",
     "empty": "Nog niets geregistreerd.",
     "loadMore": "Oudere tonen",
     "platformAdmin": "{{name}} (platformbeheerder)",
@@ -564,7 +571,73 @@
       "TimeEntryDeleted": "{{actor}} verwijderde uren van {{subject}}: {{entry}}",
       "PasswordReset": "{{actor}} herstelde het wachtwoord van {{subject}}",
       "UserDeactivated": "{{actor}} deactiveerde {{subject}}",
-      "UserActivated": "{{actor}} heractiveerde {{subject}}"
+      "UserActivated": "{{actor}} heractiveerde {{subject}}",
+      "WebhookCreated": "{{actor}} voegde de webhook {{name}} toe",
+      "WebhookUpdated": "{{actor}} wijzigde de webhook {{name}}",
+      "WebhookDeleted": "{{actor}} verwijderde de webhook {{name}}"
     }
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "subtitle": "Laat een ander systeem weten wanneer hier iets gebeurt, bijvoorbeeld wanneer verlof is goedgekeurd. De app roept het adres op dat je opgeeft, met de details als JSON.",
+    "add": "Webhook toevoegen",
+    "none": "Nog geen webhooks. Voeg er een toe om verlof door te geven aan de loonadministratie, HR of een tool zoals n8n, Zapier of Power Automate.",
+    "table": {
+      "webhook": "Webhook",
+      "events": "Verstuurt",
+      "status": "Status",
+      "when": "Wanneer",
+      "event": "Gebeurtenis",
+      "result": "Resultaat"
+    },
+    "on": "Aan",
+    "off": "Uit",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "deleteTitle": "{{name}} verwijderen?",
+    "deleteMessage": "Het adres krijgt geen oproepen meer, en de geschiedenis ervan wordt verwijderd.",
+    "recentTitle": "Recente oproepen",
+    "refresh": "Vernieuwen",
+    "noCalls": "Nog geen oproepen. Ze verschijnen hier zodra er iets gebeurt.",
+    "events": {
+      "leave_requested": "Verlof aangevraagd",
+      "leave_approved": "Verlof goedgekeurd",
+      "leave_rejected": "Verlof afgewezen",
+      "leave_cancelled": "Verlof geannuleerd"
+    },
+    "testEvent": "Test",
+    "delivered": "Afgeleverd ({{code}})",
+    "failed": "Mislukt",
+    "waiting": "Wacht",
+    "retrying": "Wordt opnieuw geprobeerd",
+    "nextTry_one": "{{count}} keer geprobeerd. Volgende poging {{time}}.",
+    "nextTry_other": "{{count}} keer geprobeerd. Volgende poging {{time}}.",
+    "sendAgain": "Opnieuw versturen",
+    "addTitle": "Webhook toevoegen",
+    "editTitle": "{{name}} bewerken",
+    "name": "Naam",
+    "namePlaceholder": "Loonadministratie",
+    "url": "URL",
+    "sendWhen": "Versturen bij",
+    "chooseEvent": "Kies minstens één gebeurtenis.",
+    "headerName": "Extra header (optioneel)",
+    "headerValue": "Waarde van de header",
+    "headerValueKept": "Opgeslagen. Laat leeg om te behouden",
+    "headerHint": "Voor ontvangers die een sleutel nodig hebben, zoals Authorization: Bearer …. De waarde wordt versleuteld bewaard en nooit meer getoond.",
+    "secret": "Ondertekeningsgeheim",
+    "show": "Tonen",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "rotate": "Nieuw geheim",
+    "rotateTitle": "Een nieuw ondertekeningsgeheim maken?",
+    "rotateMessage": "Het huidige geheim werkt meteen niet meer. Pas het ook aan bij de ontvanger.",
+    "secretHint": "Elke oproep wordt met dit geheim ondertekend, zodat de ontvanger kan nagaan dat ze echt van deze app komt.",
+    "enabled": "Aan",
+    "saved": "Webhook opgeslagen.",
+    "created": "Webhook toegevoegd. Kopieer hieronder het ondertekeningsgeheim als de ontvanger handtekeningen controleert.",
+    "sendTest": "Test versturen",
+    "testing": "Versturen…",
+    "testOk": "Test afgeleverd: het adres antwoordde {{code}}.",
+    "testFailed": "Test mislukt: {{error}}"
   }
 }

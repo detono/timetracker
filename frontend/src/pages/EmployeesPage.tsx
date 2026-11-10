@@ -8,6 +8,7 @@ import {
   deactivateUser,
   getAllUsers,
   resetPassword,
+  setExternalId,
   setTracksHours
 } from "../api/usersApi";
 import { extractErrorMessage } from "../api/client";
@@ -27,7 +28,7 @@ const emptyForm = {
 
 export function EmployeesPage() {
   const { t } = useTranslation();
-  const { confirm } = useConfirm();
+  const { confirm, askReason } = useConfirm();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +120,28 @@ export function EmployeesPage() {
     setError(null);
     try {
       await setTracksHours(target.id, tracksHours);
+      await loadUsers();
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setBusyUserId(null);
+    }
+  }
+
+  async function handleExternalId(target: UserAccount) {
+    const value = await askReason({
+      title: t('employees.externalIdTitle', { name: `${target.firstName} ${target.lastName}` }),
+      message: t('employees.externalIdHint'),
+      reasonLabel: t('employees.externalId'),
+      initialValue: target.externalId ?? "",
+      singleLine: true,
+      confirmLabel: t('common.save')
+    });
+    if (value === null) return;
+    setBusyUserId(target.id);
+    setError(null);
+    try {
+      await setExternalId(target.id, value);
       await loadUsers();
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -286,6 +309,11 @@ export function EmployeesPage() {
                         {u.id === currentUser?.userId && <span className="badge">{t('employees.youBadge')}</span>}
                       </span>
                       <span className="person-cell__email">{u.email}</span>
+                      {u.externalId && (
+                        <span className="person-cell__email" title={t('employees.externalId')}>
+                          <span className="mono">{u.externalId}</span>
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td>{u.role === "Employer" ? t('roles.employer') : t('roles.employee')}</td>
@@ -330,6 +358,7 @@ export function EmployeesPage() {
                       disabled={busyUserId === u.id}
                       items={[
                         { label: t('workSchedule.button'), onSelect: () => setScheduleUser(u) },
+                        { label: t('employees.externalIdButton'), onSelect: () => handleExternalId(u) },
                         {
                           label: t('employees.btnResetPassword'),
                           onSelect: () => {
