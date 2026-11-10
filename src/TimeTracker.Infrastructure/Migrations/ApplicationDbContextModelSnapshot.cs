@@ -197,6 +197,9 @@ namespace TimeTracker.Infrastructure.Migrations
                     b.Property<DateOnly>("EndDate")
                         .HasColumnType("date");
 
+                    b.Property<TimeOnly?>("EndTime")
+                        .HasColumnType("time without time zone");
+
                     b.Property<string>("FirstDayPart")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -230,6 +233,9 @@ namespace TimeTracker.Infrastructure.Migrations
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("StartTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()

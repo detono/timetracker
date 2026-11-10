@@ -43,22 +43,23 @@ public class CreateLeaveRequestCommandHandler(
 
         var overlapping = await unitOfWork.LeaveRequests.GetActiveOverlappingAsync(
             requester.Id, request.StartDate, request.EndDate, cancellationToken);
-        if (overlapping.Count > 0) {
+        if (overlapping.Any(r => r.ConflictsWith(request.StartDate, request.EndDate, request.StartTime, request.EndTime))) {
             return Result<LeaveRequestDto>.Failure(
-                "You already have a pending or approved leave request in this period.", ResultErrorType.Conflict);
+                "You already have a pending or approved leave request at this time.", ResultErrorType.Conflict);
         }
 
         var schedule = await leave.GetScheduleAsync(requester.Id, cancellationToken);
         var holidays = await leave.GetHolidaysAsync(request.StartDate, request.EndDate, cancellationToken);
         var hours = LeaveService.HoursOf(LeavePlan.Plan(
-            schedule, request.StartDate, request.EndDate, request.FirstDayPart, request.LastDayPart, holidays));
+            schedule, request.StartDate, request.EndDate, request.FirstDayPart, request.LastDayPart, holidays,
+            request.StartTime, request.EndTime));
         if (hours == 0) {
             return Result<LeaveRequestDto>.Failure("You have no working days in this period.");
         }
 
         var leaveRequest = LeaveRequest.Create(
             requester.Id, hourType.Id, request.StartDate, request.EndDate, hours, request.Comment,
-            request.FirstDayPart, request.LastDayPart);
+            request.FirstDayPart, request.LastDayPart, request.StartTime, request.EndTime);
         await unitOfWork.LeaveRequests.AddAsync(leaveRequest, cancellationToken);
         await webhooks.LeaveChangedAsync(leaveRequest, requester, hourType, requester, null, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -40,11 +40,21 @@ public class PreviewLeaveRequestQueryHandler(
                 "Over several days, the first day can only start in the afternoon and the last day only end at noon.");
         }
 
-        var days = LeavePlan.Plan(schedule, request.StartDate, request.EndDate, firstDayPart, lastDayPart, holidays);
+        var isHours = firstDayPart == DayPart.Hours || lastDayPart == DayPart.Hours;
+        if (isHours && (request.StartDate != request.EndDate || request.StartTime is null || request.EndTime is null ||
+                        request.EndTime <= request.StartTime)) {
+            return Result<LeavePreviewDto>.Failure("Choose a single day, and an end time after the start time.");
+        }
+
+        var startTime = isHours ? request.StartTime : null;
+        var endTime = isHours ? request.EndTime : null;
+        var days = LeavePlan.Plan(schedule, request.StartDate, request.EndDate, firstDayPart, lastDayPart, holidays,
+            startTime, endTime);
         var hours = LeaveService.HoursOf(days);
         var workingDays = days.Sum(d => d.Fraction);
         var overlaps = (await unitOfWork.LeaveRequests.GetActiveOverlappingAsync(
-            currentUser.UserId, request.StartDate, request.EndDate, cancellationToken)).Count > 0;
+                currentUser.UserId, request.StartDate, request.EndDate, cancellationToken))
+            .Any(r => r.ConflictsWith(request.StartDate, request.EndDate, startTime, endTime));
 
         if (hours == 0) {
             return Result<LeavePreviewDto>.Success(
@@ -53,7 +63,7 @@ public class PreviewLeaveRequestQueryHandler(
 
         // An unsaved request, only used to check the balance.
         var draft = LeaveRequest.Create(currentUser.UserId, hourType.Id, request.StartDate, request.EndDate, hours, null,
-            firstDayPart, lastDayPart);
+            firstDayPart, lastDayPart, startTime, endTime);
         var (balance, exceeds) = await leave.CheckBalanceAsync(draft, hourType, schedule, cancellationToken);
 
         return Result<LeavePreviewDto>.Success(new LeavePreviewDto(

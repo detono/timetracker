@@ -47,4 +47,69 @@ public class LeavePlanTests {
         request.FirstDayPart.Should().Be(DayPart.Afternoon);
         request.LastDayPart.Should().Be(DayPart.Afternoon);
     }
+
+    [Fact]
+    public void AFewHours_BookThoseTimesWithoutBreak() {
+        var day = LeavePlan.Plan(Schedule, Wednesday, Wednesday, DayPart.Hours, DayPart.Hours,
+            startTime: new TimeOnly(14, 0), endTime: new TimeOnly(16, 0)).Single();
+
+        day.Should().BeEquivalentTo(new { StartTime = new TimeOnly(14, 0), EndTime = new TimeOnly(16, 0), BreakMinutes = 0 });
+        day.Duration.Should().Be(TimeSpan.FromHours(2));
+        day.Fraction.Should().Be(0.27m, "2 of 7.5 hours");
+    }
+
+    [Fact]
+    public void AFewHours_NeverCountMoreThanTheWorkingDay() {
+        var day = LeavePlan.Plan(Schedule, Wednesday, Wednesday, DayPart.Hours, DayPart.Hours,
+            startTime: new TimeOnly(9, 0), endTime: new TimeOnly(17, 0)).Single();
+
+        day.BreakMinutes.Should().Be(30);
+        day.Duration.Should().Be(TimeSpan.FromHours(7.5));
+        day.Fraction.Should().Be(1m);
+    }
+
+    [Theory]
+    [InlineData(8, 0, 10, 0)] // starts before the working day
+    [InlineData(16, 0, 17, 30)] // ends after it
+    public void AFewHours_MustFallWithinTheWorkingDay(int fromHour, int fromMinute, int toHour, int toMinute) {
+        var act = () => LeavePlan.Plan(Schedule, Wednesday, Wednesday, DayPart.Hours, DayPart.Hours,
+            startTime: new TimeOnly(fromHour, fromMinute), endTime: new TimeOnly(toHour, toMinute));
+
+        act.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void AFewHours_OnADayOff_BookNothing() {
+        var saturday = new DateOnly(2026, 11, 7);
+
+        LeavePlan.Plan(Schedule, saturday, saturday, DayPart.Hours, DayPart.Hours,
+            startTime: new TimeOnly(10, 0), endTime: new TimeOnly(12, 0)).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AFewHours_NeedASingleDayAndBothTimes_AndOtherPartsNoTimes() {
+        var from = new TimeOnly(14, 0);
+        var to = new TimeOnly(16, 0);
+
+        FluentActions.Invoking(() => LeavePlan.EnsureValidParts(Wednesday, Friday, DayPart.Hours, DayPart.Full, from, to))
+            .Should().Throw<DomainException>();
+        FluentActions.Invoking(() => LeavePlan.EnsureValidParts(Wednesday, Wednesday, DayPart.Hours, DayPart.Hours, from, null))
+            .Should().Throw<DomainException>();
+        FluentActions.Invoking(() => LeavePlan.EnsureValidParts(Wednesday, Wednesday, DayPart.Hours, DayPart.Hours, to, from))
+            .Should().Throw<DomainException>();
+        FluentActions.Invoking(() => LeavePlan.EnsureValidParts(Wednesday, Wednesday, DayPart.Full, DayPart.Full, from, to))
+            .Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void AFewHours_OnlyConflictWithLeaveAtTheSameTime() {
+        var dentist = LeaveRequest.Create(Guid.NewGuid(), Guid.NewGuid(), Wednesday, Wednesday, 2m, null,
+            DayPart.Hours, DayPart.Hours, new TimeOnly(14, 0), new TimeOnly(16, 0));
+
+        dentist.ConflictsWith(Wednesday, Wednesday, new TimeOnly(9, 0), new TimeOnly(10, 0)).Should().BeFalse();
+        dentist.ConflictsWith(Wednesday, Wednesday, new TimeOnly(16, 0), new TimeOnly(17, 0)).Should().BeFalse("back to back is fine");
+        dentist.ConflictsWith(Wednesday, Wednesday, new TimeOnly(15, 0), new TimeOnly(17, 0)).Should().BeTrue();
+        dentist.ConflictsWith(Wednesday, Wednesday).Should().BeTrue("a whole or half day takes the day");
+        dentist.ConflictsWith(Friday, Friday, new TimeOnly(14, 0), new TimeOnly(16, 0)).Should().BeFalse("another day");
+    }
 }

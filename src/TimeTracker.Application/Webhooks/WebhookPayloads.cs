@@ -36,7 +36,7 @@ public static class WebhookPayloads {
     /// </param>
     public record Leave(
         Guid Id, string Status, LeaveType Type, DateOnly StartDate, DateOnly EndDate,
-        string FirstDayPart, string LastDayPart,
+        string FirstDayPart, string LastDayPart, TimeOnly? StartTime, TimeOnly? EndTime,
         decimal Hours, string? Comment, string? ReviewComment, IReadOnlyList<BookedDay>? Days);
 
     /// <summary>One working day of leave, local time.</summary>
@@ -55,7 +55,7 @@ public static class WebhookPayloads {
         employee = Employee.From(requester),
         leave = new Leave(
             request.Id, request.Status.ToString(), LeaveType.From(type), request.StartDate, request.EndDate,
-            request.FirstDayPart.ToString(), request.LastDayPart.ToString(),
+            request.FirstDayPart.ToString(), request.LastDayPart.ToString(), request.StartTime, request.EndTime,
             request.Hours, request.Comment, request.ReviewComment, days?.Select(BookedDay.From).ToList())
     };
 
@@ -70,7 +70,7 @@ public static class WebhookPayloads {
             Guid.Empty, "Approved",
             new LeaveType(Guid.Empty, "PTO", new Dictionary<string, string> { ["en"] = "Paid time off" }),
             DateOnly.FromDateTime(occurredAtUtc), DateOnly.FromDateTime(occurredAtUtc).AddDays(4),
-            "Full", "Full", 38m, null, null,
+            "Full", "Full", null, null, 38m, null, null,
             Enumerable.Range(0, 5)
                 .Select(i => new BookedDay(DateOnly.FromDateTime(occurredAtUtc).AddDays(i), new TimeOnly(9, 0), new TimeOnly(17, 0)))
                 .ToList())

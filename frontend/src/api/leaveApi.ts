@@ -19,10 +19,13 @@ export async function previewLeaveRequest(
   startDate: string,
   endDate: string,
   firstDayPart: DayPart,
-  lastDayPart: DayPart
+  lastDayPart: DayPart,
+  startTime?: string | null,
+  endTime?: string | null
 ): Promise<LeavePreview> {
+  const times = startTime && endTime ? { startTime, endTime } : {};
   const { data } = await apiClient.get<LeavePreview>("/leave-requests/preview", {
-    params: { hourTypeId, startDate, endDate, firstDayPart, lastDayPart }
+    params: { hourTypeId, startDate, endDate, firstDayPart, lastDayPart, ...times }
   });
   return data;
 }
@@ -34,6 +37,9 @@ export interface CreateLeaveRequestPayload {
   comment: string | null;
   firstDayPart: DayPart;
   lastDayPart: DayPart;
+  /** "HH:mm", only for leave of a few hours. */
+  startTime?: string | null;
+  endTime?: string | null;
 }
 
 export async function createLeaveRequest(payload: CreateLeaveRequestPayload): Promise<LeaveRequest> {

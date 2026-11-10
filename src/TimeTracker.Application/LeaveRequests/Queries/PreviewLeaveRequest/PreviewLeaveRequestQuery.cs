@@ -11,4 +11,6 @@ public record PreviewLeaveRequestQuery(
     DateOnly StartDate,
     DateOnly EndDate,
     DayPart FirstDayPart = DayPart.Full,
-    DayPart LastDayPart = DayPart.Full) : IRequest<Result<LeavePreviewDto>>;
+    DayPart LastDayPart = DayPart.Full,
+    TimeOnly? StartTime = null,
+    TimeOnly? EndTime = null) : IRequest<Result<LeavePreviewDto>>;

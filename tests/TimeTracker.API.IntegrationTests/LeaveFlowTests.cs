@@ -278,4 +278,61 @@ public class LeaveFlowTests : IClassFixture<CustomWebApplicationFactory> {
             HourTypeId = paidLeave.Id, StartDate = "2026-11-04", EndDate = "2026-11-06", LastDayPart = "Afternoon"
         })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task AFewHoursBookExactlyThoseHours_AndCanShareADayWithoutOverlapping() {
+        var tenant = await CreateTenantAsync(_client);
+        var employerToken = await LoginAsync(_client, tenant.EmployerEmail, Password);
+        var (_, employeeToken) = await CreateEmployeeAsync(employerToken);
+        var paidLeave = await PaidLeaveAsync(employeeToken);
+
+        // The dentist from 14:00 to 16:00 on the default 9:00-17:00 day.
+        var preview = await GetAsync<LeavePreviewDto>(
+            $"/api/leave-requests/preview?hourTypeId={paidLeave.Id}&startDate={Monday}&endDate={Monday}" +
+            "&firstDayPart=Hours&lastDayPart=Hours&startTime=14:00&endTime=16:00", employeeToken);
+        preview.Hours.Should().Be(2);
+
+        var dentist = await SendOkAsync<LeaveRequestDto>(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = Monday, EndDate = Monday,
+            FirstDayPart = "Hours", StartTime = "14:00", EndTime = "16:00", Comment = "Dentist"
+        });
+        dentist.Hours.Should().Be(2);
+        dentist.FirstDayPart.Should().Be("Hours");
+        dentist.StartTime.Should().Be(new TimeOnly(14, 0));
+        dentist.EndTime.Should().Be(new TimeOnly(16, 0));
+
+        // Another few hours the same day is fine, as long as the times don't overlap.
+        var doctor = await SendOkAsync<LeaveRequestDto>(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = Monday, EndDate = Monday,
+            FirstDayPart = "Hours", StartTime = "09:00", EndTime = "10:30"
+        });
+        doctor.Hours.Should().Be(1.5m);
+
+        (await SendAsync(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = Monday, EndDate = Monday,
+            FirstDayPart = "Hours", StartTime = "15:00", EndTime = "17:00"
+        })).StatusCode.Should().Be(HttpStatusCode.Conflict);
+        (await SendAsync(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = Monday, EndDate = Monday, FirstDayPart = "Afternoon"
+        })).StatusCode.Should().Be(HttpStatusCode.Conflict, "a half day still takes the day");
+
+        // Approving books exactly those hours, without a break.
+        await SendOkAsync<LeaveRequestDto>(HttpMethod.Post, $"/api/leave-requests/{dentist.Id}/approve", employerToken);
+        var entry = (await GetAsync<List<TimeEntryDto>>($"/api/timeentries?from={Monday}&to={Monday}", employeeToken)).Single();
+        entry.Should().BeEquivalentTo(new { StartTime = new TimeOnly(14, 0), EndTime = new TimeOnly(16, 0), BreakMinutes = 0 });
+
+        // Times outside the working day, over several days, or without an end are refused.
+        (await SendAsync(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = "2026-11-03", EndDate = "2026-11-03",
+            FirstDayPart = "Hours", StartTime = "16:00", EndTime = "18:00"
+        })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await SendAsync(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = "2026-11-03", EndDate = "2026-11-04",
+            FirstDayPart = "Hours", StartTime = "14:00", EndTime = "16:00"
+        })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await SendAsync(HttpMethod.Post, "/api/leave-requests", employeeToken, new {
+            HourTypeId = paidLeave.Id, StartDate = "2026-11-03", EndDate = "2026-11-03",
+            FirstDayPart = "Hours", StartTime = "14:00"
+        })).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }

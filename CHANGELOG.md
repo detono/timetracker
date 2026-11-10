@@ -27,6 +27,9 @@ leaves out.
 - The planboard shows public holidays and company days off: the name under the date, and the
   day shaded.
 - After an update, a **What's new** window shows once what changed since you last looked.
+- **Leave for a few hours**, e.g. for the dentist: choose *A few hours* as the part of the day
+  and give a start and end time within your working day. Approving it books just those hours.
+  Several short leaves can share a day, as long as their times don't overlap.
 
 ### Changed
 
@@ -48,6 +51,9 @@ leaves out.
 - `GET /api/whats-new` gives the signed-in user the release notes they haven't seen, and
   `POST /api/whats-new/seen` remembers they did. The notes come from this file, built into the
   API image; `### For developers` sections are left out.
+- Leave requests have a new day part, `Hours`, with `startTime` and `endTime` (`"14:00"`). They
+  are in the request body, the `preview` query, the leave request answers and webhook calls;
+  for other day parts they're `null`.
 
 ## [1.3.2] - 2026-11-08
 

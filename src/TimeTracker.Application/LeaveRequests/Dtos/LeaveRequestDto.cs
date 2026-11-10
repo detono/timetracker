@@ -11,6 +11,8 @@ namespace TimeTracker.Application.LeaveRequests.Dtos;
 /// Some of its days are in a locked month: it can't be approved or revoked until that month is
 /// unlocked. A pending request can still be rejected or withdrawn.
 /// </param>
+/// <param name="StartTime">For leave of a few hours (day part "Hours"): when it starts. Null otherwise.</param>
+/// <param name="EndTime">For leave of a few hours: when it ends. Null otherwise.</param>
 public record LeaveRequestDto(
     Guid Id,
     Guid UserId,
@@ -33,10 +35,12 @@ public record LeaveRequestDto(
     bool CanCancel,
     decimal? RemainingBalanceHours,
     bool ExceedsBalance,
-    bool InLockedMonth = false);
+    bool InLockedMonth = false,
+    TimeOnly? StartTime = null,
+    TimeOnly? EndTime = null);
 
 /// <summary>What a leave request for a date range would amount to, before submitting it.</summary>
-/// <param name="WorkingDays">Working days covered; a half day counts as 0.5.</param>
+/// <param name="WorkingDays">Working days covered; a half day counts as 0.5, a few hours as their share of the day.</param>
 public record LeavePreviewDto(
     decimal WorkingDays,
     decimal Hours,

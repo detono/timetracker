@@ -1,3 +1,4 @@
+using System.Globalization;
 using TimeTracker.Application.Common.Email;
 using TimeTracker.Application.Common.Interfaces;
 using TimeTracker.Application.Common.Localization;
@@ -126,6 +127,8 @@ public class LeaveNotifications(IUnitOfWork unitOfWork, IEmailSender emailSender
             date.ToString("ddd d MMM yyyy", texts.Culture) + part switch {
                 DayPart.Morning => $" ({texts.Get("part.morning")})",
                 DayPart.Afternoon => $" ({texts.Get("part.afternoon")})",
+                DayPart.Hours when request is { StartTime: { } from, EndTime: { } to } =>
+                    $", {from.ToString("HH:mm", CultureInfo.InvariantCulture)}–{to.ToString("HH:mm", CultureInfo.InvariantCulture)}",
                 _ => ""
             };
 

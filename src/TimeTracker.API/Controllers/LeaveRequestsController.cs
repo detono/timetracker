@@ -42,10 +42,12 @@ public class LeaveRequestsController : ApiControllerBase
     public async Task<ActionResult<LeavePreviewDto>> Preview(
         [FromQuery] Guid hourTypeId, [FromQuery] DateOnly startDate, [FromQuery] DateOnly endDate,
         [FromQuery] DayPart firstDayPart, [FromQuery] DayPart lastDayPart,
+        [FromQuery] TimeOnly? startTime, [FromQuery] TimeOnly? endTime,
         CancellationToken cancellationToken)
     {
         var result = await Mediator.Send(
-            new PreviewLeaveRequestQuery(hourTypeId, startDate, endDate, firstDayPart, lastDayPart), cancellationToken);
+            new PreviewLeaveRequestQuery(hourTypeId, startDate, endDate, firstDayPart, lastDayPart, startTime, endTime),
+            cancellationToken);
         return HandleResult(result);
     }
 

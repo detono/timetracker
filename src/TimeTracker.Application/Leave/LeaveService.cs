@@ -73,9 +73,7 @@ public class LeaveService(IUnitOfWork unitOfWork, ICurrentUserService currentUse
             return request.Hours;
         }
 
-        return HoursOf(LeavePlan.Plan(schedule, request.StartDate, request.EndDate,
-                request.FirstDayPart, request.LastDayPart, holidays)
-            .Where(d => d.Date.Year == year));
+        return HoursOf(LeavePlan.Plan(schedule, request, holidays).Where(d => d.Date.Year == year));
     }
 
     /// <summary>The company's public holidays and days off between the two dates, inclusive.</summary>

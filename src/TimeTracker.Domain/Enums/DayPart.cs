@@ -4,5 +4,8 @@ namespace TimeTracker.Domain.Enums;
 public enum DayPart {
     Full = 0,
     Morning = 1,
-    Afternoon = 2
+    Afternoon = 2,
+
+    /// <summary>A few hours of a single day, between the request's start and end time.</summary>
+    Hours = 3
 }

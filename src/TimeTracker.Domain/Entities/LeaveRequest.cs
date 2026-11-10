@@ -23,6 +23,12 @@ public class LeaveRequest : TenantOwnedEntity {
     /// <summary>The part of the last day that's taken off. Equals <see cref="FirstDayPart"/> for a single day.</summary>
     public DayPart LastDayPart { get; private set; }
 
+    /// <summary>When leave of a few hours (<see cref="DayPart.Hours"/>) starts; null for other leave.</summary>
+    public TimeOnly? StartTime { get; private set; }
+
+    /// <summary>When leave of a few hours ends; null for other leave.</summary>
+    public TimeOnly? EndTime { get; private set; }
+
     /// <summary>The scheduled hours this leave covers. Recalculated on approval.</summary>
     public decimal Hours { get; private set; }
 
@@ -37,7 +43,8 @@ public class LeaveRequest : TenantOwnedEntity {
 
     public static LeaveRequest Create(
         Guid userId, Guid hourTypeId, DateOnly startDate, DateOnly endDate, decimal hours, string? comment,
-        DayPart firstDayPart = DayPart.Full, DayPart lastDayPart = DayPart.Full
+        DayPart firstDayPart = DayPart.Full, DayPart lastDayPart = DayPart.Full,
+        TimeOnly? startTime = null, TimeOnly? endTime = null
     ) {
         if (userId == Guid.Empty) {
             throw new DomainException("A leave request must belong to a user.");
@@ -59,7 +66,7 @@ public class LeaveRequest : TenantOwnedEntity {
             lastDayPart = firstDayPart;
         }
 
-        LeavePlan.EnsureValidParts(startDate, endDate, firstDayPart, lastDayPart);
+        LeavePlan.EnsureValidParts(startDate, endDate, firstDayPart, lastDayPart, startTime, endTime);
 
         if (hours <= 0) {
             throw new DomainException("This period has no working days in the work schedule.");
@@ -74,6 +81,8 @@ public class LeaveRequest : TenantOwnedEntity {
             Comment = Normalize(comment),
             FirstDayPart = firstDayPart,
             LastDayPart = lastDayPart,
+            StartTime = startTime,
+            EndTime = endTime,
             Status = LeaveRequestStatus.Pending
         };
     }
@@ -99,6 +108,22 @@ public class LeaveRequest : TenantOwnedEntity {
     }
 
     public bool Overlaps(DateOnly start, DateOnly end) => StartDate <= end && start <= EndDate;
+
+    /// <summary>
+    /// Whether this request and leave for the given period can't both be taken: they share a
+    /// day, unless both are a few hours on that day at times that don't overlap.
+    /// </summary>
+    public bool ConflictsWith(DateOnly start, DateOnly end, TimeOnly? startTime = null, TimeOnly? endTime = null) {
+        if (!Overlaps(start, end)) {
+            return false;
+        }
+
+        if (StartTime is { } ownStart && EndTime is { } ownEnd && startTime is { } from && endTime is { } to) {
+            return ownStart < to && from < ownEnd;
+        }
+
+        return true;
+    }
 
     private void EnsurePending(string pastTense) {
         if (Status != LeaveRequestStatus.Pending) {

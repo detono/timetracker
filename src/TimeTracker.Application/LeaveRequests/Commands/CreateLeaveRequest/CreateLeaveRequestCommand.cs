@@ -8,7 +8,9 @@ namespace TimeTracker.Application.LeaveRequests.Commands.CreateLeaveRequest;
 /// <summary>
 /// Requests leave for the caller, from <see cref="StartDate"/> to <see cref="EndDate"/> inclusive.
 /// For a single day, <see cref="FirstDayPart"/> says whether it's the whole day, the morning or the
-/// afternoon. Over several days the first day can start in the afternoon and the last day end at noon.
+/// afternoon, or a few hours (<see cref="DayPart.Hours"/>) from <see cref="StartTime"/> to
+/// <see cref="EndTime"/>. Over several days the first day can start in the afternoon and the last
+/// day end at noon.
 /// </summary>
 public record CreateLeaveRequestCommand(
     Guid HourTypeId,
@@ -16,4 +18,6 @@ public record CreateLeaveRequestCommand(
     DateOnly EndDate,
     string? Comment,
     DayPart FirstDayPart = DayPart.Full,
-    DayPart LastDayPart = DayPart.Full) : IRequest<Result<LeaveRequestDto>>;
+    DayPart LastDayPart = DayPart.Full,
+    TimeOnly? StartTime = null,
+    TimeOnly? EndTime = null) : IRequest<Result<LeaveRequestDto>>;

@@ -136,6 +136,10 @@ can no longer log in.
   several days, the first day can start in the afternoon and the last day end at noon. A
   half day is half of that day's scheduled hours, without a break (on 9:00–17:00 with 30
   minutes' break: 9:00–12:45 or 13:15–17:00).
+- **A few hours.** A single day can also be a few hours, from a start to an end time within
+  the working day (the dentist from 14:00 to 16:00). Those hours count as they are, without a
+  break, but never more than the day's scheduled hours. Several of these can share a day as
+  long as their times don't overlap; a whole or half day still takes the whole day.
 - **Approval.** The requester's supervisor, or any employer, approves or rejects it. Approving
   books one time entry per working day with that person's scheduled hours, so the leave
   shows up in the planning. Revoking approved leave removes those entries again.
@@ -479,6 +483,7 @@ Each event is a `POST` with a JSON body:
     "id": "…", "status": "Approved",
     "type": { "id": "…", "externalId": "PTO", "names": { "en": "Paid time off", "nl": "Verlof" } },
     "startDate": "2026-11-16", "endDate": "2026-11-20", "firstDayPart": "Full", "lastDayPart": "Full",
+    "startTime": null, "endTime": null,
     "hours": 37.5, "comment": "Family trip", "reviewComment": null,
     "days": [
       { "date": "2026-11-16", "startTime": "09:00:00", "endTime": "17:00:00" },
@@ -489,8 +494,8 @@ Each event is a `POST` with a JSON body:
 ```
 
 `days` lists the working days that were booked, each with its hours from the employee's work
-schedule (local time; weekends and public holidays are left out, half days have their own
-times). It's only on `leave.approved`, when they're booked; other events have `null`.
+schedule (local time; weekends and public holidays are left out, half days and a few hours have
+their own times). It's only on `leave.approved`, when they're booked; other events have `null`.
 
 Every event has `id`, `event`, `occurredAtUtc`, `actor` and `employee`, plus a block for what
 it's about (`leave` for now). New events add new blocks; existing fields don't change.

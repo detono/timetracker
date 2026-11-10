@@ -213,8 +213,11 @@ export interface WorkSchedule {
 
 export type LeaveRequestStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
 
-/** Which part of a day leave covers. Over several days, only the first day can be "Afternoon" and the last "Morning". */
-export type DayPart = "Full" | "Morning" | "Afternoon";
+/**
+ * Which part of a day leave covers. "Hours" is a few hours of a single day, from startTime to endTime.
+ * Over several days, only the first day can be "Afternoon" and the last "Morning".
+ */
+export type DayPart = "Full" | "Morning" | "Afternoon" | "Hours";
 
 export interface LeaveRequest {
   id: string;
@@ -227,6 +230,9 @@ export interface LeaveRequest {
   endDate: string;
   firstDayPart: DayPart;
   lastDayPart: DayPart;
+  /** For leave of a few hours ("Hours"): "HH:mm:ss". Null otherwise. */
+  startTime?: string | null;
+  endTime?: string | null;
   hours: number;
   comment: string | null;
   status: LeaveRequestStatus;

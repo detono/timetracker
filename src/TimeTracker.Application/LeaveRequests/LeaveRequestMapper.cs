@@ -87,7 +87,9 @@ public class LeaveRequestMapper(
             CanCancel(request, canReview) && !(inLockedMonth && request.Status == LeaveRequestStatus.Approved),
             remaining,
             exceeds,
-            inLockedMonth);
+            inLockedMonth,
+            request.StartTime,
+            request.EndTime);
     }
 
     /// <summary>The requester can withdraw a pending request; a reviewer can also revoke an approved one.</summary>
