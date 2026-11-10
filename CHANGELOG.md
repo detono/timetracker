@@ -8,31 +8,64 @@ Database migrations run automatically when the API starts, unless a release says
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-11-08
+
 ### Added
 
-- *Reports* has *Download all entries (CSV)*: every entry in the dates, one row each, with
-  start and end time, break, hour type, project, location, notes, and when it was recorded
-  and last changed.
-- `GET /api/info` tells apps, without signing in, that this is a TimeTracker server and which
-  API version it speaks.
-  It also gives the installation's name and colours (the same `APP_TITLE` and `COLOR_*`
-  settings as the website), so the mobile app can look the part before anyone signs in.
+- **Projects** can have a budget in hours, shown as how much of it is used, and be marked
+  billable. They can be limited to certain people: only they see the project when logging hours,
+  and the API refuses it for anyone else.
+- A project's hours per person can be shown for a date range instead of only over all time.
+- *Reports* can be limited to one project, and show the hours per project in the dates with how
+  many are billable, also as a CSV file.
+
+### For developers
+
+- New: `GET /api/projects/{id}/breakdown?from=&to=`, `GET /api/reports/projects` and
+  `/api/reports/projects/csv`. The hours report and the entries CSV take an optional `projectId`.
+- `GET /api/projects` only gives employees the projects they may log hours on. Each project now
+  also has `budgetHours`, `isBillable`, `memberIds` (filled in for employers) and `canLog`.
+
+## [1.3.1] - 2026-11-08
+
+### Changed
+
+- Questions like *Lock this month?*, *Deactivate this person?* or *Delete this entry?* open in
+  the app's own dialog instead of the browser's popup, with a short explanation of what happens.
+  Rejecting or revoking leave asks for the optional reason in the same dialog.
+
+## [1.3.0] - 2026-11-06
+
+### Added
+
+- The version (e.g. `v1.3.0`) shows in small print under the menu and on the sign-in page.
+
+### For developers
+
 - The mobile app stays signed in: when it signs in with `issueRefreshToken`, it gets a refresh
   token it swaps at `POST /api/auth/refresh` for a new sign-in, and revokes at
   `POST /api/auth/logout`. It works for `JWT_REFRESH_TOKEN_DAYS` (default 14) without being
   used, works once, and a copied token that gets used twice ends that sign-in. Changing or
   resetting a password, or deactivating someone or their company, ends it too. The website
   doesn't use refresh tokens.
+- `GET /api/info` also gives the installation's name and colours (the same `APP_TITLE` and
+  `COLOR_*` settings as the website), so the mobile app can look the part before anyone signs in.
+
+## [1.2.0] - 2026-11-05
+
+### Added
+
+- *Reports* has *Download all entries (CSV)*: every entry in the dates, one row each, with
+  start and end time, break, hour type, project, location, notes, and when it was recorded
+  and last changed.
+
+### For developers
+
+- `GET /api/info` tells apps, without signing in, that this is a TimeTracker server and which
+  API version it speaks.
 - The README says who's responsible for the personal data in an installation.
-- The version (e.g. `v1.2.1`) shows in small print under the menu and on the sign-in page.
-- **Projects** can have a budget in hours, shown as how much of it is used, and be marked
-  billable. They can be limited to certain people: only they see the project when logging hours,
-  and the API refuses it for anyone else.
-- A project's hours per person can be shown for a date range instead of only over all time
-  (`GET /api/projects/{id}/breakdown?from=&to=`).
-- *Reports* can be limited to one project, and show the hours per project in the dates with how
-  many are billable, also as a CSV file (`GET /api/reports/projects`, `/api/reports/projects/csv`).
-  The hours report and the entries CSV take an optional `projectId`.
+
+## [1.1] - 2026-10-29
 
 ### Changed
 
@@ -46,11 +79,6 @@ Database migrations run automatically when the API starts, unless a release says
 - On phones, your hours, leave and the employee list show as cards instead of wide tables.
 - The *Company* page is split into tabs: General, Working hours, Public holidays, Email and
   Activity. `/email` opens the Email tab.
-- Questions like *Lock this month?*, *Deactivate this person?* or *Delete this entry?* open in
-  the app's own dialog instead of the browser's popup, with a short explanation of what happens.
-  Rejecting or revoking leave asks for the optional reason in the same dialog.
-- `GET /api/projects` only gives employees the projects they may log hours on. Each project now
-  also has `budgetHours`, `isBillable`, `memberIds` (filled in for employers) and `canLog`.
 
 ### Fixed
 
@@ -195,7 +223,12 @@ Database migrations run automatically when the API starts, unless a release says
 - First release: logging hours, list and planboard views, reports per day, week and month,
   and the Employee, Supervisor and Employer roles.
 
-[Unreleased]: https://github.com/detono/timetracker/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/detono/timetracker/compare/v1.3.2...HEAD
+[1.3.2]: https://github.com/detono/timetracker/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/detono/timetracker/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/detono/timetracker/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/detono/timetracker/compare/v1.1...v1.2.0
+[1.1]: https://github.com/detono/timetracker/compare/v1.0.0...v1.1
 [1.0.0]: https://github.com/detono/timetracker/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/detono/timetracker/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/detono/timetracker/compare/v0.3.0...v0.4.0
