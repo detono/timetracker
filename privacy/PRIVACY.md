@@ -60,7 +60,7 @@ The app is intended for employees and is not directed at children under 16.
 
 ## 10. Your rights
 
-Under the GDPR and similar laws you may have the right to access, correct, delete or export your personal data and to object to its processing. Because your data is held by your organisation, please send such requests to them. You can also contact us at [CONTACT EMAIL](mailto:[CONTACT EMAIL]), and you have the right to lodge a complaint with your data protection authority (in Belgium: the [Data Protection Authority](https://www.dataprotectionauthority.be)).
+Under the GDPR and similar laws you may have the right to access, correct, delete or export your personal data and to object to its processing. Because your data is held by your organisation, please send such requests to them. You can also contact us at [team.tosty@proton.me](mailto:team.tosty@proton.me), and you have the right to lodge a complaint with your data protection authority (in Belgium: the [Data Protection Authority](https://www.dataprotectionauthority.be)).
 
 ## 11. Changes
 
