@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { Tenant, TenantEmployer } from "../types";
+import type { AuthResult, Tenant, TenantEmployer } from "../types";
 
 export interface CreateTenantPayload {
   name: string;
@@ -31,4 +31,10 @@ export async function getTenantEmployers(tenantId: string): Promise<TenantEmploy
 /** Sets a temporary password; the employer must choose their own at their next login. */
 export async function resetEmployerPassword(tenantId: string, userId: string, newPassword: string): Promise<void> {
   await apiClient.post(`/tenants/${tenantId}/employers/${userId}/reset-password`, { newPassword });
+}
+
+/** Platform admin: a 30-minute sign-in as one of the company's employers, to help them out. */
+export async function signInAsEmployer(tenantId: string, userId: string): Promise<AuthResult> {
+  const { data } = await apiClient.post<AuthResult>(`/tenants/${tenantId}/employers/${userId}/sign-in`);
+  return data;
 }

@@ -115,7 +115,8 @@ builder.Services
                 var validator = context.HttpContext.RequestServices.GetRequiredService<ISessionValidator>();
                 var role = principal.FindFirstValue(ClaimTypes.Role);
                 var tenantId = Guid.TryParse(principal.FindFirstValue(TenantClaimTypes.TenantId), out var t) ? t : (Guid?)null;
-                if (!await validator.IsValidAsync(userId, version, role, tenantId, context.HttpContext.RequestAborted)) {
+                var impersonatorId = Guid.TryParse(principal.FindFirstValue(SessionClaimTypes.ImpersonatorId), out var a) ? a : (Guid?)null;
+                if (!await validator.IsValidAsync(userId, version, role, tenantId, impersonatorId, context.HttpContext.RequestAborted)) {
                     context.Fail("This sign-in is no longer valid.");
                 }
             }

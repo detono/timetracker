@@ -7,7 +7,10 @@ public interface ISessionValidator
     /// False when the user or their company was deactivated, when the sign-in is older than
     /// their last password change or reset, or when the token's role or company don't match
     /// the account (so even a token signed with a leaked secret can't claim more rights).
+    /// On a support sign-in, also false once <paramref name="impersonatorId"/> is no longer an
+    /// active platform admin.
     /// </summary>
     Task<bool> IsValidAsync(
-        Guid userId, int sessionVersion, string? role, Guid? tenantId, CancellationToken cancellationToken = default);
+        Guid userId, int sessionVersion, string? role, Guid? tenantId, Guid? impersonatorId = null,
+        CancellationToken cancellationToken = default);
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import { getPendingLeaveCount } from "../api/leaveApi";
@@ -15,7 +15,8 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "shell
 
 export function AppShell() {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, endSupportSignIn } = useAuth();
+  const navigate = useNavigate();
 
   const translatedRole = user ? roleLabel(t, user.role) : "";
   const isEmployer = user?.role === "Employer";
@@ -137,9 +138,27 @@ export function AppShell() {
       {menuOpen && <div className="shell__backdrop" aria-hidden="true" onClick={() => setMenuOpen(false)} />}
 
       <main className="shell__content">
+        {user?.supportBy && (
+          <div className="support-banner" role="status">
+            <span>
+              {t('support.banner', { admin: user.supportBy, name: user.fullName, company: user.tenantName ?? "" })}
+            </span>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => {
+                endSupportSignIn();
+                navigate("/tenants", { replace: true });
+              }}
+            >
+              {t('support.end')}
+            </button>
+          </div>
+        )}
         <Outlet context={shellContext} />
       </main>
-      <WhatsNewDialog />
+      {/* During a support sign-in, leave the release notes for the employer to read themselves. */}
+      {!user?.supportBy && <WhatsNewDialog />}
     </div>
   );
 }

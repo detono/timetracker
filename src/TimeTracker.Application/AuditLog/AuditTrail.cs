@@ -16,16 +16,26 @@ public class AuditTrail(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
     public async Task RecordAsync(
         AuditAction action, User? subject, IReadOnlyDictionary<string, string>? details, CancellationToken cancellationToken
     ) {
+        // On a support sign-in it's the platform admin who did it, not the employer.
+        var (actorId, actorName, actorRole) = currentUser.ImpersonatorId is { } adminId
+            ? (adminId, currentUser.ImpersonatorName, UserRole.PlatformAdmin)
+            : (currentUser.UserId, currentUser.FullName, currentUser.Role);
         var entry = AuditEntry.Create(
-            currentUser.UserId == Guid.Empty ? null : currentUser.UserId,
-            string.IsNullOrWhiteSpace(currentUser.FullName) ? "Unknown" : currentUser.FullName,
-            currentUser.Role,
+            actorId == Guid.Empty ? null : actorId,
+            string.IsNullOrWhiteSpace(actorName) ? "Unknown" : actorName,
+            actorRole,
             action,
             subject?.Id,
             subject is null ? null : $"{subject.FirstName} {subject.LastName}",
             details is null || details.Count == 0 ? null : JsonSerializer.Serialize(details));
         await unitOfWork.AuditEntries.AddAsync(entry, cancellationToken);
     }
+
+    /// <summary>
+    /// Whether a change to <paramref name="userId"/>'s own data is made by that person, which
+    /// isn't logged. Not when support is signed in as them: then someone else made it.
+    /// </summary>
+    public bool IsDoneBy(Guid userId) => userId == currentUser.UserId && currentUser.ImpersonatorId is null;
 
     /// <summary>A time entry in a language-neutral form, e.g. "2026-10-05 09:00–17:00, 30 min break, Work".</summary>
     public static string Describe(TimeEntry entry, HourType? hourType) {

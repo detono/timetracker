@@ -55,6 +55,7 @@ public class AuthController : ApiControllerBase
 
     [HttpPut("language")]
     [Authorize]
+    [NotDuringSupportSignIn]
     public async Task<ActionResult> SetLanguage(SetLanguageCommand command, CancellationToken cancellationToken)
     {
         var result = await Mediator.Send(command, cancellationToken);
@@ -67,6 +68,7 @@ public class AuthController : ApiControllerBase
     /// </summary>
     [HttpPost("change-password")]
     [Authorize]
+    [NotDuringSupportSignIn]
     [ProducesResponseType(typeof(AuthResultDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<AuthResultDto>> ChangePassword(ChangePasswordCommand command, CancellationToken cancellationToken)
     {
