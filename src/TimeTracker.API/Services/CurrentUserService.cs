@@ -84,5 +84,16 @@ public class CurrentUserService : ICurrentUserService, ITenantScope
 
     public string? FullName => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
 
+    public Guid? ImpersonatorId
+    {
+        get
+        {
+            var value = _httpContextAccessor.HttpContext?.User.FindFirstValue(SessionClaimTypes.ImpersonatorId);
+            return Guid.TryParse(value, out var id) ? id : null;
+        }
+    }
+
+    public string? ImpersonatorName => _httpContextAccessor.HttpContext?.User.FindFirstValue(SessionClaimTypes.ImpersonatorName);
+
     public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
 }

@@ -317,11 +317,15 @@
     "resetEmployerPasswordHint": "For when an employer is locked out. Give them the temporary password yourself; they're signed out right away and choose their own when they next sign in.",
     "resetEmployerPasswordDone": "Done. Give {{name}} the temporary password; they'll choose their own when they sign in.",
     "noEmployers": "This company has no employer accounts.",
-    "employer": "Employer"
+    "employer": "Employer",
+    "signInAsEmployer": "Sign in as employer",
+    "signInAsEmployerFor": "Sign in as an employer of {{name}}",
+    "signInAsEmployerHint": "To set things up for them, like webhooks or email. You'll see and can change everything this employer can, for 30 minutes. The company sees in its activity log that you signed in, and everything you change.",
+    "signInAs": "Sign in as {{name}}"
   },
   "platformAdmins": {
     "title": "Platform admins",
-    "subtitle": "Admins manage companies and other admins. They can't see any company's hours or people.",
+    "subtitle": "Admins manage companies and other admins. They only see a company's hours and people when they sign in as one of its employers, which the company sees in its activity log.",
     "addNew": "Add a platform admin",
     "confirmDeactivateTitle": "Deactivate {{name}}?",
     "confirmDeactivate": "They can no longer sign in. You can reactivate them later."
@@ -568,7 +572,7 @@
   },
   "activityLog": {
     "title": "Activity log",
-    "hint": "Who locked or unlocked months, changed someone else's hours, reset a password, (de)activated an account or changed a webhook. Entries can't be changed or removed.",
+    "hint": "Who locked or unlocked months, changed someone else's hours, reset a password, (de)activated an account, changed a webhook or signed in for support. Entries can't be changed or removed.",
     "empty": "Nothing recorded yet.",
     "loadMore": "Show older",
     "platformAdmin": "{{name}} (platform admin)",
@@ -583,7 +587,8 @@
       "UserActivated": "{{actor}} reactivated {{subject}}",
       "WebhookCreated": "{{actor}} added the webhook {{name}}",
       "WebhookUpdated": "{{actor}} changed the webhook {{name}}",
-      "WebhookDeleted": "{{actor}} removed the webhook {{name}}"
+      "WebhookDeleted": "{{actor}} removed the webhook {{name}}",
+      "SupportSignIn": "{{actor}} signed in as {{subject}} for support"
     }
   },
   "webhooks": {
@@ -662,5 +667,10 @@
       "fixed": "Fixed",
       "security": "Security"
     }
+  },
+  "support": {
+    "banner": "{{admin}}, you're signed in as {{name}} ({{company}}) for support. Everything you change shows in the company's activity log.",
+    "end": "Back to my account",
+    "accountLocked": "While signed in as someone else, you can't change their password. Their language changes only for you."
   }
 }

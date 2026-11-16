@@ -6,12 +6,15 @@ import {
   getTenants,
   resetEmployerPassword,
   setTenantActive,
+  signInAsEmployer,
   type CreateTenantPayload
 } from "../api/tenantsApi";
 import { extractErrorMessage } from "../api/client";
 import type { Tenant, TenantEmployer } from "../types";
 import { RowMenu } from "../components/RowMenu";
 import { useConfirm } from "../components/ConfirmDialog";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 const emptyForm: CreateTenantPayload = {
   name: "",
@@ -88,6 +91,7 @@ export function TenantsPage() {
   }
 
   const [resetTenant, setResetTenant] = useState<Tenant | null>(null);
+  const [supportTenant, setSupportTenant] = useState<Tenant | null>(null);
 
   return (
     <div className="page">
@@ -161,6 +165,10 @@ export function TenantsPage() {
         <ResetEmployerPasswordPanel key={resetTenant.id} tenant={resetTenant} onClose={() => setResetTenant(null)} />
       )}
 
+      {supportTenant && (
+        <SupportSignInPanel key={supportTenant.id} tenant={supportTenant} onClose={() => setSupportTenant(null)} />
+      )}
+
       {loading ? (
         <p className="empty-state">{t('common.loading')}</p>
       ) : tenants.length === 0 ? (
@@ -192,6 +200,9 @@ export function TenantsPage() {
                     <RowMenu
                       disabled={busyTenantId === tenant.id}
                       items={[
+                        ...(tenant.isActive
+                          ? [{ label: t('tenants.signInAsEmployer'), onSelect: () => setSupportTenant(tenant) }]
+                          : []),
                         { label: t('tenants.resetEmployerPassword'), onSelect: () => setResetTenant(tenant) },
                         {
                           label: tenant.isActive ? t('employees.deactivate') : t('employees.reactivate'),
@@ -296,6 +307,89 @@ function ResetEmployerPasswordPanel({ tenant, onClose }: { tenant: Tenant; onClo
         </form>
       )}
       {error && <p className="form__error">{error}</p>}
+    </div>
+  );
+}
+
+/**
+ * Support: sign in as one of the company's employers to set things up for them. The company
+ * sees this, and everything changed meanwhile, in its activity log.
+ */
+function SupportSignInPanel({ tenant, onClose }: { tenant: Tenant; onClose: () => void }) {
+  const { t } = useTranslation();
+  const { startSupportSignIn } = useAuth();
+  const navigate = useNavigate();
+  const [employers, setEmployers] = useState<TenantEmployer[] | null>(null);
+  const [employerId, setEmployerId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getTenantEmployers(tenant.id)
+      .then((list) => {
+        const active = list.filter((e) => e.isActive);
+        setEmployers(active);
+        setEmployerId(active[0]?.id ?? "");
+      })
+      .catch((err) => setError(extractErrorMessage(err)));
+  }, [tenant.id]);
+
+  const selected = employers?.find((e) => e.id === employerId);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    try {
+      startSupportSignIn(await signInAsEmployer(tenant.id, employerId));
+      navigate("/", { replace: true });
+    } catch (err) {
+      setError(extractErrorMessage(err));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="panel">
+      <h2>{t('tenants.signInAsEmployerFor', { name: tenant.name })}</h2>
+      <p className="form__hint">{t('tenants.signInAsEmployerHint')}</p>
+
+      {employers === null ? (
+        !error && <p className="empty-state">{t('common.loading')}</p>
+      ) : employers.length === 0 ? (
+        <p className="empty-state">{t('tenants.noEmployers')}</p>
+      ) : (
+        <form className="form" onSubmit={handleSubmit}>
+          <div className="form__row">
+            <label className="form__field">
+              <span>{t('tenants.employer')}</span>
+              <select value={employerId} onChange={(e) => setEmployerId(e.target.value)} required>
+                {employers.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.fullName} ({e.email})
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="form__actions">
+            <button className="btn btn--primary" type="submit" disabled={busy || !selected}>
+              {t('tenants.signInAs', { name: selected?.fullName ?? "" })}
+            </button>
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {t('common.cancel')}
+            </button>
+          </div>
+        </form>
+      )}
+      {error && <p className="form__error">{error}</p>}
+      {(!employers || employers.length === 0) && (
+        <div className="form__actions">
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
+            {t('common.close')}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

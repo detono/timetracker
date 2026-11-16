@@ -13,6 +13,28 @@ leaves out.
 
 ## [Unreleased]
 
+### Added
+
+- **Support sign-in**: a platform admin can sign in as one of a company's employers
+  (*Companies* → *⋯* → *Sign in as employer*) to set things up for them, like webhooks or email.
+  It lasts 30 minutes, a banner shows it with a way back, and it can't change the employer's
+  password or language. The company's activity log shows the sign-in and every change made
+  during it, under the admin's name.
+
+### Changed
+
+- The activity log now also records hours that someone else logged *for* an employer while
+  signed in as them.
+
+### For developers
+
+- `POST /api/tenants/{id}/employers/{userId}/sign-in` (platform admin only) returns a sign-in
+  as that employer, without a refresh token. Its token carries `impersonator_id` and
+  `impersonator_name` claims; `PUT /api/auth/language` and `POST /api/auth/change-password`
+  answer `403` with code `notDuringSupportSignIn` for it. It stops working as soon as the admin
+  is deactivated.
+- New activity log action: `SupportSignIn`.
+
 ## [1.4.0] - 2026-11-10
 
 ### Added

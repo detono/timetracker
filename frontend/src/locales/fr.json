@@ -317,11 +317,15 @@
     "resetEmployerPasswordHint": "Pour un employeur qui ne peut plus se connecter. Transmettez-lui vous-même le mot de passe temporaire ; il est déconnecté immédiatement et choisira le sien à sa prochaine connexion.",
     "resetEmployerPasswordDone": "C'est fait. Transmettez le mot de passe temporaire à {{name}} ; il choisira le sien à la connexion.",
     "noEmployers": "Cette entreprise n'a aucun compte employeur.",
-    "employer": "Employeur"
+    "employer": "Employeur",
+    "signInAsEmployer": "Se connecter comme employeur",
+    "signInAsEmployerFor": "Se connecter comme employeur de {{name}}",
+    "signInAsEmployerHint": "Pour configurer quelque chose pour eux, comme les webhooks ou l'e-mail. Pendant 30 minutes, vous voyez et pouvez modifier tout ce que cet employeur peut. L'entreprise voit dans son journal d'activité que vous vous êtes connecté, et tout ce que vous modifiez.",
+    "signInAs": "Se connecter comme {{name}}"
   },
   "platformAdmins": {
     "title": "Administrateurs de la plateforme",
-    "subtitle": "Les administrateurs gèrent les entreprises et les autres administrateurs. Ils ne voient ni les heures ni les personnes des entreprises.",
+    "subtitle": "Les administrateurs gèrent les entreprises et les autres administrateurs. Ils ne voient les heures et les personnes d'une entreprise que s'ils se connectent comme l'un de ses employeurs, ce que l'entreprise voit dans son journal d'activité.",
     "addNew": "Ajouter un administrateur",
     "confirmDeactivateTitle": "Désactiver {{name}} ?",
     "confirmDeactivate": "Cette personne ne pourra plus se connecter. Vous pourrez la réactiver plus tard."
@@ -568,7 +572,7 @@
   },
   "activityLog": {
     "title": "Journal d'activité",
-    "hint": "Qui a verrouillé ou déverrouillé des mois, modifié les heures de quelqu'un d'autre, réinitialisé un mot de passe, (dés)activé un compte ou modifié un webhook. Les lignes ne peuvent être ni modifiées ni supprimées.",
+    "hint": "Qui a verrouillé ou déverrouillé des mois, modifié les heures de quelqu'un d'autre, réinitialisé un mot de passe, (dés)activé un compte, modifié un webhook ou s'est connecté pour l'assistance. Les lignes ne peuvent être ni modifiées ni supprimées.",
     "empty": "Rien d’enregistré pour l’instant.",
     "loadMore": "Afficher plus ancien",
     "platformAdmin": "{{name}} (administrateur de la plateforme)",
@@ -583,7 +587,8 @@
       "UserActivated": "{{actor}} a réactivé {{subject}}",
       "WebhookCreated": "{{actor}} a ajouté le webhook {{name}}",
       "WebhookUpdated": "{{actor}} a modifié le webhook {{name}}",
-      "WebhookDeleted": "{{actor}} a supprimé le webhook {{name}}"
+      "WebhookDeleted": "{{actor}} a supprimé le webhook {{name}}",
+      "SupportSignIn": "{{actor}} s'est connecté comme {{subject}} pour l'assistance"
     }
   },
   "webhooks": {
@@ -662,5 +667,10 @@
       "fixed": "Corrigé",
       "security": "Sécurité"
     }
+  },
+  "support": {
+    "banner": "{{admin}}, vous êtes connecté comme {{name}} ({{company}}) pour l'assistance. Tout ce que vous modifiez apparaît dans le journal d'activité de l'entreprise.",
+    "end": "Retour à mon compte",
+    "accountLocked": "Connecté comme quelqu'un d'autre, vous ne pouvez pas changer son mot de passe. Sa langue ne change que pour vous."
   }
 }

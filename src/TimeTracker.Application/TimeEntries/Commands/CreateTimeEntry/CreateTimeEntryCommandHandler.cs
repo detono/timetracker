@@ -76,7 +76,7 @@ public class CreateTimeEntryCommandHandler(
         );
 
         await unitOfWork.TimeEntries.AddAsync(entry, cancellationToken);
-        if (targetUserId != currentUser.UserId) {
+        if (!audit.IsDoneBy(targetUserId)) {
             await audit.RecordAsync(AuditAction.TimeEntryCreated, targetUser,
                 new Dictionary<string, string> { ["entry"] = AuditTrail.Describe(entry, hourType) }, cancellationToken);
         }

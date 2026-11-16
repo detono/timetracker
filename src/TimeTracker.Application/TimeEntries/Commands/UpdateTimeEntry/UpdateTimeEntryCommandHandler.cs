@@ -60,7 +60,7 @@ public class UpdateTimeEntryCommandHandler(
             projectName = project.Name;
         }
 
-        var before = entry.UserId == currentUser.UserId
+        var before = audit.IsDoneBy(entry.UserId)
             ? null
             : AuditTrail.Describe(entry, await unitOfWork.HourTypes.GetByIdAsync(entry.HourTypeId, cancellationToken));
 

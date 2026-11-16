@@ -42,7 +42,7 @@ public class DeleteTimeEntryCommandHandler : IRequestHandler<DeleteTimeEntryComm
             return Result.Failure(locked, ResultErrorType.Conflict);
         }
 
-        if (entry.UserId != _currentUser.UserId)
+        if (!_audit.IsDoneBy(entry.UserId))
         {
             var owner = await _unitOfWork.Users.GetByIdAsync(entry.UserId, cancellationToken);
             var hourType = await _unitOfWork.HourTypes.GetByIdAsync(entry.HourTypeId, cancellationToken);

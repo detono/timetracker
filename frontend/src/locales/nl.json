@@ -317,11 +317,15 @@
     "resetEmployerPasswordHint": "Voor als een werkgever niet meer binnen kan. Geef het tijdelijke wachtwoord zelf door; de werkgever wordt meteen uitgelogd en kiest bij de volgende aanmelding een eigen wachtwoord.",
     "resetEmployerPasswordDone": "Klaar. Geef {{name}} het tijdelijke wachtwoord; bij het aanmelden kiest die een eigen wachtwoord.",
     "noEmployers": "Dit bedrijf heeft geen werkgeversaccounts.",
-    "employer": "Werkgever"
+    "employer": "Werkgever",
+    "signInAsEmployer": "Aanmelden als werkgever",
+    "signInAsEmployerFor": "Aanmelden als werkgever van {{name}}",
+    "signInAsEmployerHint": "Om iets voor hen in te stellen, zoals webhooks of e-mail. Je ziet en wijzigt 30 minuten lang alles wat deze werkgever kan. Het bedrijf ziet in zijn activiteitenlog dat je aanmeldde, en alles wat je wijzigt.",
+    "signInAs": "Aanmelden als {{name}}"
   },
   "platformAdmins": {
     "title": "Platformbeheerders",
-    "subtitle": "Beheerders beheren bedrijven en andere beheerders. Ze zien geen uren of mensen van bedrijven.",
+    "subtitle": "Beheerders beheren bedrijven en andere beheerders. Ze zien de uren en mensen van een bedrijf enkel als ze aanmelden als een van zijn werkgevers, wat het bedrijf in zijn activiteitenlog ziet.",
     "addNew": "Platformbeheerder toevoegen",
     "confirmDeactivateTitle": "{{name}} deactiveren?",
     "confirmDeactivate": "Deze persoon kan dan niet meer inloggen. Je kunt de account later weer activeren."
@@ -568,7 +572,7 @@
   },
   "activityLog": {
     "title": "Activiteitenlog",
-    "hint": "Wie maanden vergrendelde of ontgrendelde, uren van iemand anders wijzigde, een wachtwoord herstelde, een account (de)activeerde of een webhook wijzigde. Regels kunnen niet gewijzigd of verwijderd worden.",
+    "hint": "Wie maanden vergrendelde of ontgrendelde, uren van iemand anders wijzigde, een wachtwoord herstelde, een account (de)activeerde, een webhook wijzigde of aanmeldde voor ondersteuning. Regels kunnen niet gewijzigd of verwijderd worden.",
     "empty": "Nog niets geregistreerd.",
     "loadMore": "Oudere tonen",
     "platformAdmin": "{{name}} (platformbeheerder)",
@@ -583,7 +587,8 @@
       "UserActivated": "{{actor}} heractiveerde {{subject}}",
       "WebhookCreated": "{{actor}} voegde de webhook {{name}} toe",
       "WebhookUpdated": "{{actor}} wijzigde de webhook {{name}}",
-      "WebhookDeleted": "{{actor}} verwijderde de webhook {{name}}"
+      "WebhookDeleted": "{{actor}} verwijderde de webhook {{name}}",
+      "SupportSignIn": "{{actor}} meldde aan als {{subject}} voor ondersteuning"
     }
   },
   "webhooks": {
@@ -662,5 +667,10 @@
       "fixed": "Opgelost",
       "security": "Beveiliging"
     }
+  },
+  "support": {
+    "banner": "{{admin}}, je bent voor ondersteuning aangemeld als {{name}} ({{company}}). Alles wat je wijzigt, verschijnt in het activiteitenlog van het bedrijf.",
+    "end": "Terug naar mijn account",
+    "accountLocked": "Aangemeld als iemand anders kun je hun wachtwoord niet wijzigen. Hun taal verandert enkel voor jou."
   }
 }

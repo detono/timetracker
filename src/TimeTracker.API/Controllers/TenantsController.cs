@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using TimeTracker.Application.Tenants.Commands.CreateTenant;
 using TimeTracker.Application.Tenants.Commands.ResetEmployerPassword;
 using TimeTracker.Application.Tenants.Commands.SetTenantActive;
+using TimeTracker.Application.Tenants.Commands.SignInAsEmployer;
+using TimeTracker.Application.Auth.Dtos;
 using TimeTracker.Application.Tenants.Dtos;
 using TimeTracker.Application.Tenants.Queries.GetTenantEmployers;
 using TimeTracker.Application.Tenants.Queries.GetTenants;
@@ -61,6 +63,18 @@ public class TenantsController : ApiControllerBase
         Guid id, Guid userId, [FromBody] ResetPasswordRequestBody body, CancellationToken cancellationToken)
     {
         var result = await Mediator.Send(new ResetEmployerPasswordCommand(id, userId, body.NewPassword), cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// A 30-minute sign-in as one of the company's employers, for support. Recorded in the
+    /// company's activity log, with every change made during it.
+    /// </summary>
+    [HttpPost("{id:guid}/employers/{userId:guid}/sign-in")]
+    [ProducesResponseType(typeof(AuthResultDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AuthResultDto>> SignInAsEmployer(Guid id, Guid userId, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(new SignInAsEmployerCommand(id, userId), cancellationToken);
         return HandleResult(result);
     }
 }

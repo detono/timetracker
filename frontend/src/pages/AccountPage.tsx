@@ -15,6 +15,8 @@ export function AccountPage() {
   async function handleLanguageChange(language: string) {
     setLanguageError(null);
     await i18n.changeLanguage(language);
+    // During a support sign-in the language only changes here, not the employer's own.
+    if (user?.supportBy) return;
     try {
       await setLanguage(language);
     } catch (err) {
@@ -82,49 +84,56 @@ export function AccountPage() {
         {languageError && <p className="form__error">{languageError}</p>}
       </div>
 
-      <div className="panel" style={{ maxWidth: 420 }}>
-        <h2>{t('account.changePasswordTitle')}</h2>
-        <form className="form" onSubmit={handleSubmit}>
-          <label className="form__field">
-            <span>{t('account.currentPassword')}</span>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-            />
-          </label>
-          <label className="form__field">
-            <span>{t('account.newPassword')}</span>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              minLength={8}
-              required
-            />
-          </label>
-          <label className="form__field">
-            <span>{t('account.confirmPassword')}</span>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              minLength={8}
-              required
-            />
-          </label>
+      {user?.supportBy ? (
+        <div className="panel" style={{ maxWidth: 420 }}>
+          <h2>{t('account.changePasswordTitle')}</h2>
+          <p className="form__hint">{t('support.accountLocked')}</p>
+        </div>
+      ) : (
+        <div className="panel" style={{ maxWidth: 420 }}>
+          <h2>{t('account.changePasswordTitle')}</h2>
+          <form className="form" onSubmit={handleSubmit}>
+            <label className="form__field">
+              <span>{t('account.currentPassword')}</span>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+            </label>
+            <label className="form__field">
+              <span>{t('account.newPassword')}</span>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={8}
+                required
+              />
+            </label>
+            <label className="form__field">
+              <span>{t('account.confirmPassword')}</span>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                minLength={8}
+                required
+              />
+            </label>
 
-          {error && <p className="form__error">{error}</p>}
-          {success && <p className="form__success">{t('account.successMessage')}</p>}
+            {error && <p className="form__error">{error}</p>}
+            {success && <p className="form__success">{t('account.successMessage')}</p>}
 
-          <div className="form__actions">
-            <button className="btn btn--primary" type="submit" disabled={submitting}>
-              {submitting ? t('account.updating') : t('account.updateBtn')}
-            </button>
-          </div>
-        </form>
-      </div>
+            <div className="form__actions">
+              <button className="btn btn--primary" type="submit" disabled={submitting}>
+                {submitting ? t('account.updating') : t('account.updateBtn')}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

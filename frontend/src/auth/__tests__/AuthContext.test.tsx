@@ -17,6 +17,26 @@ const signIn: AuthResult = {
   mustChangePassword: false
 };
 
+const adminSignIn: AuthResult = {
+  token: "admin-token",
+  userId: "a1",
+  fullName: "Ada Admin",
+  role: "PlatformAdmin",
+  tenantName: null,
+  language: "en",
+  mustChangePassword: false
+};
+
+const employerSignIn: AuthResult = {
+  token: "support-token",
+  userId: "e1",
+  fullName: "Emma Employer",
+  role: "Employer",
+  tenantName: "Bakkerij",
+  language: "nl",
+  mustChangePassword: false
+};
+
 /** Makes every API call fail with the given status and body. */
 function answerWith(status: number, data: unknown = {}) {
   apiClient.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
@@ -33,7 +53,11 @@ function Probe() {
       <span data-testid="user">{auth.user?.fullName ?? "nobody"}</span>
       <span data-testid="ended">{String(auth.sessionEnded)}</span>
       <span data-testid="must-change">{String(auth.user?.mustChangePassword ?? false)}</span>
+      <span data-testid="support-by">{auth.user?.supportBy ?? "-"}</span>
       <button onClick={() => auth.login(signIn)}>sign in</button>
+      <button onClick={() => auth.login(adminSignIn)}>sign in as admin</button>
+      <button onClick={() => auth.startSupportSignIn(employerSignIn)}>support</button>
+      <button onClick={() => auth.endSupportSignIn()}>end support</button>
       <button onClick={() => auth.logout()}>sign out</button>
     </div>
   );
@@ -108,5 +132,58 @@ describe("AuthContext", () => {
     });
     expect(screen.getByTestId("user")).toHaveTextContent("Eva Employee");
     expect(screen.getByTestId("must-change")).toHaveTextContent("false");
+  });
+
+  describe("support sign-in", () => {
+    async function renderAsAdminInSupport() {
+      render(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>
+      );
+      await act(async () => screen.getByText("sign in as admin").click());
+      await act(async () => screen.getByText("support").click());
+    }
+
+    it("acts as the employer, and remembers who is helping", async () => {
+      await renderAsAdminInSupport();
+
+      expect(screen.getByTestId("user")).toHaveTextContent("Emma Employer");
+      expect(screen.getByTestId("support-by")).toHaveTextContent("Ada Admin");
+      expect(apiClient.defaults.headers.common.Authorization).toBe("Bearer support-token");
+    });
+
+    it("goes back to the admin's own sign-in when it ends", async () => {
+      await renderAsAdminInSupport();
+
+      await act(async () => screen.getByText("end support").click());
+
+      expect(screen.getByTestId("user")).toHaveTextContent("Ada Admin");
+      expect(screen.getByTestId("support-by")).toHaveTextContent("-");
+      expect(apiClient.defaults.headers.common.Authorization).toBe("Bearer admin-token");
+      expect(JSON.parse(localStorage.getItem("timetracker.auth")!).token).toBe("admin-token");
+    });
+
+    it("goes back to the admin when the support sign-in expires", async () => {
+      await renderAsAdminInSupport();
+      answerWith(401);
+
+      await act(async () => {
+        await apiClient.get("/anything").catch(() => undefined);
+      });
+
+      expect(screen.getByTestId("user")).toHaveTextContent("Ada Admin");
+      expect(screen.getByTestId("ended")).toHaveTextContent("false");
+    });
+
+    it("signs out of both on sign-out", async () => {
+      await renderAsAdminInSupport();
+
+      await act(async () => screen.getByText("sign out").click());
+
+      expect(screen.getByTestId("user")).toHaveTextContent("nobody");
+      expect(localStorage.getItem("timetracker.auth")).toBeNull();
+      expect(localStorage.getItem("timetracker.auth.admin")).toBeNull();
+    });
   });
 });

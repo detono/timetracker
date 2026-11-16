@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TimeTracker.Application.Common.Interfaces;
+using TimeTracker.Domain.Enums;
 using TimeTracker.Infrastructure.Persistence;
 
 namespace TimeTracker.Infrastructure.Identity;
@@ -10,7 +11,8 @@ namespace TimeTracker.Infrastructure.Identity;
 /// </summary>
 public class SessionValidator(ApplicationDbContext context) : ISessionValidator {
     public async Task<bool> IsValidAsync(
-        Guid userId, int sessionVersion, string? role, Guid? tenantId, CancellationToken cancellationToken = default
+        Guid userId, int sessionVersion, string? role, Guid? tenantId, Guid? impersonatorId = null,
+        CancellationToken cancellationToken = default
     ) {
         // Runs before the caller's tenant is known, so it bypasses the tenant filter on purpose.
         var user = await context.Users.IgnoreQueryFilters().AsNoTracking()
@@ -20,6 +22,13 @@ public class SessionValidator(ApplicationDbContext context) : ISessionValidator 
 
         if (user is null || !user.IsActive || user.SessionVersion != sessionVersion
             || user.Role.ToString() != role || user.TenantId != tenantId) {
+            return false;
+        }
+
+        if (impersonatorId is { } adminId
+            && !await context.Users.IgnoreQueryFilters().AsNoTracking().AnyAsync(
+                u => u.Id == adminId && u.IsActive && u.Role == UserRole.PlatformAdmin && u.TenantId == null,
+                cancellationToken)) {
             return false;
         }
 

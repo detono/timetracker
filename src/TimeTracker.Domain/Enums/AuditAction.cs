@@ -16,5 +16,7 @@ public enum AuditAction
     /// <summary>Webhooks send company data elsewhere, so who set them up is recorded.</summary>
     WebhookCreated,
     WebhookUpdated,
-    WebhookDeleted
+    WebhookDeleted,
+    /// <summary>A platform admin signed in as one of the company's employers, to help them.</summary>
+    SupportSignIn
 }

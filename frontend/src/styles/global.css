@@ -1908,3 +1908,19 @@ button {
   color: var(--ink-soft);
   white-space: nowrap;
 }
+
+/* Shown while a platform admin is signed in as an employer for support. */
+.support-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
+  background: var(--tint);
+  color: var(--tint-ink);
+  font-weight: 600;
+}

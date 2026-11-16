@@ -17,4 +17,13 @@ public interface ICurrentUserService
 
     /// <summary>The caller's name as signed in, e.g. for the activity log.</summary>
     string? FullName => null;
+
+    /// <summary>
+    /// Set when a platform admin is signed in as this user to help them (a support sign-in).
+    /// Everything else above is still the user's own.
+    /// </summary>
+    Guid? ImpersonatorId => null;
+
+    /// <summary>That platform admin's name.</summary>
+    string? ImpersonatorName => null;
 }
