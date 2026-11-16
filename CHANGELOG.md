@@ -23,6 +23,13 @@ leaves out.
 
 ### Changed
 
+- **A clearer planboard.** Each day shows its total and a small time line with a piece per
+  entry, so breaks and days split over several tasks stand out. For people whose hours are
+  compared with a work schedule, the line shows the scheduled hours, hatches work outside them,
+  and the day says how far it is from the schedule; next to each name is the week so far
+  against the schedule. Days in a row of the same leave become one bar, today is outlined,
+  quiet weekends take less room, and a legend explains the colors. Clicking a day with several
+  entries lists them first, so you can pick the one to edit.
 - The activity log now also records hours that someone else logged *for* an employer while
   signed in as them.
 

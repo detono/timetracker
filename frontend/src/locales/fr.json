@@ -83,7 +83,11 @@
     }
   },
   "planBoard": {
-    "emptyState": "Aucune heure enregistrée pour cette période pour le moment."
+    "emptyState": "Aucune heure enregistrée pour cette période pour le moment.",
+    "legendSchedule": "Horaire",
+    "legendOutside": "Hors horaire",
+    "legendRange": "Chaque ligne va de {{from}} à {{to}}",
+    "total": "Total"
   },
   "listView": {
     "emptyState": "Aucune heure enregistrée pour cette période pour le moment.",

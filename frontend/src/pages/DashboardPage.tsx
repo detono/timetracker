@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useOutletContext } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
@@ -11,6 +11,8 @@ import {
 import { getHourTypes } from "../api/hourTypesApi";
 import { getLockedMonths } from "../api/lockedMonthsApi";
 import { getWorkSchedule } from "../api/leaveApi";
+import { getMyHoursOverview } from "../api/hoursOverviewApi";
+import { localToday } from "../utils/hoursOverview";
 import { isInLockedMonth, lockedMonthKeys } from "../utils/lockedMonths";
 import { usePublicHolidays } from "../utils/publicHolidays";
 import { projectsApi } from "../api/projectsApi"; // <-- 1. Added this import
@@ -43,11 +45,17 @@ export function DashboardPage() {
   const { pendingLeaveCount } = useOutletContext<ShellContext>();
   // Your work schedule, so new hours start with your usual times.
   const [schedule, setSchedule] = useState<WorkSchedule | null>(null);
+  // Whether your hours are compared with that schedule, so the planboard only shows the
+  // difference with it when they are.
+  const [tracksHours, setTracksHours] = useState(false);
   useEffect(() => {
     if (!user?.userId) return;
     getWorkSchedule(user.userId)
       .then(setSchedule)
       .catch(() => setSchedule(null));
+    getMyHoursOverview(localToday())
+      .then((overview) => setTracksHours(overview.tracksHours))
+      .catch(() => setTracksHours(false));
   }, [user?.userId]);
   // Bumped after every reload of the entries, so the overview reflects new hours.
   const [overviewKey, setOverviewKey] = useState(0);
@@ -132,6 +140,7 @@ export function DashboardPage() {
     await loadEntries();
   }
 
+  const leaveHourTypeIds = useMemo(() => new Set(hourTypes.filter((h) => h.isLeave).map((h) => h.id)), [hourTypes]);
   const isLocked = (entry: TimeEntry) => isInLockedMonth(lockedMonths, entry.workDate);
 
   const totalHours = entries.reduce((sum, e) => sum + e.durationHours, 0);
@@ -191,7 +200,15 @@ export function DashboardPage() {
       ) : view === "list" ? (
         <ListView entries={entries} onEdit={setEditing} onDelete={handleDelete} isLocked={isLocked} />
       ) : (
-        <PlanBoard days={days} entries={entries} onEdit={setEditing} isLocked={isLocked} holidays={holidays} />
+        <PlanBoard
+          days={days}
+          entries={entries}
+          onEdit={setEditing}
+          isLocked={isLocked}
+          holidays={holidays}
+          schedules={tracksHours && schedule && user ? { [user.userId]: schedule } : undefined}
+          leaveHourTypeIds={leaveHourTypeIds}
+        />
       )}
     </div>
   );

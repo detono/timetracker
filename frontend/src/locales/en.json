@@ -15,7 +15,11 @@
     "saveChanges": "Save changes"
   },
   "planBoard": {
-    "emptyState": "No hours logged for this period yet."
+    "emptyState": "No hours logged for this period yet.",
+    "legendSchedule": "Schedule",
+    "legendOutside": "Outside schedule",
+    "legendRange": "Each line runs {{from}}–{{to}}",
+    "total": "Total"
   },
   "listView": {
     "emptyState": "No hours logged for this period yet.",

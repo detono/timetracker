@@ -83,7 +83,11 @@
     }
   },
   "planBoard": {
-    "emptyState": "Nog geen uren geregistreerd voor deze periode."
+    "emptyState": "Nog geen uren geregistreerd voor deze periode.",
+    "legendSchedule": "Rooster",
+    "legendOutside": "Buiten rooster",
+    "legendRange": "Elke lijn loopt van {{from}} tot {{to}}",
+    "total": "Totaal"
   },
   "listView": {
     "emptyState": "Nog geen uren geregistreerd voor deze periode.",

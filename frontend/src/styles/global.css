@@ -1213,28 +1213,22 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--ink-soft);
-  padding: 0.5rem;
+  padding: 0.5rem 0.25rem;
   text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.planboard__row-label {
-  display: flex;
-  align-items: center;
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.5rem;
-  border-radius: 6px;
-  background: var(--paper);
+.planboard__day-header--compact {
+  white-space: normal;
+  font-size: 0.68rem;
+  padding-inline: 0;
 }
 
-.planboard__cell {
-  min-height: 56px;
-  border-radius: 6px;
-  background: var(--paper);
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.planboard__day-header--today {
+  color: var(--accent-ink);
+  font-weight: 700;
 }
 
 /* Public holiday or company day off: nobody is expected to work. */
@@ -1255,6 +1249,84 @@ button {
   white-space: nowrap;
 }
 
+.planboard__row-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  background: var(--paper);
+  min-width: 0;
+}
+
+.planboard__avatar {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--tint);
+  color: var(--tint-ink);
+}
+
+.planboard__person {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.planboard__name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planboard__week {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.planboard__progress {
+  display: block;
+  height: 4px;
+  margin-top: 3px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.planboard__progress span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
+
+.planboard__cell {
+  position: relative;
+  min-height: 52px;
+  border-radius: 6px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.planboard__cell--today {
+  outline: 1.5px solid var(--color-primary);
+  outline-offset: -1.5px;
+}
+
+.planboard__cell--compact {
+  background: transparent;
+  border: 1px dashed var(--line);
+}
+
 .planboard__cell--holiday {
   background: repeating-linear-gradient(
     -45deg,
@@ -1265,34 +1337,248 @@ button {
   );
 }
 
-.planboard__shift {
-  border: none;
-  border-left: 3px solid var(--color-primary);
-  background: var(--tint);
-  border-radius: 4px;
-  padding: 0.3rem 0.5rem;
-  text-align: left;
-  cursor: pointer;
+.planboard__day {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  font-size: 0.75rem;
-  color: var(--tint-ink);
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
 }
 
-.planboard__shift-time {
+.planboard__day:hover,
+.planboard__span:hover {
+  background: color-mix(in srgb, var(--line) 45%, transparent);
+}
+
+.planboard__day:focus-visible,
+.planboard__span:focus-visible,
+.planboard__entry:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.planboard__day-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem 0;
+}
+
+.planboard__day .planboard__day-top {
+  padding: 0;
+}
+
+.planboard__total {
+  font-weight: 700;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.planboard__diff {
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.planboard__diff--short {
+  color: var(--warn);
+}
+
+.planboard__diff--over {
+  color: var(--accent-ink);
+}
+
+/* A day as a line from the board's first to last hour, with a piece per entry. */
+.planboard__strip {
+  position: relative;
+  display: block;
+  height: 14px;
+}
+
+.planboard__strip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--line);
+}
+
+/* The scheduled hours, as a darker stretch of the line: hidden under the work that fills it,
+   it only shows where scheduled time wasn't worked. */
+.planboard__window {
+  position: absolute;
+  top: 5px;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink-soft) 55%, transparent);
+}
+
+.planboard__seg {
+  --seg-color: var(--color-primary);
+  position: absolute;
+  top: 3px;
+  height: 8px;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--seg-color);
+}
+
+/* Work outside the person's schedule: before or after hours, a day off or a holiday. */
+.planboard__seg--outside {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--seg-color) 0 2px,
+    transparent 2px 5px
+  );
+  box-shadow: inset 0 0 0 1px var(--seg-color);
+}
+
+.planboard__span {
+  --seg-color: var(--color-primary);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--seg-color) 16%, var(--paper-raised));
+  box-shadow: inset 3px 0 0 var(--seg-color);
+}
+
+.planboard__span-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planboard__span-total {
+  margin-left: auto;
+  white-space: nowrap;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.planboard__popover {
+  position: fixed;
+  z-index: 50;
+  min-width: 230px;
+  padding: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper-raised);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.14);
+}
+
+.planboard__entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.planboard__entry {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.35rem 0.4rem;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--ink);
+  text-align: left;
+}
+
+button.planboard__entry {
+  cursor: pointer;
+}
+
+button.planboard__entry:hover {
+  background: var(--paper);
+}
+
+.planboard__entry-type {
+  flex: 1;
+  font-weight: 600;
+}
+
+.planboard__entry-meta {
+  font-weight: 400;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.planboard__entries-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.4rem 0.2rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
-.planboard__shift-type {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  opacity: 0.85;
+.planboard__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding: 0.75rem 0.25rem 0.25rem;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
 }
 
-.planboard__shift-duration {
-  color: var(--accent-ink);
-  font-size: 0.7rem;
+.planboard__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.planboard__legend-item--push {
+  margin-left: auto;
+}
+
+.planboard__swatch {
+  flex: none;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.planboard__swatch--window {
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink-soft) 55%, transparent);
+}
+
+.planboard__swatch--outside {
+  width: 16px;
+  background: repeating-linear-gradient(-45deg, var(--ink-soft) 0 2px, transparent 2px 4px);
+  box-shadow: inset 0 0 0 1px var(--ink-soft);
 }
 
 /* ---------- Hour type badge ---------- */
@@ -1638,11 +1924,6 @@ button {
 .locked-months__name {
   font-weight: 600;
   text-transform: capitalize;
-}
-
-.planboard__shift--locked {
-  cursor: default;
-  opacity: 0.75;
 }
 
 .reports__section-title {
