@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getTeamTimeEntries } from "../api/timeEntriesApi";
+import { getTeamHoursOverview } from "../api/hoursOverviewApi";
+import { getWorkSchedule } from "../api/leaveApi";
+import { getHourTypes } from "../api/hourTypesApi";
 import { extractErrorMessage } from "../api/client";
 import { ViewToggle, type ViewMode } from "../components/ViewToggle";
 import { ListView } from "../components/ListView";
@@ -9,7 +12,8 @@ import { WeekNavigator } from "../components/WeekNavigator";
 import { TeamHoursTable } from "../components/TeamHoursTable";
 import { getWeekRange } from "../utils/dateRange";
 import { usePublicHolidays } from "../utils/publicHolidays";
-import type { TimeEntry } from "../types";
+import { localToday } from "../utils/hoursOverview";
+import type { TimeEntry, WorkSchedule } from "../types";
 
 /**
  * Shows every employee the caller has authority over: everyone, for an Employer,
@@ -22,6 +26,24 @@ export function TeamPage() {
   const [view, setView] = useState<ViewMode>("planboard");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Schedules of the people whose hours are compared with one, and which hour types are leave:
+  // the planboard uses them to show scheduled hours and to draw leave as one bar.
+  const [schedules, setSchedules] = useState<Record<string, WorkSchedule>>({});
+  const [leaveHourTypeIds, setLeaveHourTypeIds] = useState<ReadonlySet<string>>(new Set());
+  useEffect(() => {
+    let cancelled = false;
+    getTeamHoursOverview(localToday())
+      .then((team) => Promise.all(team.map((m) => getWorkSchedule(m.userId))))
+      .then((list) => !cancelled && setSchedules(Object.fromEntries(list.map((s) => [s.userId ?? "", s]))))
+      .catch(() => !cancelled && setSchedules({}));
+    getHourTypes(true)
+      .then((types) => !cancelled && setLeaveHourTypeIds(new Set(types.filter((h) => h.isLeave).map((h) => h.id))))
+      .catch(() => !cancelled && setLeaveHourTypeIds(new Set()));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const { from, to, days } = getWeekRange(anchorDate);
   const holidays = usePublicHolidays(from, to);
@@ -64,7 +86,13 @@ export function TeamPage() {
       ) : view === "list" ? (
         <ListView entries={entries} showEmployeeColumn />
       ) : (
-        <PlanBoard days={days} entries={entries} holidays={holidays} />
+        <PlanBoard
+          days={days}
+          entries={entries}
+          holidays={holidays}
+          schedules={schedules}
+          leaveHourTypeIds={leaveHourTypeIds}
+        />
       )}
     </div>
   );
