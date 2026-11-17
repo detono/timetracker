@@ -88,4 +88,15 @@ describe("Leave email links", () => {
     expect(await screen.findByRole("status")).toHaveTextContent("already handled");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  // E.g. a sign-in that expired overnight: the 401 sends them to the login page, which brings
+  // them back here with the link, so it must still be in the address.
+  it("keeps the link when the requests can't be loaded", async () => {
+    vi.mocked(getLeaveRequests).mockRejectedValue(new Error("Unauthorized"));
+    renderAt("/leave?review=req-1&decision=approve");
+
+    expect(await screen.findByText(/Something went wrong/)).toBeInTheDocument();
+    expect(screen.queryByText(/already handled/)).not.toBeInTheDocument();
+    expect(screen.getByTestId("search")).toHaveTextContent("?review=req-1&decision=approve");
+  });
 });

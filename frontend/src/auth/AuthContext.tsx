@@ -50,6 +50,20 @@ function readStoredUser(key = STORAGE_KEY): AuthState | null {
   }
 }
 
+/**
+ * True when the token's exp claim has passed. A token that can't be read counts as valid:
+ * the server still has the last word, through the 401 handling below.
+ */
+function hasExpired(token: string): boolean {
+  try {
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const { exp } = JSON.parse(atob(payload)) as { exp?: number };
+    return typeof exp === "number" && exp * 1000 <= Date.now();
+  } catch {
+    return false;
+  }
+}
+
 function store(state: AuthState | null, key = STORAGE_KEY) {
   try {
     if (state) localStorage.setItem(key, JSON.stringify(state));
@@ -71,12 +85,20 @@ function toState(result: AuthResult): AuthState {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthState | null>(() => {
-    const initial = readStoredUser();
-    setAuthToken(initial?.token ?? null);
-    return initial;
+  // A sign-in from an earlier visit whose token expired (e.g. overnight) is dropped here, so
+  // links from emails go through the login page instead of opening a page that can't load.
+  const [stored] = useState(() => {
+    const kept = readStoredUser();
+    if (!kept || !hasExpired(kept.token)) return { user: kept, expired: false };
+    store(null);
+    store(null, ADMIN_STORAGE_KEY);
+    return { user: null, expired: true };
   });
-  const [sessionEnded, setSessionEnded] = useState(false);
+  const [user, setUser] = useState<AuthState | null>(() => {
+    setAuthToken(stored.user?.token ?? null);
+    return stored.user;
+  });
+  const [sessionEnded, setSessionEnded] = useState(stored.expired);
 
   /** Ends a support sign-in by putting the admin's own back. False when there was none. */
   const restoreAdmin = useCallback((): boolean => {

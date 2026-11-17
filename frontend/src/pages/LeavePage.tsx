@@ -90,6 +90,9 @@ export function LeavePage() {
     return id && (decision === "approve" || decision === "reject") ? { id, decision } : null;
   });
   const emailLinkHandled = useRef(false);
+  // Only a successful load can say a request is gone. After a failed one (e.g. a 401 that sends
+  // them to sign in first), the link stays in the address so it still works afterwards.
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
 
   const load = useCallback(async () => {
     setError(null);
@@ -103,6 +106,7 @@ export function LeavePage() {
       setLeaveTypes(types.filter((ht) => ht.isLeave));
       setMine(mineData);
       setToReview(reviewData);
+      setReviewsLoaded(true);
       setBalances(balanceData);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -196,7 +200,7 @@ export function LeavePage() {
   // Once the requests are loaded, open the dialog the email button asked for. Each link is
   // used once: it's removed from the address so a reload doesn't ask again.
   useEffect(() => {
-    if (!emailLink || loading || emailLinkHandled.current) return;
+    if (!emailLink || !reviewsLoaded || emailLinkHandled.current) return;
     emailLinkHandled.current = true;
     setSearchParams(
       (params) => {
@@ -219,7 +223,7 @@ export function LeavePage() {
     }
     // The handlers are recreated every render; this should only run once, after loading.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emailLink, loading, toReview]);
+  }, [emailLink, reviewsLoaded, toReview]);
 
   const ownBalance = balances.find((b) => b.userId === user?.userId);
   const isReviewer = isEmployer || toReview.length > 0 || showAllReviews;

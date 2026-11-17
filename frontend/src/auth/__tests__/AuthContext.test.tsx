@@ -87,6 +87,39 @@ describe("AuthContext", () => {
     expect(apiClient.defaults.headers.common.Authorization).toBe("Bearer token-1");
   });
 
+  describe("a sign-in kept from an earlier visit", () => {
+    /** A JWT whose only claim that matters here is exp (seconds since 1970). */
+    function jwt(exp: number) {
+      const part = (o: object) => btoa(JSON.stringify(o)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+      return `${part({ alg: "HS256" })}.${part({ sub: "u1", exp })}.signature`;
+    }
+
+    function renderWithStoredToken(token: string) {
+      localStorage.setItem("timetracker.auth", JSON.stringify({ ...signIn, token }));
+      render(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>
+      );
+    }
+
+    it("is used while its token is valid", () => {
+      renderWithStoredToken(jwt(Date.now() / 1000 + 3600));
+
+      expect(screen.getByTestId("user")).toHaveTextContent("Eva Employee");
+    });
+
+    // Otherwise a link in an email opens the page as if signed in, instead of asking to sign in first.
+    it("is dropped once its token has expired, saying the session ended", () => {
+      renderWithStoredToken(jwt(Date.now() / 1000 - 60));
+
+      expect(screen.getByTestId("user")).toHaveTextContent("nobody");
+      expect(screen.getByTestId("ended")).toHaveTextContent("true");
+      expect(localStorage.getItem("timetracker.auth")).toBeNull();
+      expect(apiClient.defaults.headers.common.Authorization).toBeUndefined();
+    });
+  });
+
   it("signs out and says why when the server no longer accepts the sign-in", async () => {
     await renderSignedIn();
     answerWith(401);
