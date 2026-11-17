@@ -13,6 +13,22 @@ leaves out.
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-11-17
+  
+### Added
+
+- **Charts in Reports.** *Reports* opens on a new *Charts* tab, already filled in for this
+  month: hours logged against the schedule, the balance, the billable share and leave, a bar per
+  week (or day, or month) with the schedule as a line, hours per project, a ring of hours per
+  hour type, and for employers and supervisors everyone's balance and leave side by side.
+  Employees see their own leave as a ring. The tables are under *Tables*, with the same filters.
+
+### Fixed
+
+- The planboard no longer shows weekend days that nobody worked or is scheduled on.
+- A sign-in that expired since your last visit now goes to the login page, so the *Approve* and
+  *Reject* buttons in leave emails open the request after signing in.
+
 ## [1.4.1] - 2026-11-16
 
 ### Added
@@ -22,11 +38,6 @@ leaves out.
   It lasts 30 minutes, a banner shows it with a way back, and it can't change the employer's
   password or language. The company's activity log shows the sign-in and every change made
   during it, under the admin's name.
-- **Charts in Reports.** *Reports* opens on a new *Charts* tab, already filled in for this
-  month: hours logged against the schedule, the balance, the billable share and leave, a bar per
-  week (or day, or month) with the schedule as a line, hours per project, a ring of hours per
-  hour type, and for employers and supervisors everyone's balance and leave side by side.
-  Employees see their own leave as a ring. The tables are under *Tables*, with the same filters.
 
 ### Changed
 
@@ -317,7 +328,8 @@ leaves out.
 - First release: logging hours, list and planboard views, reports per day, week and month,
   and the Employee, Supervisor and Employer roles.
 
-[Unreleased]: https://github.com/detono/timetracker/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/detono/timetracker/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/detono/timetracker/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/detono/timetracker/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/detono/timetracker/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/detono/timetracker/compare/v1.3.1...v1.3.2
