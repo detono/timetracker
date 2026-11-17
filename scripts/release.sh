@@ -35,9 +35,9 @@ if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
 fi
 
 current="$(node -p "require('./frontend/package.json').version")"
-if ! grep -q "^## \[$version\]" CHANGELOG.md; then
-  echo "! CHANGELOG.md has no '## [$version]' section yet."
-fi
+# Without it, the release notes stay under [Unreleased] and What's new shows nothing.
+grep -q "^## \[$version\] - " CHANGELOG.md \
+  || fail "CHANGELOG.md has no '## [$version] - YYYY-MM-DD' section. Move the notes out of [Unreleased] first."
 
 echo
 echo "Ready to release $tag from:"

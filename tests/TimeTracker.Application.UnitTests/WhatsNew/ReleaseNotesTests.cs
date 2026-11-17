@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using TimeTracker.Application.WhatsNew;
 using Xunit;
@@ -110,5 +111,27 @@ public class ReleaseNotesTests
         notes.Releases.Should().NotBeEmpty();
         notes.Releases.Should().Contain(r => r.Version == "1.0.0");
         notes.Releases.Should().BeInDescendingOrder(r => r.Number);
+    }
+
+    // release.sh bumps package.json, but the notes only reach What's new once they have their
+    // own dated section. The changelog may run ahead (notes written before releasing), never behind.
+    [Fact]
+    public void TheBuiltInChangelog_HasASectionForTheAppVersion()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "TimeTracker.sln")))
+        {
+            root = root.Parent;
+        }
+
+        root.Should().NotBeNull("the tests run inside the repository");
+        using var packageJson = JsonDocument.Parse(File.ReadAllText(Path.Combine(root!.FullName, "frontend", "package.json")));
+        var appVersion = packageJson.RootElement.GetProperty("version").GetString();
+        ReleaseNotes.TryParseVersion(appVersion, out var appNumber).Should().BeTrue();
+
+        var newest = ReleaseNotes.LoadEmbedded().Releases[0];
+
+        newest.Number.Should().BeGreaterThanOrEqualTo(appNumber,
+            $"the app is at {appVersion}, so CHANGELOG.md needs a '## [{appVersion}] - YYYY-MM-DD' section instead of leaving its notes under [Unreleased]");
     }
 }
