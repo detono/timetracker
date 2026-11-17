@@ -20,6 +20,11 @@ leaves out.
   It lasts 30 minutes, a banner shows it with a way back, and it can't change the employer's
   password or language. The company's activity log shows the sign-in and every change made
   during it, under the admin's name.
+- **Charts in Reports.** *Reports* opens on a new *Charts* tab, already filled in for this
+  month: hours logged against the schedule, the balance, the billable share and leave, a bar per
+  week (or day, or month) with the schedule as a line, hours per project, a ring of hours per
+  hour type, and for employers and supervisors everyone's balance and leave side by side.
+  Employees see their own leave as a ring. The tables are under *Tables*, with the same filters.
 
 ### Changed
 

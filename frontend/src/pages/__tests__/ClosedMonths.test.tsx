@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import "../../i18n";
+import { MemoryRouter } from "react-router-dom";
 import { ReportsPage } from "../ReportsPage";
 import { ConfirmProvider } from "../../components/ConfirmDialog";
 import { lockMonth } from "../../api/lockedMonthsApi";
@@ -15,6 +16,17 @@ vi.mock("../../api/lockedMonthsApi", () => ({
   unlockMonth: vi.fn().mockResolvedValue(undefined)
 }));
 
+// Closing months sits on the Tables tab; the report itself isn't what this is about.
+vi.mock("../../api/reportsApi", () => ({
+  getHoursReport: vi.fn().mockResolvedValue({ grouping: "Week", from: "2026-10-01", to: "2026-10-29", grandTotalHours: 0, lines: [] }),
+  getHoursBalance: vi.fn().mockResolvedValue([]),
+  getProjectHours: vi.fn().mockResolvedValue([])
+}));
+
+vi.mock("../../api/leaveApi", () => ({
+  getLeaveBalances: vi.fn().mockResolvedValue([])
+}));
+
 vi.mock("../../api/projectsApi", () => ({
   projectsApi: { getAll: vi.fn().mockResolvedValue([]) }
 }));
@@ -24,9 +36,11 @@ describe("Closed months", () => {
 
   it("asks in a dialog before locking a month", async () => {
     render(
-      <ConfirmProvider>
-        <ReportsPage />
-      </ConfirmProvider>
+      <MemoryRouter initialEntries={["/reports?tab=tables"]}>
+        <ConfirmProvider>
+          <ReportsPage />
+        </ConfirmProvider>
+      </MemoryRouter>
     );
     const [lastMonth] = (await screen.findAllByRole("button", { name: "Lock" })).slice(1);
 
