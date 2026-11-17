@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { format, startOfMonth } from "date-fns";
 import {
   downloadHoursBalanceCsv,
@@ -13,24 +14,76 @@ import {
 import { projectsApi } from "../api/projectsApi";
 import { extractErrorMessage } from "../api/client";
 import { getLockedMonths, lockMonth, unlockMonth } from "../api/lockedMonthsApi";
+import { getLeaveBalances } from "../api/leaveApi";
+import { ReportCharts } from "../components/ReportCharts";
 import { useAuth } from "../auth/AuthContext";
 import { monthKey } from "../utils/lockedMonths";
 import { formatDayLabel } from "../utils/dateRange";
 import { HourTypeBadge } from "../components/HourTypeBadge";
 import { useConfirm } from "../components/ConfirmDialog";
-import type { HoursBalanceLine, HoursReport, LockedMonth, Project, ProjectHoursLine, ReportGrouping } from "../types";
+import type { HoursBalanceLine, HoursReport, LeaveBalance, LockedMonth, Project, ProjectHoursLine, ReportGrouping } from "../types";
 import { hoursToHm } from "../utils/dateRange";
 import { signedHm } from "../utils/hoursOverview";
+
+const TABS = ["charts", "tables"] as const;
+type ReportsTab = (typeof TABS)[number];
+
+/** The last tab someone opened, so Reports comes back on it in this browser. */
+const TAB_STORAGE_KEY = "timetracker.reports.tab";
+
+function isTab(value: string | null): value is ReportsTab {
+  return value !== null && (TABS as readonly string[]).includes(value);
+}
+
+function readStoredTab(): ReportsTab | null {
+  try {
+    const stored = localStorage.getItem(TAB_STORAGE_KEY);
+    return isTab(stored) ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeTab(tab: ReportsTab) {
+  try {
+    localStorage.setItem(TAB_STORAGE_KEY, tab);
+  } catch {
+    // Storage can be unavailable (private mode); Reports then opens on the charts.
+  }
+}
 
 export function ReportsPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
+
+  // The open tab lives in the address (?tab=tables), so links and the back button work; without
+  // one, Reports opens on the tab last used in this browser.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requested = searchParams.get("tab");
+  const tab: ReportsTab = isTab(requested) ? requested : readStoredTab() ?? "charts";
+  const selectTab = (id: ReportsTab) => {
+    storeTab(id);
+    setSearchParams(id === "charts" ? {} : { tab: id }, { replace: true });
+  };
+
+  function onTabKeyDown(e: React.KeyboardEvent) {
+    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    const next = TABS[(TABS.indexOf(tab) + step + TABS.length) % TABS.length];
+    selectTab(next);
+    document.getElementById(`reports-tab-${next}`)?.focus();
+  }
+
   const [from, setFrom] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [to, setTo] = useState(format(new Date(), "yyyy-MM-dd"));
   const [grouping, setGrouping] = useState<ReportGrouping>("Week");
   const [report, setReport] = useState<HoursReport | null>(null);
   const [balance, setBalance] = useState<HoursBalanceLine[]>([]);
   const [projectHours, setProjectHours] = useState<ProjectHoursLine[]>([]);
+  /** Leave of the year the dates end in; null when it couldn't be loaded (the charts then leave it out). */
+  const [leave, setLeave] = useState<LeaveBalance[] | null>(null);
+  const [leaveYear, setLeaveYear] = useState(new Date().getFullYear());
   const [projects, setProjects] = useState<Project[]>([]);
   /** "" for all hours, else only the hours on this project. */
   const [projectId, setProjectId] = useState("");
@@ -47,22 +100,33 @@ export function ReportsPage() {
   async function runReport() {
     setLoading(true);
     setError(null);
+    const year = Number(to.slice(0, 4)) || new Date().getFullYear();
     try {
-      const [data, balanceData, projectData] = await Promise.all([
+      const [data, balanceData, projectData, leaveData] = await Promise.all([
         getHoursReport(from, to, grouping, undefined, project),
         // Worked vs. expected is about all of someone's hours, so not per project.
         project ? Promise.resolve([]) : getHoursBalance(from, to, grouping),
-        getProjectHours(from, to)
+        getProjectHours(from, to),
+        // Only for the charts: without it the report still works.
+        getLeaveBalances(year).catch(() => null)
       ]);
       setReport(data);
       setBalance(balanceData);
       setProjectHours(projectData);
+      setLeave(leaveData);
+      setLeaveYear(year);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
   }
+
+  // The charts open with this month already filled in; later changes wait for "Run report".
+  useEffect(() => {
+    runReport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleDownload(download: () => Promise<void>) {
     try {
@@ -138,96 +202,120 @@ export function ReportsPage() {
 
       {error && <p className="form__error">{error}</p>}
 
-      {report && (
-        <>
-          <p className="page__subtitle">
-            {t('reports.grandTotal')} <strong>{hoursToHm(report.grandTotalHours)}</strong> {t('reports.lines', { count: report.lines.length })}
-          </p>
-          <div className="table-scroll">
-            <table className="list-view">
-              <thead>
-                <tr>
-                  <th>{t('reports.table.employee')}</th>
-                  <th>{t('reports.table.type')}</th>
-                  <th>{t('reports.table.period')}</th>
-                  <th>{t('reports.table.range')}</th>
-                  <th>{t('reports.table.entries')}</th>
-                  <th>{t('reports.table.totalHours')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.lines.map((line, idx) => (
-                  <tr key={`${line.userId}-${line.hourTypeId}-${line.periodLabel}-${idx}`}>
-                    <td>{line.userFullName}</td>
-                    <td>
-                      <HourTypeBadge name={line.hourTypeName} colorHex={line.hourTypeColor} />
-                    </td>
-                    <td>{line.periodLabel}</td>
-                    <td>
-                      {line.periodStart} → {line.periodEnd}
-                    </td>
-                    <td>{line.entryCount}</td>
-                    <td>{hoursToHm(line.totalHours)}</td>
-                  </tr>
-                ))}
-                {report.lines.length === 0 && (
+      <div className="tabs" role="tablist" aria-label={t('reports.title')} onKeyDown={onTabKeyDown}>
+        {TABS.map((id) => (
+          <button
+            key={id}
+            id={`reports-tab-${id}`}
+            type="button"
+            role="tab"
+            className={id === tab ? "tabs__tab is-active" : "tabs__tab"}
+            aria-selected={id === tab}
+            aria-controls="reports-tabpanel"
+            tabIndex={id === tab ? 0 : -1}
+            onClick={() => selectTab(id)}
+          >
+            {t(`reports.tabs.${id}`)}
+          </button>
+        ))}
+      </div>
+
+      <div id="reports-tabpanel" role="tabpanel" aria-labelledby={`reports-tab-${tab}`}>
+        {tab === "charts" && report && (
+          <ReportCharts report={report} balance={balance} projectHours={projectHours} leave={leave} leaveYear={leaveYear} />
+        )}
+
+        {tab === "tables" && report && (
+          <>
+            <p className="page__subtitle">
+              {t('reports.grandTotal')} <strong>{hoursToHm(report.grandTotalHours)}</strong> {t('reports.lines', { count: report.lines.length })}
+            </p>
+            <div className="table-scroll">
+              <table className="list-view">
+                <thead>
                   <tr>
-                    <td colSpan={6} className="empty-state">
-                      {t('reports.emptyState')}
-                    </td>
+                    <th>{t('reports.table.employee')}</th>
+                    <th>{t('reports.table.type')}</th>
+                    <th>{t('reports.table.period')}</th>
+                    <th>{t('reports.table.range')}</th>
+                    <th>{t('reports.table.entries')}</th>
+                    <th>{t('reports.table.totalHours')}</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {projectHours.some((l) => l.projectId !== null) && (
-            <ProjectHoursSection
-              lines={projectHours}
-              onDownload={() => handleDownload(() => downloadProjectHoursCsv(from, to))}
-            />
-          )}
-
-          {balance.length > 0 && (
-            <>
-              <h2 className="reports__section-title">{t('reports.balanceTitle')}</h2>
-              <p className="form__hint">{t('reports.balanceHint')}</p>
-              <div className="table-scroll">
-                <table className="list-view">
-                  <thead>
-                    <tr>
-                      <th>{t('reports.table.employee')}</th>
-                      <th>{t('reports.table.period')}</th>
-                      <th>{t('reports.table.range')}</th>
-                      <th>{t('reports.table.worked')}</th>
-                      <th>{t('reports.table.expected')}</th>
-                      <th>{t('reports.table.difference')}</th>
+                </thead>
+                <tbody>
+                  {report.lines.map((line, idx) => (
+                    <tr key={`${line.userId}-${line.hourTypeId}-${line.periodLabel}-${idx}`}>
+                      <td>{line.userFullName}</td>
+                      <td>
+                        <HourTypeBadge name={line.hourTypeName} colorHex={line.hourTypeColor} />
+                      </td>
+                      <td>{line.periodLabel}</td>
+                      <td>
+                        {line.periodStart} → {line.periodEnd}
+                      </td>
+                      <td>{line.entryCount}</td>
+                      <td>{hoursToHm(line.totalHours)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {balance.map((line) => (
-                      <tr key={`${line.userId}-${line.periodLabel}`}>
-                        <td>{line.userFullName}</td>
-                        <td>{line.periodLabel}</td>
-                        <td>
-                          {line.periodStart} → {line.periodEnd}
-                        </td>
-                        <td>{hoursToHm(line.workedHours)}</td>
-                        <td>{hoursToHm(line.expectedHours)}</td>
-                        <td className={line.differenceHours < 0 ? "balance-negative" : undefined}>
-                          {signedHm(line.differenceHours)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-        </>
-      )}
+                  ))}
+                  {report.lines.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="empty-state">
+                        {t('reports.emptyState')}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-      {user?.role === "Employer" && <ClosedMonthsPanel />}
+            {projectHours.some((l) => l.projectId !== null) && (
+              <ProjectHoursSection
+                lines={projectHours}
+                onDownload={() => handleDownload(() => downloadProjectHoursCsv(from, to))}
+              />
+            )}
+
+            {balance.length > 0 && (
+              <>
+                <h2 className="reports__section-title">{t('reports.balanceTitle')}</h2>
+                <p className="form__hint">{t('reports.balanceHint')}</p>
+                <div className="table-scroll">
+                  <table className="list-view">
+                    <thead>
+                      <tr>
+                        <th>{t('reports.table.employee')}</th>
+                        <th>{t('reports.table.period')}</th>
+                        <th>{t('reports.table.range')}</th>
+                        <th>{t('reports.table.worked')}</th>
+                        <th>{t('reports.table.expected')}</th>
+                        <th>{t('reports.table.difference')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {balance.map((line) => (
+                        <tr key={`${line.userId}-${line.periodLabel}`}>
+                          <td>{line.userFullName}</td>
+                          <td>{line.periodLabel}</td>
+                          <td>
+                            {line.periodStart} → {line.periodEnd}
+                          </td>
+                          <td>{hoursToHm(line.workedHours)}</td>
+                          <td>{hoursToHm(line.expectedHours)}</td>
+                          <td className={line.differenceHours < 0 ? "balance-negative" : undefined}>
+                            {signedHm(line.differenceHours)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {tab === "tables" && user?.role === "Employer" && <ClosedMonthsPanel />}
+      </div>
     </div>
   );
 }

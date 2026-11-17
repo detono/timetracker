@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { getHoursBalance, getHoursReport } from "../../api/reportsApi";
 import "../../i18n";
 import { ReportsPage } from "../ReportsPage";
@@ -53,6 +54,12 @@ vi.mock("../../api/reportsApi", () => ({
   downloadProjectHoursCsv: vi.fn()
 }));
 
+vi.mock("../../api/leaveApi", () => ({
+  getLeaveBalances: vi.fn().mockResolvedValue([
+    { userId: "u1", userFullName: "Eva Employee", year: 2026, allowanceHours: 160, usedHours: 112, pendingHours: 16, remainingHours: 32 }
+  ])
+}));
+
 vi.mock("../../api/projectsApi", () => ({
   projectsApi: {
     getAll: vi.fn().mockResolvedValue([
@@ -62,11 +69,64 @@ vi.mock("../../api/projectsApi", () => ({
   }
 }));
 
-describe("ReportsPage", () => {
-  it("shows the report lines with their hour type", async () => {
-    render(<ReportsPage />);
+function renderPage(tab?: "tables") {
+  return render(
+    <MemoryRouter initialEntries={[tab ? `/reports?tab=${tab}` : "/reports"]}>
+      <ReportsPage />
+    </MemoryRouter>
+  );
+}
 
-    fireEvent.click(screen.getByRole("button", { name: "Run report" }));
+describe("ReportsPage", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("opens on the charts, already filled in for this month", async () => {
+    renderPage();
+
+    expect(screen.getByRole("tab", { name: "Charts" })).toHaveAttribute("aria-selected", "true");
+    expect(await screen.findByText("Hours by hour type")).toBeInTheDocument();
+    expect(screen.getByText("of 37h 30m scheduled")).toBeInTheDocument();
+    expect(screen.getByText("−30h")).toBeInTheDocument();
+    // 6h of 9h 30m on billable projects
+    expect(screen.getByText("63%")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Hours by hour type" })).toBeInTheDocument();
+  });
+
+  it("shows someone's own leave as a ring with what's left", async () => {
+    renderPage();
+
+    expect(await screen.findByText("Leave in 2026")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Leave in 2026" })).toHaveTextContent("32h");
+    expect(screen.getByText("Leave left in 2026")).toBeInTheDocument();
+  });
+
+  it("comes back on the tab used last", async () => {
+    const { unmount } = renderPage();
+    await screen.findByText("Hours by hour type");
+    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+    unmount();
+
+    renderPage();
+
+    expect(screen.getByRole("tab", { name: "Tables" })).toHaveAttribute("aria-selected", "true");
+    expect(await screen.findByText("Worked vs. expected")).toBeInTheDocument();
+  });
+
+  it("switches to the tables with the tab", async () => {
+    renderPage();
+    await screen.findByText("Hours by hour type");
+
+    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+
+    expect(screen.getByRole("tab", { name: "Tables" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("Worked vs. expected")).toBeInTheDocument();
+    expect(screen.queryByText("Hours by hour type")).not.toBeInTheDocument();
+  });
+
+  it("shows the report lines with their hour type", async () => {
+    renderPage("tables");
+
+    fireEvent.click(await screen.findByRole("button", { name: "Run report" }));
 
     expect(await screen.findByText("Work")).toBeInTheDocument();
     expect(screen.getAllByText("Eva Employee")).toHaveLength(2);
@@ -74,9 +134,9 @@ describe("ReportsPage", () => {
   });
 
   it("shows worked vs. expected per person", async () => {
-    render(<ReportsPage />);
+    renderPage("tables");
 
-    fireEvent.click(screen.getByRole("button", { name: "Run report" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Run report" }));
 
     expect(await screen.findByText("Worked vs. expected")).toBeInTheDocument();
     expect(screen.getByText("37h 30m")).toBeInTheDocument();
@@ -85,9 +145,9 @@ describe("ReportsPage", () => {
   });
 
   it("shows the hours per project with how many are billable", async () => {
-    render(<ReportsPage />);
+    renderPage("tables");
 
-    fireEvent.click(screen.getByRole("button", { name: "Run report" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Run report" }));
 
     expect(await screen.findByText("Hours per project")).toBeInTheDocument();
     expect(screen.getByText("6h billable of 9h 30m in total.")).toBeInTheDocument();
@@ -96,11 +156,13 @@ describe("ReportsPage", () => {
   });
 
   it("limits the report to one project and leaves out worked vs. expected", async () => {
+    renderPage("tables");
+    // The page fills itself in once on opening; only the run with the filter matters here.
+    await waitFor(() => expect(getHoursBalance).toHaveBeenCalled());
     vi.mocked(getHoursBalance).mockClear();
-    render(<ReportsPage />);
 
     fireEvent.change(await screen.findByLabelText("Project"), { target: { value: "p1" } });
-    fireEvent.click(screen.getByRole("button", { name: "Run report" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Run report" }));
 
     expect(await screen.findByText("Hours per project")).toBeInTheDocument();
     expect(vi.mocked(getHoursReport)).toHaveBeenLastCalledWith(expect.any(String), expect.any(String), "Week", undefined, "p1");

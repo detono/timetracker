@@ -4,6 +4,7 @@ import type { TimeEntry, WorkSchedule } from "../types";
 import { formatDayLabel, hoursToHm } from "../utils/dateRange";
 import { localToday, signedHm } from "../utils/hoursOverview";
 import { initials } from "../utils/initials";
+import { scheduledTimes } from "../utils/workSchedule";
 import {
   buildRow,
   splitAtSchedule,
@@ -46,7 +47,7 @@ const isWeekend = (iso: string) => [0, 6].includes(new Date(iso + "T00:00:00").g
  * difference with them. Days in a row of the same leave become one bar.
  */
 export function PlanBoard({
-  days,
+  days: allDays,
   entries,
   onEdit,
   isLocked,
@@ -58,6 +59,14 @@ export function PlanBoard({
   const lang = i18n.language.split("-")[0];
   const typeName = (e: TimeEntry) => e.localizedHourTypeNames?.[lang] || e.localizedHourTypeNames?.["en"] || "Unknown";
   const [open, setOpen] = useState<string | null>(null);
+
+  // A weekend day nobody works on or is scheduled for only takes up room.
+  const scheduleList = Object.values(schedules);
+  const days = allDays.filter(
+    (day) =>
+      entries.some((e) => e.workDate === day) ||
+      (scheduleList.length > 0 ? scheduleList.some((s) => scheduledTimes(s, day)) : !isWeekend(day))
+  );
 
   const people = Array.from(new Map(entries.map((e) => [e.userId, e.userFullName])))
     .sort(([, a], [, b]) => a.localeCompare(b));
@@ -77,14 +86,12 @@ export function PlanBoard({
   const range = stripRange(entries, windows);
   const today = localToday();
   const hasSchedules = rows.some((r) => r.expectedHours !== null);
-  const narrow = (day: string) => isWeekend(day) && !entries.some((e) => e.workDate === day);
 
   const hasHolidays = days.some((day) => holidays[day]);
   const empty = <p className="empty-state">{t("planBoard.emptyState")}</p>;
   if (rows.length === 0 && !hasHolidays) return empty;
 
   const hourTypes = Array.from(new Map(entries.map((e) => [e.hourTypeId, e])).values());
-  const columns = days.map((d) => (narrow(d) ? "minmax(40px, 0.35fr)" : "minmax(0, 1fr)")).join(" ");
 
   function handleClick(key: string, cellEntries: TimeEntry[]) {
     const only = cellEntries.length === 1 ? cellEntries[0] : null;
@@ -102,7 +109,7 @@ export function PlanBoard({
 
   return (
     <div className="planboard">
-      <div className="planboard__grid" style={{ gridTemplateColumns: `190px ${columns}` }}>
+      <div className="planboard__grid" style={{ gridTemplateColumns: `190px repeat(${days.length}, minmax(0, 1fr))` }}>
         <div className="planboard__corner" />
         {days.map((day) => (
           <div
@@ -110,8 +117,7 @@ export function PlanBoard({
             className={[
               "planboard__day-header",
               holidays[day] && "planboard__day-header--holiday",
-              day === today && "planboard__day-header--today",
-              narrow(day) && "planboard__day-header--compact"
+              day === today && "planboard__day-header--today"
             ].filter(Boolean).join(" ")}
           >
             {formatDayLabel(day)}
@@ -166,7 +172,6 @@ export function PlanBoard({
                   holiday={!!holidays[item.date]}
                   isToday={item.date === today}
                   isPast={item.date < today}
-                  compact={narrow(item.date)}
                   typeName={typeName}
                   isOpen={open === key}
                   onClick={() => handleClick(key, item.entries)}
@@ -218,7 +223,6 @@ function Day({
   holiday,
   isToday,
   isPast,
-  compact,
   typeName,
   isOpen,
   onClick,
@@ -232,7 +236,6 @@ function Day({
   holiday: boolean;
   isToday: boolean;
   isPast: boolean;
-  compact: boolean;
   typeName: (e: TimeEntry) => string;
   isOpen: boolean;
   onClick: () => void;
@@ -242,8 +245,7 @@ function Day({
   const className = [
     "planboard__cell",
     holiday && "planboard__cell--holiday",
-    isToday && "planboard__cell--today",
-    compact && "planboard__cell--compact"
+    isToday && "planboard__cell--today"
   ].filter(Boolean).join(" ");
 
   // Missing hours on a past working day are worth seeing; future days aren't behind yet.
@@ -277,22 +279,20 @@ function Day({
           <span className="planboard__total">{hoursToHm(item.workedHours)}</span>
           {diff}
         </span>
-        {!compact && (
-          <span className="planboard__strip" aria-hidden="true">
-            {item.window && (
-              <i className="planboard__window" style={{ left: pos(item.window.start), width: size(item.window.start, item.window.end) }} />
-            )}
-            {item.entries.flatMap((e) =>
-              splitAtSchedule(timeToHours(e.startTime), timeToHours(e.endTime), item.window, hasSchedule).map((part) => (
-                <i
-                  key={`${e.id}-${part.start}`}
-                  className={part.outside ? "planboard__seg planboard__seg--outside" : "planboard__seg"}
-                  style={{ left: pos(part.start), width: size(part.start, part.end), "--seg-color": e.hourTypeColor } as CSSProperties}
-                />
-              ))
-            )}
-          </span>
-        )}
+        <span className="planboard__strip" aria-hidden="true">
+          {item.window && (
+            <i className="planboard__window" style={{ left: pos(item.window.start), width: size(item.window.start, item.window.end) }} />
+          )}
+          {item.entries.flatMap((e) =>
+            splitAtSchedule(timeToHours(e.startTime), timeToHours(e.endTime), item.window, hasSchedule).map((part) => (
+              <i
+                key={`${e.id}-${part.start}`}
+                className={part.outside ? "planboard__seg planboard__seg--outside" : "planboard__seg"}
+                style={{ left: pos(part.start), width: size(part.start, part.end), "--seg-color": e.hourTypeColor } as CSSProperties}
+              />
+            ))
+          )}
+        </span>
       </button>
       {isOpen && <Popover onClose={onClose}>{list}</Popover>}
     </div>

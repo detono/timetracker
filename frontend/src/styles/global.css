@@ -1220,12 +1220,6 @@ button {
   text-overflow: ellipsis;
 }
 
-.planboard__day-header--compact {
-  white-space: normal;
-  font-size: 0.68rem;
-  padding-inline: 0;
-}
-
 .planboard__day-header--today {
   color: var(--accent-ink);
   font-weight: 700;
@@ -1320,11 +1314,6 @@ button {
 .planboard__cell--today {
   outline: 1.5px solid var(--color-primary);
   outline-offset: -1.5px;
-}
-
-.planboard__cell--compact {
-  background: transparent;
-  border: 1px dashed var(--line);
 }
 
 .planboard__cell--holiday {
@@ -1444,6 +1433,9 @@ button {
     transparent 2px 5px
   );
   box-shadow: inset 0 0 0 1px var(--seg-color);
+  /* A few minutes outside the schedule would otherwise be a hairline. */
+  min-width: 6px;
+  z-index: 1;
 }
 
 .planboard__span {
@@ -1938,6 +1930,337 @@ button.planboard__entry:hover {
   justify-content: space-between;
   gap: 0.5rem 1rem;
 }
+
+/* ---------- Report charts ---------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.report-charts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.report-charts__card {
+  min-width: 0;
+  padding: 1.1rem 1.25rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.report-charts__card .form__hint {
+  margin: 0.15rem 0 0;
+}
+
+.report-charts__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+}
+
+.report-charts__kpi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.report-charts__kpi-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.report-charts__kpi-value {
+  margin-top: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.report-charts__kpi-value--plus { color: var(--ok); }
+.report-charts__kpi-value--behind { color: var(--warn); }
+
+.report-charts__kpi-note {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.report-charts__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+  gap: 1rem;
+}
+
+.report-charts__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem 1rem;
+}
+
+.report-charts__title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.report-charts__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.report-charts__head .report-charts__legend {
+  margin-top: 0.2rem;
+}
+
+.report-charts__legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.report-charts__swatch {
+  flex: none;
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 3px;
+}
+
+.report-charts__swatch--running {
+  background: var(--tint);
+  border: 1px dashed var(--color-primary);
+}
+
+.report-charts__swatch--line {
+  width: 1rem;
+  height: 0;
+  border-radius: 0;
+  border-top: 2px solid var(--ink);
+}
+
+.report-charts__muted { color: var(--ink-soft); }
+.report-charts__num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Worked per period: one column per period, the schedule as a line across its bar. */
+.report-charts__scroll {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.report-charts__columns {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(2.6rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.report-charts__column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.report-charts__column-value,
+.report-charts__column-label {
+  font-size: 0.72rem;
+  text-align: center;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.report-charts__plot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 12rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.report-charts__bar {
+  width: 70%;
+  border-radius: 4px 4px 0 0;
+  background: var(--color-primary);
+}
+
+.report-charts__bar--running {
+  box-sizing: border-box;
+  background: var(--tint);
+  border: 1px dashed var(--color-primary);
+  border-bottom: 0;
+}
+
+.report-charts__target {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  border-top: 2px solid var(--ink);
+}
+
+/* Horizontal bars (projects) */
+.report-charts__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.report-charts__bar-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+}
+
+.report-charts__track {
+  display: block;
+  height: 0.6rem;
+  margin-top: 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 55%, transparent);
+  overflow: hidden;
+}
+
+.report-charts__track > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* Donuts: a conic gradient with a disc on top for the hole. */
+.report-charts__donut-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.report-charts__donut {
+  position: relative;
+  flex: none;
+  border-radius: 50%;
+}
+
+.report-charts__donut--large { width: 10.5rem; height: 10.5rem; }
+.report-charts__donut--small { width: 3.75rem; height: 3.75rem; }
+
+.report-charts__donut-hole {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--paper-raised);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.report-charts__donut--large .report-charts__donut-hole { inset: 1.5rem; }
+.report-charts__donut--small .report-charts__donut-hole { inset: 0.55rem; }
+
+.report-charts__donut-hole strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.report-charts__donut-hole span {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.report-charts__legend-list {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.report-charts__legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+}
+
+.report-charts__legend-list li:last-child { border-bottom: 0; }
+.report-charts__legend-name { flex: 1; min-width: 0; }
+.report-charts__pct { width: 3rem; text-align: right; }
+
+/* One row per person: balance or leave. */
+.report-charts__people {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.report-charts__people li {
+  display: grid;
+  grid-template-columns: minmax(5rem, 8rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.report-charts__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.report-charts__diverging {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 1rem;
+}
+
+.report-charts__diverging > span { display: flex; }
+.report-charts__diverging > span:first-child { justify-content: flex-end; border-right: 1px solid var(--ink); }
+.report-charts__behind { height: 100%; border-radius: 3px 0 0 3px; background: var(--warn); }
+.report-charts__ahead { height: 100%; border-radius: 0 3px 3px 0; background: var(--ok); }
+
+.report-charts__diff { min-width: 4rem; text-align: right; font-weight: 600; }
+.report-charts__diff--plus { color: var(--ok); }
+.report-charts__diff--behind { color: var(--warn); }
+
+.report-charts__stack {
+  display: flex;
+  height: 0.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.report-charts__stack > span { height: 100%; }
+.report-charts__leave-left { min-width: 5.5rem; text-align: right; }
 
 /* ---------- Projects ---------- */
 

@@ -109,6 +109,30 @@ describe("PlanBoard rows", () => {
     expect(screen.getByText("−1h 30m")).toBeInTheDocument();
   });
 
+  it("hides weekend days nobody is scheduled on and nobody worked", () => {
+    render(<PlanBoard days={week} entries={[entry]} schedules={{ u1: schedule }} />);
+    expect(screen.getByText("Fri 13 Nov")).toBeInTheDocument();
+    expect(screen.queryByText("Sat 14 Nov")).toBeNull();
+    expect(screen.queryByText("Sun 15 Nov")).toBeNull();
+  });
+
+  it("hides the weekend without schedules too, unless someone worked then", () => {
+    const saturday = { ...entry, id: "e2", workDate: "2026-11-14" };
+    render(<PlanBoard days={week} entries={[entry, saturday]} />);
+    expect(screen.getByText("Sat 14 Nov")).toBeInTheDocument();
+    expect(screen.queryByText("Sun 15 Nov")).toBeNull();
+  });
+
+  it("keeps a weekend day someone is scheduled on", () => {
+    const withSaturday: WorkSchedule = {
+      ...schedule,
+      days: [...schedule.days, { dayOfWeek: "Saturday", startTime: "09:00:00", endTime: "12:00:00", breakMinutes: 0 }]
+    };
+    render(<PlanBoard days={week} entries={[entry]} schedules={{ u1: withSaturday }} />);
+    expect(screen.getByText("Sat 14 Nov")).toBeInTheDocument();
+    expect(screen.queryByText("Sun 15 Nov")).toBeNull();
+  });
+
   it("hatches the part of an entry outside the schedule", () => {
     const late = { ...entry, startTime: "09:00:00", endTime: "19:00:00", durationHours: 9.5 };
     const { container } = render(<PlanBoard days={week} entries={[late]} schedules={{ u1: schedule }} />);
