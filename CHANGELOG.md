@@ -13,6 +13,8 @@ leaves out.
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-11-16
+
 ### Added
 
 - **Support sign-in**: a platform admin can sign in as one of a company's employers
@@ -315,7 +317,8 @@ leaves out.
 - First release: logging hours, list and planboard views, reports per day, week and month,
   and the Employee, Supervisor and Employer roles.
 
-[Unreleased]: https://github.com/detono/timetracker/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/detono/timetracker/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/detono/timetracker/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/detono/timetracker/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/detono/timetracker/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/detono/timetracker/compare/v1.3.0...v1.3.1
