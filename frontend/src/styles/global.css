@@ -1220,12 +1220,6 @@ button {
   text-overflow: ellipsis;
 }
 
-.planboard__day-header--compact {
-  white-space: normal;
-  font-size: 0.68rem;
-  padding-inline: 0;
-}
-
 .planboard__day-header--today {
   color: var(--accent-ink);
   font-weight: 700;
@@ -1320,11 +1314,6 @@ button {
 .planboard__cell--today {
   outline: 1.5px solid var(--color-primary);
   outline-offset: -1.5px;
-}
-
-.planboard__cell--compact {
-  background: transparent;
-  border: 1px dashed var(--line);
 }
 
 .planboard__cell--holiday {
@@ -1444,6 +1433,9 @@ button {
     transparent 2px 5px
   );
   box-shadow: inset 0 0 0 1px var(--seg-color);
+  /* A few minutes outside the schedule would otherwise be a hairline. */
+  min-width: 6px;
+  z-index: 1;
 }
 
 .planboard__span {
